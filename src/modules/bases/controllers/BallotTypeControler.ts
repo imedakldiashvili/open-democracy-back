@@ -5,7 +5,7 @@ import { ballotTypeRepository } from '../repositories';
 class BallotTypeControler {
 
     
-    static getBallotTypeControler = async (req: Request, res: Response, next: NextFunction) => {
+    static getBallotType = async (req: Request, res: Response, next: NextFunction) => {
         try {
             console.log("getBallotTypeControler")
             const BallotTypes = await ballotTypeRepository.find();
@@ -15,7 +15,7 @@ class BallotTypeControler {
         }
 
     };
-    static addBallotTypeControler = async (req: Request, res: Response, next: NextFunction) => {
+    static addBallotType = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const ballotType = req.body;
             await ballotTypeRepository.save(ballotType);
@@ -25,7 +25,23 @@ class BallotTypeControler {
         }
     };
 
-    static editBallotTypeControler = async (req: Request, res: Response, next: NextFunction) => {
+    static editBallotType = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            return res.json("success");
+        } catch (error) {
+            next(error)
+        }
+    };
+
+    static setActiveBallotType = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            return res.json("success");
+        } catch (error) {
+            next(error)
+        }
+    };
+
+    static deleteBallotType = async (req: Request, res: Response, next: NextFunction) => {
         try {
             return res.json("success");
         } catch (error) {
