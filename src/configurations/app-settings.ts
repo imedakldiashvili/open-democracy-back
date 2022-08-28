@@ -2,10 +2,10 @@ export default {
 	PORT: process.env.PORT || 8085,
 	
 	ACCESS_TOKEN_SECRET_KEY: process.env.JWT_ACCESS_TOKEN_SECRET_KEY || "sectretKeyAccessToken",
-	ACCESS_TOKEN_DURATION: '3d',
+	ACCESS_TOKEN_DURATION: '2d',
 	
 	REFRESH_TOKEN_SECRET_KEY: process.env.JWT_REFRESH_TOKEN_SECRET_KEY || "sectretKeyRefreshToken",
-	REFRESH_TOKEN_DURATION: '3d',
+	REFRESH_TOKEN_DURATION: '2d',
 	
 	DATABASE: {
 		POSTGRE: {
