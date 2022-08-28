@@ -1,4 +1,5 @@
-import ElectionControler   from './ElectionControler'
-import ElectionBallotControler   from './ElectionBallotControler'
+import ElectionControler   from './ElectionController'
+import ElectionBallotControler   from './ElectionBallotController'
+import ElectionBallotItemControler from './ElectionBallotControllerItem'
 
-export { ElectionControler, ElectionBallotControler }
+export { ElectionControler, ElectionBallotControler, ElectionBallotItemControler }
