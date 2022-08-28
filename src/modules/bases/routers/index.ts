@@ -3,11 +3,11 @@ import BallotTypeControler from "../controllers/BallotTypeControler";
 
 const baseRouter = express.Router();
 
-
-baseRouter.get("/base/BallotType", BallotTypeControler.getBallotType)
-baseRouter.post("/base/BallotType", BallotTypeControler.addBallotType)
-baseRouter.put("/base/BallotType", BallotTypeControler.editBallotType)
-baseRouter.put("/base/BallotType/Active", BallotTypeControler.setActiveBallotType)
-baseRouter.delete("/base/BallotType", BallotTypeControler.deleteBallotType)
+baseRouter.get("/base/BallotsTypes", BallotTypeControler.getBallotType)
+baseRouter.get("/base/BallotsTypes/:id", BallotTypeControler.getBallotTypeById)
+baseRouter.post("/base/BallotsTypes", BallotTypeControler.addBallotType)
+baseRouter.put("/base/BallotsTypes", BallotTypeControler.editBallotType)
+baseRouter.put("/base/BallotsTypes/Active", BallotTypeControler.setActiveBallotType)
+baseRouter.delete("/base/BallotsTypes", BallotTypeControler.deleteBallotType)
 
 export default baseRouter;

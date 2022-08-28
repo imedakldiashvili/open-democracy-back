@@ -7,7 +7,6 @@ class BallotTypeControler {
     
     static getBallotType = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            console.log("getBallotTypeControler")
             const BallotTypes = await ballotTypeRepository.find();
             return res.json(BallotTypes);
         } catch (error) {
@@ -15,6 +14,18 @@ class BallotTypeControler {
         }
 
     };
+
+    static getBallotTypeById = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const id = parseInt(req.params.id)
+            const BallotTypes = await ballotTypeRepository.findOneBy({id: id});
+            return res.json(BallotTypes);
+        } catch (error) {
+            next(error)
+        }
+
+    };
+
     static addBallotType = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const ballotType = req.body;
