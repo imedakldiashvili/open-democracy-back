@@ -12,6 +12,6 @@
        "experimentalDecorators": true,
        "sourceMap": true
     },
-    "include": ["src", "decs.d.ts", "build/index.ts", "src/settings/app-settings.ts"]
+    "include": ["src", "decs.d.ts", "build/index.ts", "build/settings/app-settings.ts"]
     
  }
