@@ -5,7 +5,7 @@ export default {
 	ACCESS_TOKEN_DURATION: '3d',
 	
 	REFRESH_TOKEN_SECRET_KEY: process.env.JWT_REFRESH_TOKEN_SECRET_KEY || "sectretKeyRefreshToken",
-	REFRESH_TOKEN_DURATION: '4H',
+	REFRESH_TOKEN_DURATION: '3d',
 	
 	DATABASE: {
 		POSTGRE: {
