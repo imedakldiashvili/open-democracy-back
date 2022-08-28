@@ -1,6 +1,6 @@
 import { DataSource, DataSourceOptions } from 'typeorm'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
-import appSettings from '../../settings'
+import appSettings from '../app-settings'
 
 
 const dataSource : DataSourceOptions = {
