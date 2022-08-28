@@ -3,7 +3,7 @@ import  * as bodyParser from 'body-parser'
 import * as cors from 'cors'
 
 import router from './routers'
-import { appDataSource, appSettings } from './configurations/'
+import { appDataSource, appSettings } from './datasources'
 
 const PORT = appSettings.PORT 
 const app = express()

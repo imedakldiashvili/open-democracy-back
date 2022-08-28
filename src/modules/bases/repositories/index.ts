@@ -1,4 +1,4 @@
-import { appDataSource } from "../../../configurations"
+import { appDataSource } from "../../../datasources"
 import { BallotType, District, PollingStation, Region, Voter } from "../entities";
 
 
