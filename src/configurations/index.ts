@@ -1,5 +1,5 @@
 import { appDataSource } from './app-datasources'
-import appSettings from "./app-settings";
+import appSettings from "../../settings";
 
 
 

@@ -1,4 +1,4 @@
 /node_modules
 /build
-/src/configurations/app-settings.ts
+/settings
 .env
