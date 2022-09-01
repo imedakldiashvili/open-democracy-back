@@ -4,10 +4,13 @@ import { electionRepository } from '../repositories';
 
 class ElectionControler {
 
-    
+
     static getElection = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const Elections = await electionRepository.find();
+            const Elections = await electionRepository.find({ 
+                relations: { electionBallots: { electionBallotItems: true } },
+                order: {electionBallots: {election: {id: 'ASC'}}} 
+            });
             return res.json(Elections);
         } catch (error) {
             next(error)
@@ -18,7 +21,7 @@ class ElectionControler {
     static getElectionById = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = parseInt(req.params.id)
-            const Elections = await electionRepository.findOneBy({id: id});
+            const Elections = await electionRepository.findOneBy({ id: id });
             return res.json(Elections);
         } catch (error) {
             next(error)

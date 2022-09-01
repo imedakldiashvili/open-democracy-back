@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn } from "typeorm"
+import { ElectionBallot } from "./ElectionBallot"
 
 @Entity('elections')
 export class Election {
@@ -14,5 +15,9 @@ export class Election {
 
     @Column()
     date: Date
+
+    @OneToMany(() => ElectionBallot, (electionBallot) => electionBallot.election)
+    @JoinColumn()
+    electionBallots: ElectionBallot[]
     
 }
