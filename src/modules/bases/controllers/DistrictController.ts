@@ -7,7 +7,7 @@ class DistrictControler {
     
     static getDistrict = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const Districts = await districtRepository.find();
+            const Districts = await districtRepository.find({relations: {region: true}});
             return res.json(Districts);
         } catch (error) {
             next(error)
@@ -18,7 +18,18 @@ class DistrictControler {
     static getDistrictById = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = parseInt(req.params.id)
-            const Districts = await districtRepository.findOneBy({id: id});
+            const Districts = await districtRepository.findOne({ where: {id: id}, relations: {region: true}} );
+            return res.json(Districts);
+        } catch (error) {
+            next(error)
+        }
+
+    };
+
+    static getDistrictByRegionId = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const regionId = parseInt(req.params.regionId)
+            const Districts = await districtRepository.find({where: {region: {id: regionId}}, relations: {region: true}});
             return res.json(Districts);
         } catch (error) {
             next(error)

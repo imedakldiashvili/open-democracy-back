@@ -7,7 +7,7 @@ class RegionController {
     
     static getRegion = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const Regions = await regionRepository.find();
+            const Regions = await regionRepository.find({relations: {districts: {pollingStations: true}}});
             return res.json(Regions);
         } catch (error) {
             next(error)
@@ -18,7 +18,7 @@ class RegionController {
     static getRegionById = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = parseInt(req.params.id)
-            const Regions = await regionRepository.findOneBy({id: id});
+            const Regions = await regionRepository.findOne({where: {id: id}, relations: {districts: {pollingStations: true}} });
             return res.json(Regions);
         } catch (error) {
             next(error)

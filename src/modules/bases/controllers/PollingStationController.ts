@@ -7,7 +7,7 @@ class PollingStationController {
     
     static getPollingStation = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const PollingStations = await pollingStationRepository.find();
+            const PollingStations = await pollingStationRepository.find({relations: {district: {region: true}}});
             return res.json(PollingStations);
         } catch (error) {
             next(error)
@@ -18,7 +18,18 @@ class PollingStationController {
     static getPollingStationById = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = parseInt(req.params.id)
-            const PollingStations = await pollingStationRepository.findOneBy({id: id});
+            const PollingStations = await pollingStationRepository.findOne({where:{id: id}, relations: {district: {region: true}}});
+            return res.json(PollingStations);
+        } catch (error) {
+            next(error)
+        }
+
+    };
+
+    static getPollingStationByDiscrictId = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const districtId = parseInt(req.params.districtId)
+            const PollingStations = await pollingStationRepository.find({where:{district: {id: districtId} }, relations: {district: {region: true}}});
             return res.json(PollingStations);
         } catch (error) {
             next(error)

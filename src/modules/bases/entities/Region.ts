@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn } from "typeorm"
+import { District } from "./District"
 
 @Entity('base_regions')
 export class Region {
@@ -11,5 +12,8 @@ export class Region {
 
     @Column()
     name: string
+
+    @OneToMany(() => District, (district) => district.region)
+    districts: District[]
     
 }

@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from "typeorm"
+import { District } from "./District"
 
 @Entity('base_pollings_stations')
 export class PollingStation {
@@ -12,7 +13,8 @@ export class PollingStation {
     @Column()
     name: string
 
-    @Column()
-    districtId: number
+    @OneToOne(() => District)
+    @JoinColumn()
+    district: District
     
 }
