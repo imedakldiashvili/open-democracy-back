@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express'
 import { ballotTypeRepository } from '../repositories';
 
 
-class BallotTypeControler {
+class BallotTypeController {
 
     
     static getBallotType = async (req: Request, res: Response, next: NextFunction) => {
@@ -38,7 +38,7 @@ class BallotTypeControler {
 
     static editBallotType = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            return res.json("success");
+            return res.json("Not Implimented");
         } catch (error) {
             next(error)
         }
@@ -46,7 +46,7 @@ class BallotTypeControler {
 
     static setActiveBallotType = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            return res.json("success");
+            return res.json("Not Implimented");
         } catch (error) {
             next(error)
         }
@@ -54,7 +54,7 @@ class BallotTypeControler {
 
     static deleteBallotType = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            return res.json("success");
+            return res.json("Not Implimented");
         } catch (error) {
             next(error)
         }
@@ -62,4 +62,4 @@ class BallotTypeControler {
 
 }
 
-export default BallotTypeControler;
+export default BallotTypeController;

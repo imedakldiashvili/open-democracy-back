@@ -1,3 +1,4 @@
-import BallotTypeController   from './BallotTypeControler'
+import BallotTypeController   from './BallotTypeController'
+import PollingStationController from './PollingStationController'
 
-export { BallotTypeController }
+export { BallotTypeController, PollingStationController }
