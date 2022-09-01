@@ -9,7 +9,7 @@ class ElectionControler {
         try {
             const Elections = await electionRepository.find({ 
                 relations: { electionBallots: { electionBallotItems: true } },
-                order: {electionBallots: {election: {id: 'ASC'}}} 
+                order: {electionBallots: {election: {code: 'ASC'}}} 
             });
             return res.json(Elections);
         } catch (error) {
