@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
-import { ballotTypeRepository, districtRepository, regionRepository } from '../../bases/repositories';
-import { Election } from '../entities';
+import { ballotRepository, ballotTypeRepository, districtRepository, regionRepository } from '../../bases/repositories';
+import { Election, ElectionBallotItem } from '../entities';
 import { ElectionBallot } from '../entities/ElectionBallot';
 import { ElectionModel } from '../models/ElectionModel';
 import { electionBallotItemRepository, electionBallotRepository, electionRepository } from '../repositories';
@@ -35,9 +35,48 @@ class ElectionControler {
 
     static addElection = async (req: Request, res: Response, next: NextFunction) => {
         try {
+            
             console.log(req.body)
-            let election = req.body;
-            election = await electionRepository.save(election)
+            
+            let reqElection = req.body;
+            const election = await electionRepository.save(reqElection)
+
+            for(var reqElectionBallot of reqElection.electionBallotIds)
+            {
+                const ballot= await ballotRepository.findOne({
+                    where: {id: reqElectionBallot.ballotId}, 
+                    relations: {ballotType: true, ballotItem: true}})
+
+                let electionBallot = new ElectionBallot()
+                electionBallot.election = election
+                electionBallot.code = election.code + ' - ' + ballot.code
+                electionBallot.name = election.name + ' - ' + ballot.name
+                electionBallot.ballotType = ballot.ballotType
+                electionBallot = await electionBallotRepository.save(electionBallot)
+                
+                console.log(ballot.ballotItem)
+
+                for(var ballotItem of ballot.ballotItem)
+                {
+                    const electionBallotItem = new ElectionBallotItem()
+                    
+                    electionBallotItem.code = ballotItem.code
+                    electionBallotItem.name = ballotItem.name
+                    electionBallotItem.electionBallot = electionBallot
+                    await electionBallotItemRepository.save(electionBallotItem)
+                }
+            }
+           
+
+            // await electionBallotItemRepository
+            //     .createQueryBuilder()
+            //     .insert()
+            //     .into(ElectionBallotItem)
+            //     .values([
+            //         { name: "Timber", code: "Saw" },
+            //         { firstName: "Phantom", lastName: "Lancer" },
+            //     ])
+            //     .execute()
            
 
 

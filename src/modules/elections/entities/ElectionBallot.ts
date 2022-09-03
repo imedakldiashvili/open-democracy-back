@@ -9,13 +9,9 @@ export class ElectionBallot {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column()
-    electionId: number
-
     @OneToOne(() => BallotType)
     @JoinColumn()
     ballotType: BallotType
-
 
     @Column()
     code: string

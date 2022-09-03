@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany } from "typeorm"
+import { Ballot } from "./Ballot"
 
 @Entity('base_ballots_types')
 export class BallotType {
@@ -11,5 +12,10 @@ export class BallotType {
 
     @Column()
     name: string
+
+    @OneToMany(() => Ballot, (ballot) => ballot.ballotType)
+    ballots: Ballot[]
     
+    @Column()
+    isActive: boolean
 }

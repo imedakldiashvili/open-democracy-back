@@ -18,7 +18,7 @@ class ElectionBallotItemControler {
     static getElectionBallotItemByElectionBallotId = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const electionBallotId = parseInt(req.params.electionBallotId)
-            const ElectionBallotItems = await electionBallotItemRepository.find({where: {electionBallotId: electionBallotId}});
+            const ElectionBallotItems = await electionBallotItemRepository.find({where: {electionBallot: {id: electionBallotId}}});
             return res.json(ElectionBallotItems);
         } catch (error) {
             next(error)

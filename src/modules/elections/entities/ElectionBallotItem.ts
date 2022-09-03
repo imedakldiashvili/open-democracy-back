@@ -8,14 +8,10 @@ export class ElectionBallotItem {
     id: number
 
     @Column()
-    electionBallotId: number
-
-    @Column()
     code: string
 
     @Column()
     name: string
-
     
     @OneToOne(() => ElectionBallot)
     @JoinColumn()
