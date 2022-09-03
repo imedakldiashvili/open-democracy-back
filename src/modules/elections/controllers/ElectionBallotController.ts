@@ -7,7 +7,7 @@ class ElectionBallotControler {
     
     static getElectionBallot = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const ElectionBallots = await electionBallotRepository.find();
+            const ElectionBallots = await electionBallotRepository.find({relations: {ballotType: true}});
             return res.json(ElectionBallots);
         } catch (error) {
             next(error)
@@ -18,7 +18,7 @@ class ElectionBallotControler {
     static getElectionBallotByElectionId = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const electionId = parseInt(req.params.electionId)
-            const ElectionBallots = await electionBallotRepository.find({where: {electionId: electionId}});
+            const ElectionBallots = await electionBallotRepository.find({relations: {ballotType: true}, where: {electionId: electionId}});
             return res.json(ElectionBallots);
         } catch (error) {
             next(error)

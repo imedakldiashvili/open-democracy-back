@@ -1,5 +1,3 @@
-
-
 export class ElectionModel {
     id: number
     code: string
@@ -7,7 +5,7 @@ export class ElectionModel {
     date: Date
     assetStatusTaskTypes: ElectionPollingStationModel[] = []
   }
-  
+
   export class ElectionPollingStationModel {
     pollingStationId: number
     electionBallots: ElectionBallotModel[] = []
@@ -15,10 +13,14 @@ export class ElectionModel {
 
   export class ElectionBallotModel {
     ballotTypeId: number
-    code: string
-    name: string
+      code: string
+      name: string
+    ElectionBallotItems: ElectionBallotItemModel[] = []
   }
 
-
-
-
+  export class ElectionBallotItemModel {
+    code: string
+    name: string
+    title: string
+    imageUrl: string
+  }

@@ -31,5 +31,8 @@ export class Voter {
 
     @Column()
     valueDate: Date
+
+    @Column()
+    isActive: boolean
     
 }

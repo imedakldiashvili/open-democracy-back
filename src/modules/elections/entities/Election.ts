@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn } from "typeorm"
-import { ElectionBallot } from "./ElectionBallot"
+import { ElectionBallot } from "../entities"
+
 
 @Entity('elections')
 export class Election {

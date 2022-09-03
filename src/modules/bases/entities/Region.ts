@@ -15,5 +15,8 @@ export class Region {
 
     @OneToMany(() => District, (district) => district.region)
     districts: District[]
+
+    @Column()
+    isActive: boolean
     
 }

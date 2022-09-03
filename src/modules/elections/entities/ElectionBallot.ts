@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany } from "typeorm"
-import { Election } from "./Election"
-import { ElectionBallotItem } from "./ElectionBallotItem"
+import { BallotType } from "../../bases/entities"
+import { Election, ElectionBallotItem } from "../entities"
+
 
 @Entity('elections_ballots')
 export class ElectionBallot {
@@ -11,8 +12,9 @@ export class ElectionBallot {
     @Column()
     electionId: number
 
-    @Column()
-    ballotTypeId: number
+    @OneToOne(() => BallotType)
+    @JoinColumn()
+    ballotType: BallotType
 
 
     @Column()

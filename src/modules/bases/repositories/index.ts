@@ -8,4 +8,3 @@ export const pollingStationRepository = appDataSource.getRepository(PollingStati
 export const regionRepository = appDataSource.getRepository(Region);
 export const voterRepository = appDataSource.getRepository(Voter);
 
-

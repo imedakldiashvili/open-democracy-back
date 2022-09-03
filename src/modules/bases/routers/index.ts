@@ -7,12 +7,12 @@ import VoterController from "../controllers/Voter";
 const baseRouter = express.Router();
 
 
-baseRouter.get("/base/BallotsTypes", BallotTypeController.getBallotType)
-baseRouter.get("/base/BallotsTypes/:id", BallotTypeController.getBallotTypeById)
-baseRouter.post("/base/BallotsTypes", BallotTypeController.addBallotType)
-baseRouter.put("/base/BallotsTypes", BallotTypeController.editBallotType)
-baseRouter.put("/base/BallotsTypes/Active", BallotTypeController.setActiveBallotType)
-baseRouter.delete("/base/BallotsTypes", BallotTypeController.deleteBallotType)
+baseRouter.get("/base/PollsTypes", BallotTypeController.getBallotType)
+baseRouter.get("/base/PollsTypes/:id", BallotTypeController.getBallotTypeById)
+baseRouter.post("/base/PollsTypes", BallotTypeController.addBallotType)
+baseRouter.put("/base/PollsTypes", BallotTypeController.editBallotType)
+baseRouter.put("/base/PollsTypes/Active", BallotTypeController.setActiveBallotType)
+baseRouter.delete("/base/PollsTypes", BallotTypeController.deleteBallotType)
 
 
 baseRouter.get("/base/PollingsStations", PollingStationController.getPollingStation)

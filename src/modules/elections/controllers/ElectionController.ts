@@ -1,5 +1,9 @@
 import { NextFunction, Request, Response } from 'express'
-import { electionRepository } from '../repositories';
+import { ballotTypeRepository, districtRepository, regionRepository } from '../../bases/repositories';
+import { Election } from '../entities';
+import { ElectionBallot } from '../entities/ElectionBallot';
+import { ElectionModel } from '../models/ElectionModel';
+import { electionBallotItemRepository, electionBallotRepository, electionRepository } from '../repositories';
 
 
 class ElectionControler {
@@ -31,9 +35,13 @@ class ElectionControler {
 
     static addElection = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const Election = req.body;
-            
-            await electionRepository.save(Election);
+            console.log(req.body)
+            let election = req.body;
+            election = await electionRepository.save(election)
+           
+
+
+            console.log(election)
             return res.json("success");
         } catch (error) {
             next(error)
