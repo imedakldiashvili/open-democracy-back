@@ -32,6 +32,7 @@ class ElectionControler {
     static addElection = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const Election = req.body;
+            
             await electionRepository.save(Election);
             return res.json("success");
         } catch (error) {

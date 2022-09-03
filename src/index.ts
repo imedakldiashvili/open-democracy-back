@@ -2,6 +2,8 @@ import * as express from 'express'
 import  * as bodyParser from 'body-parser'
 import * as cors from 'cors'
 
+import * as swaggerUi from "swagger-ui-express";
+
 import router from './routers'
 import appSettings from '../settings'
 import { appDataSource } from './datasources'
@@ -11,6 +13,16 @@ const app = express()
 
 app.use(bodyParser.json())
 app.use(cors())
+
+app.use(
+    "/docs",
+    swaggerUi.serve,
+    swaggerUi.setup(undefined, {
+      swaggerOptions: {
+        url: "/swagger.json",
+      },
+    })
+  );
 
 // app.use('/api/', (req, res, next) => {  console.log("check token ") } )
 

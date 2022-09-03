@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from 'express'
 import { ballotTypeRepository } from '../repositories';
 
+import { Controller, Route, Get } from 'tsoa';
+
 
 class BallotTypeController {
-
-    
     static getBallotType = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const BallotTypes = await ballotTypeRepository.find();
