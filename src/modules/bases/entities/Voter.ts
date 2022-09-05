@@ -8,6 +8,9 @@ export class Voter {
     id: number
 
     @Column()
+    valueDate: Date
+
+    @Column()
     code: string
 
     @Column()
@@ -17,20 +20,12 @@ export class Voter {
     lastName: string
 
     @Column()
-    fathersName: string
-
-    @Column()
     birthDate: Date
 
-    @Column()
-    pollingStationId: number
-    
     @OneToOne(() => PollingStation)
     @JoinColumn()
     pollingStation: PollingStation
 
-    @Column()
-    valueDate: Date
 
     @Column()
     isActive: boolean

@@ -1,29 +1,21 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn, OneToOne } from "typeorm"
-import { District, Region } from "../../bases/entities"
-import { Election, ElectionBallot } from "../entities"
+import { District, PollingStation, Region } from "../../bases/entities"
+import { Election } from "."
 
-@Entity('elections_ballots_pollins_stations')
-export class ElectionBallotPollingStation {
+
+@Entity('elections_pollings_stations')
+export class ElectionPollingStation {
 
     @PrimaryGeneratedColumn()
     id: number
-
-    @Column()
-    code: string
-
-    @Column()
-    name: string
-
-    @Column()
-    date: Date
 
     @OneToOne(() => Election)
     @JoinColumn()
     election: Election
 
-    @OneToOne(() => ElectionBallot)
+    @OneToOne(() => PollingStation)
     @JoinColumn()
-    electionBallot: ElectionBallot
+    pollingStation: PollingStation
 
     @OneToOne(() => District)
     @JoinColumn()
@@ -32,5 +24,5 @@ export class ElectionBallotPollingStation {
     @OneToOne(() => Region)
     @JoinColumn()
     region: Region
-    
+        
 }

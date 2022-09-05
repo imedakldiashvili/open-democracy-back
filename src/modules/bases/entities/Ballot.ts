@@ -25,4 +25,7 @@ export class Ballot {
     @OneToMany(() => BallotPollingStation, (ballotPollingStation) => ballotPollingStation.ballot)
     ballotPollingStations: BallotPollingStation[]
 
+    @Column()
+    isActive: boolean
+
 }

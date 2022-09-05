@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany } from "typeorm"
-import { BallotType } from "../../bases/entities"
+import { Ballot, BallotType } from "../../bases/entities"
 import { Election, ElectionBallotItem } from "../entities"
 
 
@@ -9,15 +9,15 @@ export class ElectionBallot {
     @PrimaryGeneratedColumn()
     id: number
 
-    @OneToOne(() => BallotType)
-    @JoinColumn()
-    ballotType: BallotType
-
     @Column()
     code: string
 
     @Column()
     name: string
+
+    @OneToOne(() => Ballot)
+    @JoinColumn()
+    ballot: Ballot
 
     @OneToOne(() => Election)
     @JoinColumn()

@@ -16,6 +16,9 @@ export class Election {
 
     @Column()
     date: Date
+    
+    @Column()
+    statusId: number
 
     @OneToMany(() => ElectionBallot, (electionBallot) => electionBallot.election)
     @JoinColumn()
