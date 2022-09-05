@@ -5,7 +5,7 @@ import * as cors from 'cors'
 import * as swaggerUi from "swagger-ui-express";
 
 import router from './routers'
-import appSettings from '../settings'
+import appSettings from './settings'
 import { appDataSource } from './datasources'
 
 const PORT = appSettings.PORT 
