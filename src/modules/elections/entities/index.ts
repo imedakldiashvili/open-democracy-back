@@ -2,23 +2,21 @@ import { Election } from "./Election";
 import { ElectionBallot } from "./ElectionBallot";
 import { ElectionBallotItem } from "./ElectionBallotItem";
 import { ElectionPollingStationBallot } from "./ElectionPollingStationBallot";
-import { ElectionVotingCardVote } from "./ElectionVotingCardVote";
-import { ElectionDistrict } from "./ElectionDistrict";
-import { ElectionRegion } from "./ElectionRegion";
 import { ElectionPollingStation } from "./ElectionPollingStation";
+import { ElectionPollingStationVoter } from "./ElectionPollingStationVoter";
 import { ElectionVotingCard } from "./ElectionVotingCard";
-import { ElectionVoter } from "./ElectionVoter";
+import { ElectionVotingCardVote } from "./ElectionVotingCardVote";
 
 export { 
     Election, 
-    ElectionBallot, 
+    ElectionBallot,
     ElectionBallotItem, 
-    ElectionPollingStationBallot,  
-    ElectionDistrict, 
-    ElectionPollingStation,
-    ElectionVotingCardVote, 
-    ElectionVotingCard,
-    ElectionRegion, 
-    ElectionVoter
 
+    ElectionPollingStation,
+    ElectionPollingStationVoter,
+    ElectionPollingStationBallot, 
+
+    ElectionVotingCard,
+    ElectionVotingCardVote,
+    
  }

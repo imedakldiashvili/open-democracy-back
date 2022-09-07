@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn, OneToOne } from "typeorm"
-import { ElectionPollingStation } from "."
-import { Voter } from "../../bases/entities"
+import { ElectionPollingStation } from "./ElectionPollingStation"
+import { ElectionPollingStationVoter } from "./ElectionPollingStationVoter"
+import { ElectionVotingCardVote } from "./ElectionVotingCardVote"
 
 
 @Entity('elections_votings_cards')
@@ -9,28 +10,31 @@ export class ElectionVotingCard {
     @PrimaryGeneratedColumn()
     id: number
 
+    @OneToOne(() => ElectionPollingStationVoter)
+    @JoinColumn()
+    electionPollingStationVoter: ElectionPollingStationVoter
+    
     @OneToOne(() => ElectionPollingStation)
     @JoinColumn()
     electionPollingStation: ElectionPollingStation
 
-    @OneToOne(() => Voter)
+    @OneToMany(() => ElectionVotingCardVote, (electionVotingCardVote) => electionVotingCardVote.electionVotingCard)
     @JoinColumn()
-    voter: Voter
+    electionVotingCardVotes: ElectionVotingCardVote[]
 
     @Column()
-    valueDate: Date
+    createdAt: Date 
 
     @Column()
-    code: string
+    expiredAt: Date 
 
     @Column()
-    firstName: string
-
+    voted: number
+    
     @Column()
-    lastName: string
+    votedAt: Date 
 
-    @Column()
-    birthDate: Date
+
 
 
 }

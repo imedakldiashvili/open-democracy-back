@@ -1,6 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn, OneToOne } from "typeorm"
-import { ElectionBallot, ElectionBallotItem, ElectionPollingStationBallot, ElectionVotingCard } from "."
-import {  } from "./ElectionVotingCard"
+import { ElectionBallot, ElectionBallotItem, ElectionPollingStation, ElectionVotingCard } from "../entities"
 
 
 
@@ -14,12 +13,22 @@ export class ElectionVotingCardVote {
     @JoinColumn()
     electionVotingCard: ElectionVotingCard
 
-    @OneToOne(() => ElectionPollingStationBallot)
+    @OneToOne(() => ElectionPollingStation)
     @JoinColumn()
-    pollingStation: ElectionPollingStationBallot
+    electionPollingStation: ElectionPollingStation
+
+    @OneToOne(() => ElectionBallot)
+    @JoinColumn()
+    electionBallot: ElectionBallot
 
     @OneToOne(() => ElectionBallotItem)
     @JoinColumn()
-    electionBallotVotedItem: ElectionBallotItem
+    electionBallotItem: ElectionBallotItem
+
+    @Column()
+    isFavorite: boolean
+
+    @Column()
+    votingPoint: number
     
 }

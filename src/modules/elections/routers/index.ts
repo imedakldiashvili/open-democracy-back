@@ -1,13 +1,12 @@
 import * as express from "express";
 import { ElectionControler, ElectionBallotControler, ElectionBallotItemControler } from "../controllers";
-
+import ElectionVoterControler from "../controllers/ElectionVoterController";
 
 const electionRouter = express.Router();
 
 electionRouter.get("/Elections", ElectionControler.getElection)
 electionRouter.get("/Elections/:id", ElectionControler.getElectionById)
 electionRouter.post("/Elections", ElectionControler.addElection)
-electionRouter.put("/Elections", ElectionControler.editElection)
 electionRouter.put("/Elections/Active", ElectionControler.setActiveElection)
 electionRouter.delete("/Elections", ElectionControler.deleteElection)
 
@@ -28,6 +27,14 @@ electionRouter.post("/ElectionsBallotsItems", ElectionBallotItemControler.addEle
 electionRouter.put("/ElectionsBallotsItems", ElectionBallotItemControler.editElectionBallotItem)
 electionRouter.put("/ElectionsBallotsItems/Active", ElectionBallotItemControler.setActiveElectionBallotItem)
 electionRouter.delete("/ElectionsBallotsItems", ElectionBallotItemControler.deleteElectionBallotItem)
+
+
+electionRouter.get("/ElectionsVoters", ElectionVoterControler.getElectionVoter)
+electionRouter.get("/ElectionsVoters/:electionId/:code", ElectionVoterControler.getElectionVoterByCode)
+electionRouter.post("/ElectionsVotingsCards", ElectionVoterControler.addElectionVotingCard)
+electionRouter.post("/ElectionsVotingsCardsVotes", ElectionVoterControler.addElectionVotingCardVote)
+
+
 
 
 
