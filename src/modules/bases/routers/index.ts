@@ -7,7 +7,7 @@ import VoterController from "../controllers/Voter";
 const baseRouter = express.Router();
 
 
-baseRouter.get("/base/PollsTypes", BallotTypeController.getBallotType)
+baseRouter.get("/base/BallotsTypes", BallotTypeController.getBallotType)
 baseRouter.get("/base/PollsTypes/:id", BallotTypeController.getBallotTypeById)
 baseRouter.post("/base/PollsTypes", BallotTypeController.addBallotType)
 baseRouter.put("/base/PollsTypes", BallotTypeController.editBallotType)
