@@ -7,7 +7,7 @@ class RegionController {
     
     static getRegion = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const Regions = await regionRepository.find({relations: {districts: {pollingStations: true}}});
+            const Regions = await regionRepository.find({relations: {districts: true}});
             return res.json(Regions);
         } catch (error) {
             next(error)

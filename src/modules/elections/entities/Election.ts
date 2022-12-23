@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn } from "typeorm"
-import { ElectionBallot } from "../entities"
+
 
 
 @Entity('elections')
@@ -19,9 +19,5 @@ export class Election {
     
     @Column()
     statusId: number
-
-    @OneToMany(() => ElectionBallot, (electionBallot) => electionBallot.election)
-    @JoinColumn()
-    electionBallots: ElectionBallot[]
     
 }

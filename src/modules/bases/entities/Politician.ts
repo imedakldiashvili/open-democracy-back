@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from "typeorm"
 import { District } from "./District"
-import { Organization } from "./Organization"
+
 
 @Entity('base_politicians')
 export class Politician {
@@ -17,10 +17,6 @@ export class Politician {
     @Column()
     title: string
     
-    @OneToOne(() => Organization)
-    @JoinColumn()
-    organization: Organization
-
     @OneToOne(() => District)
     @JoinColumn()
     district: District

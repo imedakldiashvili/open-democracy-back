@@ -7,7 +7,7 @@ class VoterController {
     
     static getVoter = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const Voters = await voterRepository.find({relations:{pollingStation: {district:{ region: true}}}});
+            const Voters = await voterRepository.find();
             return res.json(Voters);
         } catch (error) {
             next(error)
@@ -18,7 +18,7 @@ class VoterController {
     static getVoterById = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = parseInt(req.params.id)
-            const Voters = await voterRepository.findOne({where: {id: id }, relations:{pollingStation: {district:{ region: true}}}});
+            const Voters = await voterRepository.findOne({where: {id: id }});
             return res.json(Voters);
         } catch (error) {
             next(error)

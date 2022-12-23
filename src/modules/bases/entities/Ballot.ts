@@ -1,9 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany } from "typeorm"
+import { Election } from "../../elections/entities"
 import { BallotItem } from "./BallotItem"
-import { BallotPollingStation } from "./BallotPollingStation"
 import { BallotType } from "./BallotType"
 
-@Entity('base_ballots')
+@Entity('ballots')
 export class Ballot {
 
     @PrimaryGeneratedColumn()
@@ -15,6 +15,10 @@ export class Ballot {
     @Column()
     name: string
 
+    @OneToOne(() => Election)
+    @JoinColumn()
+    election: Election
+
     @OneToOne(() => BallotType)
     @JoinColumn()
     ballotType: BallotType
@@ -22,10 +26,7 @@ export class Ballot {
     @OneToMany(() => BallotItem, (ballotItem) => ballotItem.ballot)
     ballotItem: BallotItem[]
 
-    @OneToMany(() => BallotPollingStation, (ballotPollingStation) => ballotPollingStation.ballot)
-    ballotPollingStations: BallotPollingStation[]
-
     @Column()
-    isActive: boolean
+    hasDetail: boolean
 
 }

@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, OneToOne, OneToMany
 import { PollingStation } from "./PollingStation"
 import { Region } from "./Region"
 
-@Entity('base_districts')
+@Entity('districts')
 export class District {
 
     @PrimaryGeneratedColumn()

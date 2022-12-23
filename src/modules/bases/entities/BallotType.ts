@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany } from "typeorm"
 import { Ballot } from "./Ballot"
 
-@Entity('base_ballots_types')
+@Entity('ballots_types')
 export class BallotType {
 
     @PrimaryGeneratedColumn()

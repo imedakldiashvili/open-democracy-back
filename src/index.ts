@@ -7,6 +7,8 @@ import * as swaggerUi from "swagger-ui-express";
 import router from './routers'
 import appSettings from './settings'
 import { appDataSource } from './datasources'
+import { AppError, appErrorHandler } from './middlewares/error';
+import { validateToken } from './middlewares/security';
 
 const PORT = appSettings.PORT 
 const app = express()
@@ -23,12 +25,21 @@ app.use(
       },
     })
   );
+  
+  const signUrl = "/api/auth/sign"
 
-// app.use('/api/', (req, res, next) => {  console.log("check token ") } )
+  app.use('/api/', (req, res, next) => { 
+    if ((req.originalUrl.toLocaleLowerCase().substring(0, signUrl.length) === signUrl) && req.originalUrl.toLocaleLowerCase() !== "/api/auth/signout")  
+    {     
+      next()
+    } else {
+      validateToken(req, res, next) 
+    }} )
 
 app.use('/api/', router )
-app.all('*', (req, res) => { console.log(`Requested Url ${req.path} not found !!!`)})
+app.all('*', (req, res) => { throw AppError.notFound(`Requested Url ${req.path} not found !!!`)})
 
+app.use(appErrorHandler);
 
 appDataSource.initialize()
 .then(async () => { app.listen(PORT, () => console.log('app is runnging at port ', PORT));})

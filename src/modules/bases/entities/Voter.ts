@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, OneToOne } from "typeorm"
 import { PollingStation } from "./PollingStation"
 
-@Entity('base_voters')
+@Entity('clients')
 export class Voter {
 
     @PrimaryGeneratedColumn()
@@ -11,20 +11,13 @@ export class Voter {
     valueDate: Date
 
     @Column()
-    code: string
+    client_code: string
 
     @Column()
     firstName: string
 
     @Column()
     lastName: string
-
-    @Column()
-    birthDate: Date
-
-    @OneToOne(() => PollingStation)
-    @JoinColumn()
-    pollingStation: PollingStation
 
 
     @Column()

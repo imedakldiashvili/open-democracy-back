@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn } from "typeorm"
 import { District } from "./District"
 
-@Entity('base_regions')
+@Entity('regions')
 export class Region {
 
     @PrimaryGeneratedColumn()
