@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 
-import { dateNow, newGuid} from '../../../utils';
+import { dateNow, dateNowAddMinutes, newGuid, otpCode} from '../../../utils';
 
 import { userPasswordRepository, userRepository, userSessionRepository } from "../repositories";
 import { newOTP } from '../../otps/services';
@@ -9,36 +9,27 @@ import { AppError } from '../../../middlewares/error';
 import { otpRepository } from '../../otps/repositories';
 import { User, UserPassword } from '../../users/entities';
 import { generatePasswordHash } from '../../../middlewares/security';
+import { Otp } from '../../otps/entities';
 
 class AuthContoller {
     
-    static signEmail = async (req: Request, res: Response, next: NextFunction) => {
+    static signUpEmailOTP = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const email = req.body.email  
-            let result = { email: email, exist: false}
-            
-            const users = await userRepository.find({where: {email: email.toLowerCase()}});
-            if (users.length == 0)
-            {
-                newOTP("email", email, 1)
-            }
-            else
-            {
-                result.exist = true
-            }
+            const {deviceUid, email } = req.body;  
+            await newOTP(deviceUid, "email", email, 1)          
 
-            return res.json(result);
+            return res.json("ok");
         
         } catch (error) {
             next(error)
         }
     };
-    
+
     static signUp = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const {deviceUid, email, emailOtpCode, password} = req.body;  
+            const {deviceUid, email, password, emailOtpCode} = req.body;  
             
-            const newEmail = email;
+            const newEmail = email.toLowerCase();
             const users = await userRepository.find({where: {email: newEmail}});
 
             if (users.length > 0) {throw AppError.badRequest("email_already_exists") }
@@ -72,13 +63,14 @@ class AuthContoller {
             user.isActive = true,
             user.createdBy = 1,
             user.createdOn = new Date();
+
             const newUser = await userRepository.save(user)
 
             const passwordSalt = newGuid();
             const passwordHash = generatePasswordHash(password,passwordSalt)
             const userPassword = new UserPassword()
 
-            userPassword.userId = user.id
+            userPassword.userId = newUser.id
             userPassword.passwordSalt = passwordSalt
             userPassword.passwordHash = passwordHash
             userPassword.isActive = true
@@ -112,8 +104,6 @@ class AuthContoller {
         try {
 
             let userSession = req.body.userSession
-
-            console.log(req.body)
 
             userSession.isActive = false
             userSession.updatedAt = dateNow()

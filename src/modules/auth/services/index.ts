@@ -32,7 +32,7 @@ import { userPasswordRepository, userRepository, userSessionRepository } from ".
         }
 
 
-        const isTemporary = userPassword.isTemporary
+        const passwordIsTemporary = userPassword.isTemporary
 
         const sessionUid = newGuid()
 
@@ -42,15 +42,14 @@ import { userPasswordRepository, userRepository, userSessionRepository } from ".
         newSession.createdAt = dateNow()
         newSession.sessionUid = sessionUid
         newSession.user = loginUser
-
+        newSession.passwordIsTemporary = passwordIsTemporary
         const loginSesion = await userSessionRepository.save(newSession)
 
         const token = generateToken(loginSesion)
         const refershToken = null // generateRefreshToken(loginSesion)
 
         return ({
-            user: newSession.user,
-            isTemporary: isTemporary,
+            session: newSession,
             token: token,
             refershToken: refershToken
         });

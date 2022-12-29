@@ -3,7 +3,8 @@ import { Otp } from "../entities";
 import { otpRepository } from "../repositories";
 
 
-export const newOTP = async (type: string, value: string, createdBy: number) => { 
+export const newOTP = async (deviceUid: string, type: string, value: string, createdBy: number) => { 
+    
     const  exOtpCodes = await otpRepository.find({where: {isActive: true, value: value, type: type}})
 
     for (const otpCode of exOtpCodes) {
@@ -11,7 +12,7 @@ export const newOTP = async (type: string, value: string, createdBy: number) => 
         otpCode.expirationDate = dateNow()
         await otpRepository.save(otpCode)
     }
-
+    
     const otp = new Otp();            
     otp.value = value 
     otp.type = type

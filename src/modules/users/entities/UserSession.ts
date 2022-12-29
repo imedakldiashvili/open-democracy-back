@@ -27,5 +27,8 @@ export class UserSession {
     
     @Column()
     isActive: boolean
+
+    @Column()
+    passwordIsTemporary: boolean
     
 }

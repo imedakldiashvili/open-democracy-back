@@ -11,8 +11,8 @@ class UserController  {
     static add = async (req: Request, res: Response, next: NextFunction) => {
         try {
 
-            const { type, value } = req.body; 
-            await newOTP(type, value, 1)
+            const {deviceUid, type, value } = req.body; 
+            await newOTP(deviceUid, type, value, 1)
             const result = {contact: value,  message: "new_otp_send_successfuly" }
             return res.json(result);     
         
@@ -23,7 +23,7 @@ class UserController  {
 
     static  check = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { type, value, code } = req.body;              
+            const {deviceUid, type, value, code } = req.body;              
             const otps = await otpRepository.find({
                 where: { isActive: true, value: value, type: type, code: code}
             });
