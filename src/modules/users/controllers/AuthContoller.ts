@@ -1,15 +1,14 @@
 import { NextFunction, Request, Response } from 'express'
 
-import { dateNow, dateNowAddMinutes, newGuid, otpCode} from '../../../utils';
+import { dateNow, newGuid } from '../../../utils';
 
-import { userPasswordRepository, userRepository, userSessionRepository } from "../repositories";
+import { userPasswordRepository, userRepository, userSessionRepository } from "../../users/repositories";
 import { newOTP } from '../../otps/services';
-import { loginUserService } from '../services';
+import { loginUserService, getLoginUser, createSession } from '../services';
 import { AppError } from '../../../middlewares/error';
 import { otpRepository } from '../../otps/repositories';
-import { User, UserPassword } from '../../users/entities';
+import { User, UserPassword } from '../entities';
 import { generatePasswordHash } from '../../../middlewares/security';
-import { Otp } from '../../otps/entities';
 
 class AuthContoller {
     
@@ -100,6 +99,19 @@ class AuthContoller {
         }
     };
 
+    static signInLocal = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const {deviceUid, email}  = req.body
+            var loginUser = await getLoginUser(email)
+            var result = await createSession(loginUser, deviceUid, true)
+            
+            return res.json(result);
+
+        } catch (error) {
+            next(error)
+        }
+    };
+
     static signOut= async (req: Request, res: Response, next: NextFunction) => {
         try {
 
@@ -116,9 +128,6 @@ class AuthContoller {
             next(error)
         }
     };
-
-
-
 
 }
 

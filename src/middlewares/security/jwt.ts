@@ -9,7 +9,7 @@ import { AppError } from '../error';
 
 
 import { UserSession } from '../../modules/users/entities';
-import { userSessionRepository } from '../../modules/auth/repositories';
+import { userSessionRepository } from '../../modules/users/repositories';
 
 
 
@@ -63,7 +63,6 @@ export const validateToken = async (req: Request, res: Response, next: NextFunct
     } 
     
     if (typeof decodedToken !== "string") {
-      console.log(decodedToken)
       const userSession = decodedToken.userSession;
       const activeSessions = await userSessionRepository.find({
         where: { id: userSession.id , isActive: true }
@@ -72,9 +71,7 @@ export const validateToken = async (req: Request, res: Response, next: NextFunct
       if (activeSessions.length != 1) {
         throw AppError.unauthorized("session not found");
       }
-      
       req.body.userSession = activeSessions[0]
-      console.log(activeSessions[0])
     }
     
 

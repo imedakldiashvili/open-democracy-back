@@ -28,6 +28,9 @@ export class User {
     clientCode: string
 
     @Column()
+    userFullName: string
+
+    @Column()
     clientIsVerified: boolean
 
     @Column()

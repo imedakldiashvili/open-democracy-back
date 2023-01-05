@@ -8,6 +8,16 @@ import { electionRepository } from '../repositories';
 class ElectionControler {
 
 
+    static getActiveElection = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const Elections = await electionRepository.find({where:{statusId: 1}});
+            return res.json(Elections);
+        } catch (error) {
+            next(error)
+        }
+
+    };
+
     static getElection = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const Elections = await electionRepository.find();
