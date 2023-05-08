@@ -1,11 +1,10 @@
 import * as express from 'express'
-import baseRouter from '../modules/bases/routers'
 import electionRouter from '../modules/elections/routers';
-import otpRouter from '../modules/otps/routes';
 import userRouter from '../modules/users/routers';
+import actionRouter from '../modules/actions/routers';
 
 const router = express.Router();
 
-router.use("/", baseRouter, electionRouter, otpRouter, userRouter)
+router.use("/", electionRouter, userRouter, actionRouter)
 
 export default router;

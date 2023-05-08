@@ -1,19 +1,22 @@
-import { AppError } from "../../../middlewares/error";
+
+import { AppError, throwBadRequest } from "../../../middlewares/error";
 import { generatePasswordHash, generateRefreshToken, generateToken } from "../../../middlewares/security";
-import { dateNow, newGuid } from "../../../utils";
 
-import { UserSession } from "../entities";
-import { userPasswordRepository, userRepository, userSessionRepository } from "../../users/repositories";
+import { dateNow, dateNowAddMinutes, newGuid, otpCode } from "../../../utils";
 
-    export const  getLoginUser = async (loginEmail: string) => {
+import { UserOTP, UserSession } from "../entities";
+import { userOTPRepository, userPasswordRepository, userRepository, userSessionRepository } from "../../users/repositories";
+import { voterRepository } from "../../votings/repositories";
 
-        const email = loginEmail.toLocaleLowerCase();
+    export const  getLoginUser = async (loginUserName: string) => {
+
+        const userName = loginUserName.toLocaleLowerCase();
         const loginUser = await userRepository.findOne({
-            where: { email: email}
+            where: { userName: userName}
         })
 
         if (loginUser === null) {
-            throw AppError.notFound(`user_with_email_not_found`);
+            throw AppError.notFound(`user_with_user_name_not_found`);
         }
 
         return loginUser
@@ -39,9 +42,28 @@ import { userPasswordRepository, userRepository, userSessionRepository } from ".
         return userPassword
     }
 
+    export const  loginUserService = async (deviceUid: string, userName: string, password: string) => {
+        
+        const loginUserName = userName.toLocaleLowerCase();
+        const loginUser = await getLoginUser(loginUserName)
+        
+        const userPassword = await checkPassword(loginUser.id, password)
+        const passwordIsTemporary = userPassword.isTemporary
+
+        var result = await createSession(loginUser, deviceUid, passwordIsTemporary)
+
+        return result
+    }
+
     export const  createSession = async (loginUser: any, deviceUid: string, passwordIsTemporary: boolean) => {
+
         const sessionUid = newGuid()
 
+        const voters = await voterRepository.find({
+            where: {id: loginUser.id},
+            relations: { district: true }
+        })
+        const voter = voters.length == 1 ? voters[0] : null
         const newSession = new UserSession()
         newSession.deviceUid = deviceUid
         newSession.isActive = true
@@ -55,23 +77,62 @@ import { userPasswordRepository, userRepository, userSessionRepository } from ".
         const refershToken = null // generateRefreshToken(loginSesion)
 
         return ({
-            session: newSession,
+            session: { 
+                sessionUid: newSession.sessionUid, 
+                passwordIsTemporary:  passwordIsTemporary, 
+                voter: voter, 
+                user: loginUser 
+            },
             token: token,
             refershToken: refershToken
         });
+    
     }
 
-    export const  loginUserService = async (deviceUid: string, email: string, password: string) => {
-
-        const loginEmail = email.toLocaleLowerCase();
-        const loginUser = await getLoginUser(loginEmail)
+    export const addOTP = async (deviceUid: string, type: string, value: string, createdBy: number) => { 
+    
+        const  exOtpCodes = await userOTPRepository.find({where: {isActive: true, value: value, type: type}})
+    
+        for (const otpCode of exOtpCodes) {
+            otpCode.isActive = false,
+            otpCode.expirationDate = dateNow()
+            await userOTPRepository.save(otpCode)
+        }
         
-        const userPassword = await checkPassword(loginUser.id, password)
-        const passwordIsTemporary = userPassword.isTemporary
+        const otp = new UserOTP();            
+        otp.deviceUid = deviceUid
+        otp.value = value 
+        otp.type = type
+        otp.code = otpCode()
+        otp.isActive = true,
+        otp.createdBy = createdBy,
+        otp.createdOn = dateNow();
+        otp.expirationDate = dateNowAddMinutes(5)
+    
+        await userOTPRepository.save(otp)
+        const result = { type: otp.type, value: otp.value, status: "otp_send_successfuly"}
+        return  result
+    } 
 
-        var result = await createSession(loginUser, deviceUid, passwordIsTemporary)
+    export const checkOTP = async (deviceUid: string, type: string, value: string, createdBy: number, code: number ) => { 
+    
+        const  userOTPs = await userOTPRepository.find({where: {createdBy: createdBy, isActive: true, value: value, type: type}})
+        if (userOTPs.length == 0) { throwBadRequest("active_otp_code_not_found") }
+        if (userOTPs.length > 1) { throwBadRequest("active_otp_code_more_that_one") }        
+        
+        const userOTP = userOTPs[0]
 
-        return result
-    }
+        if (userOTP.deviceUid != deviceUid ) { throwBadRequest("invalid_otp_device_uid") }
+        if (userOTP.type != type ) { throwBadRequest("invalid_otp_type") }
+        if (userOTP.code != code ) { throwBadRequest("invalid_otp_code") }
+        if (userOTP.expirationDate < dateNow() ) { throwBadRequest("otp_code_expired") }
+        if (!userOTP.isActive) { throwBadRequest("otp_code_is_not_active") }
 
+        userOTP.isActive = false
+        userOTP.updatedOn = dateNow()
+    
+        await userOTPRepository.save(userOTP)
+        const result = { id: userOTP.id, type: userOTP.type, value: userOTP.value, status: "otp_checked_successfuly"}
+        return  result
+    } 
     

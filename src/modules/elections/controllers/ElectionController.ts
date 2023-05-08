@@ -1,6 +1,4 @@
 import { NextFunction, Request, Response } from 'express'
-import { In } from 'typeorm';
-import { ballotRepository,pollingStationRepository, voterRepository } from '../../bases/repositories';
 import { Election} from '../entities';
 import { electionRepository } from '../repositories';
 
@@ -8,7 +6,7 @@ import { electionRepository } from '../repositories';
 class ElectionControler {
 
 
-    static getActiveElection = async (req: Request, res: Response, next: NextFunction) => {
+    static findActiveElections = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const Elections = await electionRepository.find({where:{statusId: 1}});
             return res.json(Elections);
@@ -18,7 +16,7 @@ class ElectionControler {
 
     };
 
-    static getElection = async (req: Request, res: Response, next: NextFunction) => {
+    static findAllElections = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const Elections = await electionRepository.find();
             return res.json(Elections);
@@ -28,11 +26,11 @@ class ElectionControler {
 
     };
 
-    static getElectionById = async (req: Request, res: Response, next: NextFunction) => {
+    static findOneElection = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = parseInt(req.params.id)
-            const Elections = await electionRepository.findOneBy({ id: id });
-            return res.json(Elections);
+            const election = await electionRepository.findOneBy({ id: id });
+            return res.json(election);
         } catch (error) {
             next(error)
         }
@@ -45,15 +43,6 @@ class ElectionControler {
             let election: Election = req.body;
             election.statusId = 1;
             election = await electionRepository.save(election);
-
-            const ballotIds = req.body.ballotIds;
-
-            const ballots = await ballotRepository.find({ 
-                relations: { ballotType: true, ballotItem: true }
-            });
-
-            const voters = await voterRepository.find({where: { isActive: true }});
-
 
             election.statusId = 2;
             election = await electionRepository.save(election);
@@ -76,6 +65,19 @@ class ElectionControler {
     static deleteElection = async (req: Request, res: Response, next: NextFunction) => {
         try {
             return res.json("nnot implementedot");
+        } catch (error) {
+            next(error)
+        }
+    };
+
+    static findElectionVotingCard = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const {electionId, voterId} = req.body;
+
+            const election = electionRepository.findOne({where: {id: electionId}})
+            const voter = electionRepository.findOne({where: {id: electionId}})
+
+            return res.json("not implementedot");
         } catch (error) {
             next(error)
         }

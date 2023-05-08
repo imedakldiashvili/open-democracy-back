@@ -28,13 +28,13 @@ app.use(
   
   const signUrl = "/api/auth/sign"
 
-  app.use('/api/', (req, res, next) => { 
-    if ((req.originalUrl.toLocaleLowerCase().substring(0, signUrl.length) === signUrl) && req.originalUrl.toLocaleLowerCase() !== "/api/auth/signout")  
-    {     
-      next()
-    } else {
-      validateToken(req, res, next) 
-    }} )
+  // app.use('/api/', (req, res, next) => { 
+  //   if ((req.originalUrl.toLocaleLowerCase().substring(0, signUrl.length) === signUrl) && req.originalUrl.toLocaleLowerCase() !== "/api/auth/signout")  
+  //   {     
+  //     next()
+  //   } else {
+  //     validateToken(req, res, next) 
+  //   }} )
 
 app.use('/api/', router )
 app.all('*', (req, res) => { throw AppError.notFound(`Requested Url ${req.path} not found !!!`)})

@@ -1,23 +1,28 @@
 import { NextFunction, Request, Response } from 'express'
 
+import { throwBadRequest } from '../../../middlewares/error';
+import { generatePasswordHash } from '../../../middlewares/security';
+
 import { dateNow, newGuid } from '../../../utils';
 
 import { userPasswordRepository, userRepository, userSessionRepository } from "../../users/repositories";
-import { newOTP } from '../../otps/services';
-import { loginUserService, getLoginUser, createSession } from '../services';
-import { AppError } from '../../../middlewares/error';
-import { otpRepository } from '../../otps/repositories';
+import { addOTP, loginUserService, checkOTP } from '../services';
+
 import { User, UserPassword } from '../entities';
-import { generatePasswordHash } from '../../../middlewares/security';
 
 class AuthContoller {
     
-    static signUpEmailOTP = async (req: Request, res: Response, next: NextFunction) => {
+    static signUpOTP = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const {deviceUid, email } = req.body;  
-            await newOTP(deviceUid, "email", email, 1)          
+            const {deviceUid, userName, mobileNumber } = req.body;  
 
-            return res.json("ok");
+            const newUserName = userName.toLowerCase();
+            const users = await userRepository.find({where: {userName: newUserName}});
+            if (users.length > 0) { throwBadRequest("user_name_already_exists") }
+
+            const result = await addOTP(deviceUid, "mobile", mobileNumber, 1)          
+
+            return res.json( result );
         
         } catch (error) {
             next(error)
@@ -26,39 +31,20 @@ class AuthContoller {
 
     static signUp = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const {deviceUid, email, password, emailOtpCode} = req.body;  
+            const {deviceUid, userName, password, mobileNumber,  mobileOtpCode} = req.body;  
             
-            const newEmail = email.toLowerCase();
-            const users = await userRepository.find({where: {email: newEmail}});
+            const newUserName = userName.toLowerCase();
+            const users = await userRepository.find({where: {userName: newUserName}});
 
-            if (users.length > 0) {throw AppError.badRequest("email_already_exists") }
+            if (users.length > 0) { throwBadRequest("user_name_already_exists") }
 
-            const emailOtps = await otpRepository.find({where: {type: "email", value: newEmail, code: emailOtpCode, isActive: true}});
-
-            if (emailOtps.length != 1)
-            {
-                throw AppError.badRequest("incorect_email_otp_code")
-            }
-
-            const emailOtp = emailOtps[0]
-
-            if (emailOtp.expirationDate < dateNow())
-            {
-                throw AppError.badRequest("email_otp_code_is_expired")
-            }
-
-            if (emailOtpCode != emailOtp.code)
-            {
-                throw AppError.badRequest("incorect_email_otp_code")
-            }
+            const  mobileOtp = await checkOTP(deviceUid, "mobile", mobileNumber, 1, mobileOtpCode )
           
-            const user = new User();            
-            user.email = newEmail;
-            user.emailVerificationOtpId = emailOtp.id,
+            const user = new User();
 
-            user.mobileIsVerified = false,
-            user.clientIsVerified = false,
-
+            user.userName = userName;
+            user.mobileNumber = mobileNumber;
+            user.mobileNumberVerificationOtpId = mobileOtp.id,
             user.isActive = true,
             user.createdBy = 1,
             user.createdOn = new Date();
@@ -79,7 +65,7 @@ class AuthContoller {
 
             const resUserPassword = await userPasswordRepository.save(userPassword)
 
-            var result = await loginUserService(deviceUid, newEmail, password)
+            var result = await loginUserService(deviceUid, userName, password)
 
             return res.json(result);
         
@@ -90,21 +76,8 @@ class AuthContoller {
 
     static signIn = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const {deviceUid, email, password}  = req.body
-            var result = await loginUserService(deviceUid, email.toLowerCase(), password)
-            return res.json(result);
-
-        } catch (error) {
-            next(error)
-        }
-    };
-
-    static signInLocal = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const {deviceUid, email}  = req.body
-            var loginUser = await getLoginUser(email)
-            var result = await createSession(loginUser, deviceUid, true)
-            
+            const {deviceUid, userName, password}  = req.body
+            var result = await loginUserService(deviceUid, userName.toLowerCase(), password)
             return res.json(result);
 
         } catch (error) {
@@ -122,7 +95,7 @@ class AuthContoller {
 
             await userSessionRepository.save(userSession)
 
-            return res.json({message: "User logouted successfuly !"});
+            return res.json({message: "user_logouted_successfuly"});
 
         } catch (error) {
             next(error)

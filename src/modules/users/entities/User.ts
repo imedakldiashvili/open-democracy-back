@@ -1,4 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany } from "typeorm"
+import { Voter } from "../../votings/entities"
 
 @Entity('users')
 export class User {
@@ -7,37 +8,19 @@ export class User {
     id: number
 
     @Column()
+    userName: string
+
+    @Column()
     email: string
 
     @Column()
     emailVerificationOtpId: number
 
     @Column()
-    mobile: string
+    mobileNumber: string
 
     @Column()
-    mobileIsVerified: boolean
-
-    @Column()
-    mobileVerificationOtpId: number
-
-    @Column()
-    mobileVerificationDate: Date
-
-    @Column()
-    clientCode: string
-
-    @Column()
-    userFullName: string
-
-    @Column()
-    clientIsVerified: boolean
-
-    @Column()
-    clientId: number
-
-    @Column()
-    clientVerificationDate: Date
+    mobileNumberVerificationOtpId: number
 
     @Column()
     isActive: boolean
@@ -65,6 +48,11 @@ export class User {
 
     @Column()
     deletedBy: number
+
+    @OneToOne(() => Voter)
+    @JoinColumn({name: "id"} )
+    voter: Voter
+
 
 }
 
