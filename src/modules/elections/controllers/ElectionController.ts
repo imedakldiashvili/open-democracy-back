@@ -1,4 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
+import { ballotRepository } from '../../ballots/repositories';
+import { voterRepository } from '../../votings/repositories';
 import { Election} from '../entities';
 import { electionRepository } from '../repositories';
 
@@ -7,8 +9,13 @@ class ElectionControler {
 
 
     static findActiveElections = async (req: Request, res: Response, next: NextFunction) => {
+        const {voterId} = req.body;
         try {
-            const Elections = await electionRepository.find({where:{statusId: 1}});
+            const Elections = await electionRepository.find({
+                relations: {ballots: {districts: {voters: true}, ballotType: true, ballotItems: {ballotItemValues: true} }},
+                where: {statusId: 1, ballots: {districts: {voters: {id: voterId}}}},
+                order: {id: "DESC", ballots: {ballotType: {id: "ASC"}}}
+            });
             return res.json(Elections);
         } catch (error) {
             next(error)
@@ -70,18 +77,7 @@ class ElectionControler {
         }
     };
 
-    static findElectionVotingCard = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const {electionId, voterId} = req.body;
 
-            const election = electionRepository.findOne({where: {id: electionId}})
-            const voter = electionRepository.findOne({where: {id: electionId}})
-
-            return res.json("not implementedot");
-        } catch (error) {
-            next(error)
-        }
-    };
 
 }
 

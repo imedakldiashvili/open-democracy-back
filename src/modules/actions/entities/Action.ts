@@ -1,26 +1,26 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany, PrimaryColumn } from "typeorm"
 import { Currency } from "../../currencies/entities"
 import { ActionType } from "./ActionType"
 
 @Entity('actions')
 export class Action {
 
-    @PrimaryGeneratedColumn()
-    id: number
+    @PrimaryColumn()
+    id: string
 
     @OneToOne(() => ActionType)
     @JoinColumn()
     actionType: ActionType
 
     @Column()
-    hasAmount: boolean
-
-    @Column()
-    userSessionId: string
+    actionId: number
 
     @Column()
     actionName: string
-    
+
+    @Column()
+    hasAmount: boolean
+
     @Column()
     Amount: number
 
@@ -29,10 +29,12 @@ export class Action {
     currency: Currency
 
     @Column()
+    sessionUid: string
+
+    @Column()
     createdBy: number
 
     @Column()
-    createdOn: Date
-    
+    createdOn: Date    
 
 }

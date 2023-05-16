@@ -46,7 +46,10 @@ class ActionController {
     static getUserAllActions = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const userRecentActions = await actionRepository
-            .find({relations: {actionType: true, currency: true}});
+            .find({
+                relations: {actionType: true, currency: true}, 
+                order: {createdOn: -1},
+            });
             return res.json(userRecentActions);
         } catch (error) {
             next(error)
