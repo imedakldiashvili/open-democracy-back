@@ -64,17 +64,12 @@ export const validateToken = async (req: Request, res: Response, next: NextFunct
     
     if (typeof decodedToken !== "string") {
       const userSession = decodedToken.userSession;
-      const activeSessions = await userSessionRepository.find({
-        where: { id: userSession.id , isActive: true }
-      })
-
+      const activeSessions = await userSessionRepository.find({ where: { id: userSession.id, sessionUid: userSession.sessionUid,deviceUid: userSession.deviceUid, isActive: true  }, relations: { user: true } });
       if (activeSessions.length != 1) {
         throw AppError.unauthorized("session not found");
       }
       req.body.userSession = activeSessions[0]
     }
-    
-
     next()
   } catch (error) {
     next(error)
