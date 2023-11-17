@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from 'express'
 import { ballotRepository } from '../../ballots/repositories';
-import { voterRepository } from '../../votings/repositories';
+import { voterRepository, votingCardRepository } from '../../votings/repositories';
 import { Election} from '../entities';
 import { electionRepository } from '../repositories';
+
 
 
 class ElectionControler {
@@ -11,12 +12,39 @@ class ElectionControler {
     static findActiveElections = async (req: Request, res: Response, next: NextFunction) => {
         const {voterId} = req.body;
         try {
-            const Elections = await electionRepository.find({
-                relations: {ballots: {districts: {voters: true}, ballotType: true, ballotItems: {ballotItemValues: true} }},
+
+            const activeElections = await electionRepository.find({
                 where: {statusId: 1, ballots: {districts: {voters: {id: voterId}}}},
+                relations: {ballots: {districts: {voters: true}, ballotType: true, ballotItems: {ballotItemValues: true} }},
                 order: {id: "DESC", ballots: {ballotType: {id: "ASC"}}}
             });
-            return res.json(Elections);
+
+            const votingCards = await votingCardRepository.find({
+                where: {voter: {id: voterId}},
+                relations: {voter:true, election: true}
+            })
+
+            console.log(votingCards)
+
+            const activeElectionCards = []
+
+            for (let activeElection of activeElections) {
+                if (votingCards == null)
+                {
+                    const electionVoterCard = activeElection.id  
+                    activeElectionCards.push(electionVoterCard)
+                }
+                else
+                {
+                    var votingCard = votingCards.filter(e=> e.election.id == activeElection.id);
+                    const electionVoterCard = { activeElection, votingCard }
+                    activeElectionCards.push(electionVoterCard)
+                }
+            }
+
+            // console.log(activeElectionCards)
+
+            return res.json(activeElectionCards);
         } catch (error) {
             next(error)
         }
