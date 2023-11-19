@@ -48,18 +48,18 @@ export const validateToken = async (req: Request, res: Response, next: NextFunct
     
     const authHeader = req.get("Authorization");
     if (!authHeader) {
-      throw AppError.unauthorized(" Authorization nedeed");
+      throw AppError.unauthorized("Authorization nedeed - 01");
     }
 
     const token = authHeader.split(" ")[1];
     try {
       decodedToken = jwt.verify(token, secret);
     } catch (error) {
-      throw AppError.unauthorized(" Authorization nedeed");
+      throw AppError.unauthorized("Authorization nedeed - 02");
     }
 
     if (!decodedToken) {
-      throw AppError.unauthorized("Authorization nedeed");
+      throw AppError.unauthorized("authorization nedeed - 03");
     } 
     
     if (typeof decodedToken !== "string") {
