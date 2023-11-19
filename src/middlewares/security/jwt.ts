@@ -46,7 +46,7 @@ export const validateToken = async (req: Request, res: Response, next: NextFunct
 
     let decodedToken;
     
-    const authHeader = req.get("Authorization");
+    const authHeader = req.headers.authorization;
     if (!authHeader) {
       throw AppError.unauthorized("Authorization nedeed - 01");
     }
