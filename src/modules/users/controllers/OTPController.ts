@@ -11,7 +11,6 @@ class UserController  {
     
     static addOTP = async (req: Request, res: Response, next: NextFunction) => {
         try {
-
             const {deviceUid, type, value } = req.body; 
             await addOTP(deviceUid, type, value, 1)
             const result = {contact: value,  message: "new_otp_send_successfuly" }

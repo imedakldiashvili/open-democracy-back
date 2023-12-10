@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, OneToOne, OneToMany
 import { Ballot } from "../../ballots/entities"
 import { Voter } from "../../votings/entities"
 import { Region } from "./Region"
+import { Election } from "../../elections/entities"
 
 @Entity('districts')
 export class District {
@@ -17,6 +18,23 @@ export class District {
 
     @Column()
     regionId: number
+
+    @ManyToMany(() => Election)
+    @JoinTable(
+        {
+            name: 'elections_districts', // table name for the junction table of this relation
+            joinColumn: {
+                name: 'district_id',
+                referencedColumnName: 'id'
+            },
+            inverseJoinColumn: {
+                name: 'election_id',
+                referencedColumnName: 'id'
+            }
+        }
+    )
+    elections: Election[]
+
 
     @ManyToMany(() => Ballot)
     @JoinTable(

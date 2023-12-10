@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
-import { districtRepository } from '../../ballots/repositories';
+import { districtRepository } from '../repositories';
 districtRepository
 
 class DistrictControler {

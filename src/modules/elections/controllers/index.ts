@@ -1,4 +1,4 @@
 import ElectionControler   from './ElectionController'
 
 
-export { ElectionControler }
+export { ElectionControler}

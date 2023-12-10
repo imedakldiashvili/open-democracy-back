@@ -9,12 +9,15 @@ import appSettings from './settings'
 import { appDataSource } from './datasources'
 import { AppError, appErrorHandler } from './middlewares/error';
 import { validateToken } from './middlewares/security';
+import { cronJobsStart } from './jobs';
 
 const PORT = appSettings.PORT 
 const app = express()
 
 app.use(bodyParser.json())
 app.use(cors())
+
+cronJobsStart();
 
 app.use(
     "/docs",

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 
 import { throwBadRequest } from '../../../middlewares/error';
-import { generatePasswordHash } from '../../../middlewares/security';
+import { generateHash } from '../../../middlewares/security';
 
 import { dateNow, newGuid } from '../../../utils';
 
@@ -52,7 +52,7 @@ class AuthContoller {
             const newUser = await userRepository.save(user)
 
             const passwordSalt = newGuid();
-            const passwordHash = generatePasswordHash(password,passwordSalt)
+            const passwordHash = generateHash(password,passwordSalt)
             const userPassword = new UserPassword()
 
             userPassword.userId = newUser.id

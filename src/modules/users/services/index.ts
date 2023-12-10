@@ -1,6 +1,6 @@
 
 import { AppError, throwBadRequest } from "../../../middlewares/error";
-import { generatePasswordHash, generateRefreshToken, generateToken } from "../../../middlewares/security";
+import { generateHash, generateRefreshToken, generateToken } from "../../../middlewares/security";
 
 import { dateNow, dateNowAddMinutes, newGuid, otpCode } from "../../../utils";
 
@@ -34,7 +34,7 @@ import { voterRepository } from "../../votings/repositories";
         }
         const userPassword = userPasswords[0]
 
-        const isAuthorized = (userPassword.passwordHash === generatePasswordHash(password, userPassword.passwordSalt))
+        const isAuthorized = (userPassword.passwordHash === generateHash(password, userPassword.passwordSalt))
         if (!isAuthorized) {
             throw AppError.forbidden(`wrong_password`);
         }

@@ -6,7 +6,7 @@ const actionRouter = express.Router();
 
 
 actionRouter.post("/actions/Add", ActionController.addActions)
-actionRouter.post("/actions/findAll", ActionController.getUserAllActions)
-actionRouter.post("/actions/findRecent", ActionController.getUserRecentActions)
+actionRouter.post("/actions/findUserAll", ActionController.getUserAllActions)
+actionRouter.post("/actions/findUserRecent", ActionController.getUserRecentActions)
 
 export default actionRouter;

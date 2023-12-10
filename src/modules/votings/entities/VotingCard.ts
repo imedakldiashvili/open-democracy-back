@@ -10,14 +10,21 @@ export class VotingCard {
     @PrimaryGeneratedColumn()
     id: number
 
+    @Column()
+    electionId: number
     @OneToOne(() => Election)
     @JoinColumn()
     election: Election
 
+    @Column()
+    voterId: number
+    
     @OneToOne(() => Voter)
     @JoinColumn()
     voter: Voter
 
+    @Column()
+    districtId: number
     @OneToOne(() => District)
     @JoinColumn()
     district: District
@@ -27,5 +34,6 @@ export class VotingCard {
 
     @Column()
     createdAt: Date
+    
     
 }

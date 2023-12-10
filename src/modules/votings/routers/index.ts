@@ -1,5 +1,7 @@
 import * as express from "express";
-import VoterController from "../controllers";
+import { VoterController, VotingController } from "../controllers";
+
+
 
 const voterRouter = express.Router();
 
@@ -10,6 +12,9 @@ voterRouter.post("/votings/newVotingCard", VoterController.newVotingCard)
 voterRouter.post("/votings/votingCard", VoterController.votingCard)
 
 voterRouter.post("/votings/postVote", VoterController.vote)
+
+voterRouter.post("/votingCards/getNew", VotingController.getNewVotingCard)
+
 
 
 export default voterRouter;
