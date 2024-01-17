@@ -16,7 +16,7 @@ export default {
 			TYPE: 'postgres',
 			HOST: process.env.POSTGRES_HOST || "localhost",
 			PORT: parseInt(process.env.POSTGRES_PORT) || 5432,
-			USERNAME: process.env.POSTGRES_USER || "postgres",
+			USERNAME: key.DB_USERNAME || "postgres",
 			PASSWORD: key.DB_PASSWORD,
 			APP_DB_NAME: process.env.POSTGRES_DB || "open-democracy-db",
 		}
