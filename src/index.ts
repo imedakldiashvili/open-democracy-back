@@ -34,7 +34,7 @@ app.use(
 
   
   app.use('/api/', (req, res, next) => { 
-    if ((req.originalUrl.toLocaleLowerCase().substring(0, publicUrl.length) === publicUrl) &&
+    if ((req.originalUrl.toLocaleLowerCase().substring(0, publicUrl.length) === publicUrl) ||
         (req.originalUrl.toLocaleLowerCase().substring(0, authUrl.length) === authUrl))  
     {     
       next()
