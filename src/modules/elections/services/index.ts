@@ -52,8 +52,8 @@ export const serviceCreateElection = async () => {
     var electon = new Election()
 
     electon.uid = newGuid()
-    electon.code = template.code + " " + dateValue.toString()
-    electon.name = template.name + " " + dateValue.toString()
+    electon.code = template.code + " " + yearMont
+    electon.name = template.name + " " + yearMont
     electon.registeredVoters = 0
     electon.participantVoters = 0
     electon.createdAt = dateValue,
