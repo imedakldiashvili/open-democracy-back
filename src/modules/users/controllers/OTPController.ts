@@ -1,7 +1,4 @@
 import { NextFunction, Request, Response } from 'express'
-import { userOTPRepository } from '../repositories';
-
-import { AppError } from '../../../middlewares/error';
 import { checkOTP, addOTP } from '../services';
 
 
@@ -33,6 +30,8 @@ class UserController  {
         }
 
     };
+
+
 
 
 

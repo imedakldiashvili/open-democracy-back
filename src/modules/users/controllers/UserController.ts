@@ -4,7 +4,8 @@ import { AppError } from '../../../middlewares/error';
 
 import { User, UserPassword } from '../entities';
 
-import { userPasswordRepository, userRepository } from '../repositories';
+import { userPasswordRepository, userRepository, userSessionRepository } from '../repositories';
+import { dateNow } from '../../../utils';
 
 
 
@@ -51,6 +52,23 @@ class UserController {
     static delete = async (req: Request, res: Response, next: NextFunction) => {
         try {
             return res.json("Not Implimented");
+        } catch (error) {
+            next(error)
+        }
+    };
+
+    static signOut= async (req: Request, res: Response, next: NextFunction) => {
+        try {
+
+            let userSession = req.body.userSession
+
+            userSession.isActive = false
+            userSession.updatedAt = dateNow()
+
+            await userSessionRepository.save(userSession)
+
+            return res.json({message: "user_logouted_successfuly"});
+
         } catch (error) {
             next(error)
         }

@@ -85,22 +85,7 @@ class AuthContoller {
         }
     };
 
-    static signOut= async (req: Request, res: Response, next: NextFunction) => {
-        try {
 
-            let userSession = req.body.userSession
-
-            userSession.isActive = false
-            userSession.updatedAt = dateNow()
-
-            await userSessionRepository.save(userSession)
-
-            return res.json({message: "user_logouted_successfuly"});
-
-        } catch (error) {
-            next(error)
-        }
-    };
 
 }
 

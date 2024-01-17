@@ -29,15 +29,13 @@ app.use(
     })
   );
   
-  const signUrl = "/api/auth"
-  const signOutUrl = "/api/auth/signout"
+  const authUrl = "/api/auth"
   const publicUrl = "/api/public"
 
   
   app.use('/api/', (req, res, next) => { 
     if ((req.originalUrl.toLocaleLowerCase().substring(0, publicUrl.length) === publicUrl) &&
-        (req.originalUrl.toLocaleLowerCase().substring(0, signUrl.length) === signUrl) && 
-        (req.originalUrl.toLocaleLowerCase().substring(0, signOutUrl.length) !== signOutUrl))  
+        (req.originalUrl.toLocaleLowerCase().substring(0, authUrl.length) === authUrl))  
     {     
       next()
     } else {

@@ -10,10 +10,12 @@ userRouter.post("/otps/add", OtpController.addOTP)
 userRouter.post("/otps/check", OtpController.checkOTP)
 
 
+userRouter.post("/users/signOut", UserController.signOut)
 userRouter.put("/users/edit", UserController.edit)
 
 userRouter.post("/UsersInivitations/add", UserInivitationController.add)
 userRouter.post("/UsersInivitations/findBySender", UserInivitationController.findBySender)
+
 
 
 export default userRouter;
