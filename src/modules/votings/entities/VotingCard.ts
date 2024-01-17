@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, OneToOne, OneToMany } from "typeorm"
 import { Election } from "../../elections/entities"
 import { District } from "../../locations/entities"
-import { Voter } from "./Voter"
+import { UserDetail } from "../../users/entities/UserDetail"
 import { VotingCardBallot } from "./VotingCardBallot"
 
 @Entity('votings_cards')
@@ -19,9 +19,9 @@ export class VotingCard {
     @Column()
     voterId: number
     
-    @OneToOne(() => Voter)
+    @OneToOne(() => UserDetail)
     @JoinColumn()
-    voter: Voter
+    voter: UserDetail
 
     @Column()
     districtId: number

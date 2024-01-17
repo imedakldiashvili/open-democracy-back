@@ -1,12 +1,12 @@
 
-import { cronJobElection } from "./Elections/cronJobElection";
+import { cronJobCreateElection  } from "./Elections/cronJobElection";
 
 
 
 const cronJobsStart = () =>
 {
     console.log("cron jobs starting ...")
-    cronJobElection.start();
+    cronJobCreateElection.start();
     console.log("cron jobs started successfuly")
 }
 

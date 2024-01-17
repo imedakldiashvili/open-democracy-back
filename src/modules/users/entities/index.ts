@@ -1,4 +1,5 @@
 import { User } from "./User";
+import { UserDetail } from "./UserDetail";
 
 import { UserPassword } from "./UserPassword";
 import { UserSession } from "./UserSession";
@@ -7,4 +8,4 @@ import { UserInivitation } from "./UserInivitation";
 
 
 
-export { User, UserPassword, UserSession, UserOTP, UserInivitation }
+export { User, UserPassword, UserSession, UserOTP, UserInivitation, UserDetail }

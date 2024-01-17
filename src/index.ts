@@ -39,7 +39,8 @@ app.use(
       next()
     } else {
       validateToken(req, res, next) 
-    }} )
+    }
+  })
 
 app.use('/api/', router )
 app.all('*', (req, res) => { throw AppError.notFound(`Requested Url ${req.path} not found !!!`)})

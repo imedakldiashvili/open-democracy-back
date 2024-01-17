@@ -1,8 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, OneToOne, OneToMany, ManyToMany, JoinTable } from "typeorm"
 import { Ballot } from "../../ballots/entities"
-import { Voter } from "../../votings/entities"
 import { Region } from "./Region"
 import { Election } from "../../elections/entities"
+import { UserDetail } from "../../users/entities"
 
 @Entity('districts')
 export class District {
@@ -56,7 +56,7 @@ export class District {
     @JoinColumn()
     region: Region
 
-    @OneToMany(() => Voter, (voter) => voter.district)
-    voters: Voter[]
+    @OneToMany(() => UserDetail, (userDetail) => userDetail.district)
+    userDetails: UserDetail[]
 
 }

@@ -1,14 +1,14 @@
 import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, OneToOne } from "typeorm"
 import { District } from "../../locations/entities"
 
-@Entity('voters')
-export class Voter {
+@Entity('users_details')
+export class UserDetail {
 
     @PrimaryGeneratedColumn()
     id: number
 
     @Column()
-    voterCode: string
+    code: string
 
     @Column()
     firstName: string

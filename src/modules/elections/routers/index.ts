@@ -15,6 +15,8 @@ electionRouter.post("/elections/Add", ElectionControler.addElection)
 electionRouter.put("/elections/SetActive", ElectionControler.setActiveElection)
 electionRouter.delete("/elections/Remove", ElectionControler.deleteElection)
 
-electionRouter.post("/elections/publish", ElectionControler.publishElection)
+electionRouter.post("/elections/create", ElectionControler.createElection)
+electionRouter.post("/elections/process", ElectionControler.processElection)
+electionRouter.post("/elections/publish", ElectionControler.publicElection)
 
 export default electionRouter;

@@ -2,10 +2,11 @@ import { NextFunction, Request, Response } from 'express'
 
 import { ballotRepository } from '../../ballots/repositories';
 import { electionRepository } from '../../elections/repositories';
-import { ballotBoxRepository, voterRepository, votingCardRepository } from '../repositories';
+import { ballotBoxRepository, } from '../repositories';
 import { generateHash } from '../../../middlewares/security'
 import { newGuid } from '../../../utils'
-import { Voter, VotingCard } from '../entities';
+import { VotingCard } from '../entities';
+import { userDetailRepository } from '../../users/repositories';
 
 
 class VotingControll {
@@ -15,16 +16,16 @@ class VotingControll {
             const { electionId, voterId } = req.body;
 
             const election = await electionRepository.findOneOrFail({
-                where: { id: electionId, status: { id: 2 } }
+                where: { id: electionId, actualStatusSchedule: {status: { id: 2 }}  }
             });
 
             const electionBallots = await ballotRepository.find({
-                where: { election: { id: electionId }, districts: { voters: { id: voterId } } },
+                where: { election: { id: electionId }, districts: { userDetails: { id: voterId } } },
                 relations: { ballotType: true, ballotItems: { ballotItemValues: true } },
                 order: { index: "ASC", ballotItems: { code: "ASC" } }
             });
 
-            const voter = await voterRepository.findOneOrFail({
+            const voter = await userDetailRepository.findOneOrFail({
                 relations: { district: { region: true } },
                 where: { id: voterId }
             })
@@ -44,7 +45,7 @@ class VotingControll {
                 hash:  generateHash(uid, votingCardSalt),
                 voter: {
                     id: voter.id,
-                    voterCode: voter.voterCode,
+                    code: voter.code,
                     firstName: voter.firstName,
                     lastName: voter.lastName,
                     district: { id: voter.district.id, code: voter.district.code, name: voter.district.name },

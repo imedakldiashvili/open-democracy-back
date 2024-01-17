@@ -1,30 +1,27 @@
 import * as cron from "node-cron";
-import { serviceCalculateElectionResult, serviceCloseElection, servicePublishElection, serviceStartElection, serviceUpdateElectionTimePeriod } from "../../modules/elections/services";
+import 
+{ 
+    serviceCreateElection,
+    serviceProcessElection, 
+} 
+    from "../../modules/elections/services";
 
-
-export const cronJobElection = cron.schedule(
-    "*/1 * * * *",
+export const cronJobCreateElection = cron.schedule(
+    "0 0 1 * *",
     async () => { 
-        console.log("publishElection ...")
-        var resutPublish = await servicePublishElection()
-        console.log("publishElection", resutPublish)
-
-        console.log("startElection ...")
-        var resutStart = await serviceStartElection() 
-        console.log("startElection", resutStart)
-
-        console.log("updateElection ...")
-        var resutUpdate = await serviceUpdateElectionTimePeriod() 
-        console.log("updateElection", resutUpdate)
-
-
-        console.log("closeElection ...")
-        var resutClose = await serviceCloseElection() 
-        console.log("closeElection", resutClose)
-
-        console.log("resultlection ...")
-        var resutCalculate = await serviceCalculateElectionResult()
-        console.log("resultlection", resutCalculate)
+        console.log("createElection ...")
+        var resut = await serviceCreateElection()
+        console.log("createElection ", resut)
+        return resut
     }
 )
 
+export const cronJobElectionProcessing = cron.schedule(
+    "*/1 * * * *",
+    async () => { 
+        console.log("processElection ...")
+        var resut = await serviceProcessElection()
+        console.log("processElection", resut)
+        return resut
+    }
+)

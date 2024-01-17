@@ -5,8 +5,8 @@ import { generateHash, generateRefreshToken, generateToken } from "../../../midd
 import { dateNow, dateNowAddMinutes, newGuid, otpCode } from "../../../utils";
 
 import { UserOTP, UserSession } from "../entities";
-import { userOTPRepository, userPasswordRepository, userRepository, userSessionRepository } from "../../users/repositories";
-import { voterRepository } from "../../votings/repositories";
+import { userDetailRepository, userOTPRepository, userPasswordRepository, userRepository, userSessionRepository } from "../../users/repositories";
+
 
     export const  getLoginUser = async (loginUserName: string) => {
 
@@ -59,7 +59,7 @@ import { voterRepository } from "../../votings/repositories";
 
         const sessionUid = newGuid()
 
-        const voters = await voterRepository.find({
+        const voters = await userDetailRepository.find({
             where: {id: loginUser.id},
             relations: { district: true }
         })

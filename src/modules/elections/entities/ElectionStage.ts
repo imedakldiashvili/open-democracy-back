@@ -1,12 +1,13 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn, OneToOne } from "typeorm"
 import { Ballot } from "../../ballots/entities"
 import { Election } from "./Election"
+import { ElectionStatus } from "./ElectionStatus"
 
 
 
 
-@Entity('elections_times_periods')
-export class ElectionTimePeriod {
+@Entity('elections_stages')
+export class ElectionStage{
 
     @PrimaryGeneratedColumn()
     id: number
@@ -15,16 +16,12 @@ export class ElectionTimePeriod {
     code: string   
     
     @Column()
-    valueDate: Date
+    name: string   
 
     @Column()
-    numberOfVoters: number  
-     
-    @Column()
-    state: number   
+    isActual: boolean   
 
-    @OneToOne(() => Election)
-    @JoinColumn()
-    election: Election
+    @OneToMany(() => ElectionStatus, (status) => status.stage)
+    statuses: ElectionStatus[]    
    
 }

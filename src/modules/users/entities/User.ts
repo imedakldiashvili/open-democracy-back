@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany } from "typeorm"
-import { Voter } from "../../votings/entities"
+import { Delegate } from "../../delegates/entities/Delegate"
+import { UserDetail } from "./UserDetail"
 
 @Entity('users')
 export class User {
@@ -15,7 +16,6 @@ export class User {
 
     @Column()
     emailVerificationOtpId: number
-
     @Column()
     mobileNumber: string
 
@@ -49,10 +49,13 @@ export class User {
     @Column()
     deletedBy: number
 
-    @OneToOne(() => Voter)
+    @OneToOne(() => UserDetail)
     @JoinColumn({name: "id"} )
-    voter: Voter
+    userDetail: UserDetail
 
-
+    
+    @OneToMany(() => Delegate, (delegate) => delegate.delegateGroup)
+    delegates: Delegate[]   
+    
 }
 

@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany } from "typeorm"
 import { Ballot } from "./Ballot"
+import { TemplateBallot } from "../../templates/entities/TemplateBallot"
 
 @Entity('ballots_types')
 export class BallotType {
@@ -16,6 +17,13 @@ export class BallotType {
     @OneToMany(() => Ballot, (ballot) => ballot.ballotType)
     ballots: Ballot[]
     
+    @OneToMany(() => TemplateBallot, (templateBallot) => templateBallot.ballotType)
+    templateBallots: TemplateBallot[]
+    
+
+    @Column()
+    byDelegateGroup: boolean    
+
     @Column()
     isActive: boolean
 }

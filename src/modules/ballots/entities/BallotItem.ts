@@ -10,6 +10,9 @@ export class BallotItem {
     id: number
 
     @Column()
+    index: number
+
+    @Column()
     code: string
 
     @Column()

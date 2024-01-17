@@ -6,9 +6,9 @@ import { generateHash } from '../../../middlewares/security';
 import { dateNow, newGuid } from '../../../utils';
 
 import { userPasswordRepository, userRepository, userSessionRepository } from "../../users/repositories";
-import { addOTP, loginUserService, checkOTP } from '../services';
+import { addOTP, loginUserService, checkOTP } from '../../users/services';
 
-import { User, UserPassword } from '../entities';
+import { User, UserPassword } from '../../users/entities';
 
 class AuthContoller {
     

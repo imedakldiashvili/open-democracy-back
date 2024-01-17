@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn, OneToOne, ManyToMany, JoinTable } from "typeorm"
 import { Ballot } from "../../ballots/entities"
 import { ElectionStatus } from "./ElectionStatus"
-import { ElectionTimePeriod } from "./ElectionTImesPeriods"
+import { ElectionStatusSchedule } from "./ElectionStatusSchedule"
 import { District } from "../../locations/entities"
 
 
@@ -14,22 +14,13 @@ export class Election {
     id: number
 
     @Column()
+    uid: string;
+
+    @Column()
     code: string
 
     @Column()
     name: string
-
-    @Column()
-    valueDatePublish: Date
-
-    @Column()
-    valueDate: Date    
-
-    @Column()
-    valueDateStart: Date
-    
-    @Column()
-    valueDateFinish: Date
     
     @Column()
     registeredVoters: number
@@ -37,18 +28,16 @@ export class Election {
     @Column()
     participantVoters: number
 
-    @Column()
-    statusId: number
-
-    @OneToOne(() => ElectionStatus)
+   
+    @OneToOne(() => ElectionStatusSchedule)
     @JoinColumn()
-    status: ElectionStatus
+    actualStatusSchedule: ElectionStatusSchedule 
 
     @OneToMany(() => Ballot, (ballot) => ballot.election)
     ballots: Ballot[]  
 
-    @OneToMany(() => ElectionTimePeriod, (timePeriod) => timePeriod.election)
-    timePeriods: ElectionTimePeriod[] 
+    @OneToMany(() => ElectionStatusSchedule, (statusSchedule) => statusSchedule.election)
+    statusSchedule: ElectionStatusSchedule[] 
     
     @ManyToMany(() => District)
     @JoinTable(
@@ -67,5 +56,15 @@ export class Election {
         }
     )
     districts: District[]
+
+    @Column()
+    valueDateFrom: Date
+
+    @Column()
+    valueDateTo: Date
+
+    @Column()
+    createdAt: Date
+
    
 }

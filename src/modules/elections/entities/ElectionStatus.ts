@@ -1,11 +1,13 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn, OneToOne } from "typeorm"
 import { Ballot } from "../../ballots/entities"
 import { Election } from "./Election"
+import { ElectionStage } from "./ElectionStage"
+import { TemplateStatusSchedule } from "../../templates/entities/TemplateStatusSchedule"
 
 
 
 
-@Entity('elections_status')
+@Entity('elections_statuses')
 export class ElectionStatus {
 
     @PrimaryGeneratedColumn()
@@ -14,7 +16,28 @@ export class ElectionStatus {
     @Column()
     code: string   
 
-    @OneToMany(() => Election, (election) => election.status)
-    elections: Election[]    
+    @Column()
+    name: string   
+
+    @Column()
+    stageId: number  
+
+    @Column()
+    isActual: boolean
+
+    @OneToOne(() => ElectionStage)
+    @JoinColumn()
+    stage: ElectionStage 
+
+    @Column()
+    stageProgress: number    
+
+
+    @OneToMany(() => TemplateStatusSchedule, (statusSchedule) => statusSchedule.status)
+    statusSchedule: TemplateStatusSchedule[]    
+
+
    
+    
+
 }

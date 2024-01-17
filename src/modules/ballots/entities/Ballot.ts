@@ -42,6 +42,9 @@ export class Ballot {
     @JoinColumn()
     election: Election
 
+    @Column()
+    ballotTypeId: number
+
     @OneToOne(() => BallotType)
     @JoinColumn()
     ballotType: BallotType

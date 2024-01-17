@@ -3,8 +3,20 @@ export const dateNow = () => {
     return  new Date()
 } 
 
+export const dateNowMinute = () => { 
+    const date =  new Date() 
+    return  new Date(date.getTime() - date.getMilliseconds());
+}
+
 export const dateNowAddMinutes = (minutes: number) => { 
-    let date = new Date()
-    date.setMinutes(date.getMinutes() + minutes);
+    const date = addMinutes( new Date(), minutes)
     return  date
 } 
+
+export const addMinutes = (date: Date, minutes: number) => {
+    return new Date(date.getTime() + minutes*60000);
+  }
+
+  export const newDateW = (date: Date, minutes: number) => {
+    return new Date(date.getTime() + minutes*60000);
+  }

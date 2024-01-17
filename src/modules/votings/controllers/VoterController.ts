@@ -7,14 +7,14 @@ import { ballotItemRepository, ballotItemValueRepository, ballotRepository } fro
 import { electionRepository } from '../../elections/repositories';
 import { districtRepository } from '../../locations/repositories';
 import { VotingBallotItem, VotingBallotItemValue, VotingCard, VotingCardBallot } from '../entities';
-import { voterRepository, votingCardBallotRepository, votingCardRepository } from '../repositories';
+import { userDetailRepository } from '../../users/repositories';
 
 
 class VoterController {
 
     static voter = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const Voters = await voterRepository.find();
+            const Voters = await userDetailRepository.find();
             return res.json(Voters);
         } catch (error) {
             next(error)
@@ -30,16 +30,16 @@ class VoterController {
 
             
             const election = await electionRepository.findOneOrFail({
-                where: { id: electionId, status: {id:1 }, }
+                where: { id: electionId, actualStatusSchedule: { status: {id:1 }}, }
             });
 
             const ballots = await ballotRepository.find({
                 relations: {ballotType: true, ballotItems: {ballotItemValues: true} },
-                where: { election: { id: electionId }, districts: { voters: { id: voterId } } },
+                where: { election: { id: electionId }, districts: { userDetails: { id: voterId } } },
                 order: { index: "ASC", ballotItems: { code: "ASC" } }
             });
 
-            const voter = await voterRepository.findOneOrFail({
+            const voter = await userDetailRepository.findOneOrFail({
                 relations: { district: true },
                 where: { id: voterId }
             })
@@ -58,16 +58,16 @@ class VoterController {
             const { electionId, voterId } = req.body;
 
             const election = await electionRepository.findOneOrFail({
-                where: { id: electionId, status: {id:1 }, }
+                where: { id: electionId, actualStatusSchedule:{status: {id: 1 }} }
             });
 
             const ballots = await ballotRepository.find({
                 relations: {ballotType: true, ballotItems: {ballotItemValues: true} },
-                where: { election: { id: electionId }, districts: { voters: { id: voterId } } },
+                where: { election: { id: electionId }, districts: { userDetails: { id: voterId } } },
                 order: { index: "ASC", ballotItems: { code: "ASC" } }
             });
 
-            const voter = await voterRepository.findOneOrFail({
+            const voter = await userDetailRepository.findOneOrFail({
                 relations: { district: true },
                 where: { id: voterId }
             })
@@ -83,7 +83,7 @@ class VoterController {
 
     static findVoter = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const Voters = await voterRepository.find();
+            const Voters = await userDetailRepository.find();
             return res.json(Voters);
         } catch (error) {
             next(error)
@@ -94,7 +94,7 @@ class VoterController {
     static findOneVoter = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = parseInt(req.params.id)
-            const election = await voterRepository.findOneBy({ id: id });
+            const election = await userDetailRepository.findOneBy({ id: id });
             return res.json(election);
         } catch (error) {
             next(error)
@@ -109,7 +109,7 @@ class VoterController {
             const votingCard = new VotingCard();
             votingCard.election = await electionRepository.findOneByOrFail({ id: electionId })
             votingCard.district = await districtRepository.findOneByOrFail({ id: districtId })
-            votingCard.voter = await voterRepository.findOneByOrFail({ id: voterId })
+            votingCard.voter = await userDetailRepository.findOneByOrFail({ id: voterId })
             votingCard.votingCardBallots = []
 
             for (const ballot of ballots) {
@@ -130,7 +130,7 @@ class VoterController {
             const votingCard = new VotingCard();
             votingCard.election = await electionRepository.findOneByOrFail({ id: electionId })
             votingCard.district = await districtRepository.findOneByOrFail({ id: districtId })
-            votingCard.voter = await voterRepository.findOneByOrFail({ id: voterId })
+            votingCard.voter = await userDetailRepository.findOneByOrFail({ id: voterId })
             votingCard.createdAt = dateNow()
             votingCard.votingCardBallots = []
 
@@ -159,7 +159,7 @@ class VoterController {
 
                 for (const votedBallot of votedBallots) {
                     const votingBallotItem = new VotingBallotItem()
-                    votingBallotItem.voterCode = votingCard.voter.voterCode
+                    votingBallotItem.voterCode = votingCard.voter.code
                     votingBallotItem.ballot = await ballotRepository.findOneByOrFail({ id: votedBallot.ballotId })
                     votingBallotItem.ballotItem = await ballotItemRepository.findOneByOrFail({ id: votedBallot.ballotItem.id })
 
@@ -185,7 +185,7 @@ class VoterController {
     static addVoter = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const Voter = req.body;
-            await voterRepository.save(Voter);
+            await userDetailRepository.save(Voter);
             return res.json("success");
         } catch (error) {
             next(error)
