@@ -3,7 +3,7 @@ import { votingCardRepository } from '../../votings/repositories';
 import { Election} from '../entities';
 import { electionRepository, electionStatusRepository } from '../repositories';
 import { serviceCreateElection, serviceProcessElection, servicePublishElection } from '../services';
-import { MoreThan, Not } from 'typeorm';
+import { Equal, MoreThan, Not } from 'typeorm';
 import { ElectionStatusEnum } from '../../enums';
 
 
@@ -44,38 +44,11 @@ class ElectionControler {
         const {voterId} = req.body;
         try {
 
-            const activeElections = await electionRepository.find({
-                where: {
-                    actualStatusSchedule: {status: {id: Not(6)}}, 
-                    ballots: {districts: {userDetails: {id: voterId}}},
-
-                },
-                relations: {ballots: {districts: {userDetails: true}, ballotType: true, ballotItems: {ballotItemValues: true} }},
-                order: {id: "DESC", ballots: {ballotType: {id: "ASC"}}}
-            });
-
-            const votingCards = await votingCardRepository.find({
-                where: {voter: {id: voterId}},
+            const activeElectionCards = await votingCardRepository.find({
+                where: {voter: {id: voterId}, election: {actualStatusSchedule: {status: {id: Not(ElectionStatusEnum.archive)}}}},
                 relations: {voter:true, election: true}
             })
 
-            console.log(votingCards)
-
-            const activeElectionCards = []
-
-            for (let activeElection of activeElections) {
-                if (votingCards == null)
-                {
-                    const electionVoterCard = activeElection.id  
-                    activeElectionCards.push(electionVoterCard)
-                }
-                else
-                {
-                    var votingCard = votingCards.filter(e=> e.election.id == activeElection.id);
-                    const electionVoterCard = { activeElection, votingCard }
-                    activeElectionCards.push(electionVoterCard)
-                }
-            }
 
             return res.json(activeElectionCards);
         } catch (error) {
