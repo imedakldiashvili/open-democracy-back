@@ -45,12 +45,12 @@ class ElectionControler {
         try {
 
             const activeElectionCards = await votingCardRepository.find({
-                // where: {voter: {id: voterId}, election: {actualStatusSchedule: {status: {id: Not(ElectionStatusEnum.archive)}}}},
+                where: {voter: {id: voterId}, election: {actualStatusSchedule: {status: {id: Not(ElectionStatusEnum.archive)}}}},
                 relations: {voter:true, election: true}
             })
 
 
-            return res.json(req.body);
+            return res.json(activeElectionCards);
         } catch (error) {
             next(error)
         }
