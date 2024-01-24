@@ -50,7 +50,7 @@ class ElectionControler {
             })
 
 
-            return res.json(activeElectionCards);
+            return res.json(req.body);
         } catch (error) {
             next(error)
         }
