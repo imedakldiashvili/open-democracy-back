@@ -128,7 +128,10 @@ class VoterController {
         try {
             const { votingCardId, electionId, voterId, sessionUid, votedBallots} = req.body;
 
-            const votingCard = await votingCardRepository.findOneByOrFail({ id: votingCardId, electionId: electionId, voterId: voterId, statusId: 1 })
+            const votingCard = await votingCardRepository.findOneOrFail({ 
+                                                            where: { id: votingCardId, electionId: electionId, voterId: voterId, statusId: 1}, 
+                                                            relations: {voter: true}
+                                                        })
             votingCard.votingCardBallots = []
 
             await appDataSource.manager.transaction(async (transactionalEntityManager) => {
