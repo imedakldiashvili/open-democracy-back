@@ -8,6 +8,7 @@ import { electionRepository } from '../../elections/repositories';
 import { districtRepository } from '../../locations/repositories';
 import { VotingBallotItem, VotingBallotItemValue, VotingCard, VotingCardBallot } from '../entities';
 import { userDetailRepository } from '../../users/repositories';
+import { votingCardRepository } from '../repositories';
 
 
 class VoterController {
@@ -125,37 +126,12 @@ class VoterController {
 
     static vote = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { electionId, districtId, voterId, createdBy, sessionUid, ballots, votedBallots} = req.body;
+            const { votingCardId, electionId, voterId, sessionUid, votedBallots} = req.body;
 
-            const votingCard = new VotingCard();
-            votingCard.election = await electionRepository.findOneByOrFail({ id: electionId })
-            votingCard.district = await districtRepository.findOneByOrFail({ id: districtId })
-            votingCard.voter = await userDetailRepository.findOneByOrFail({ id: voterId })
-            votingCard.createdAt = dateNow()
+            const votingCard = await votingCardRepository.findOneByOrFail({ id: votingCardId, electionId: electionId, voterId: voterId, statusId: 1 })
             votingCard.votingCardBallots = []
 
             await appDataSource.manager.transaction(async (transactionalEntityManager) => {
-
-                await transactionalEntityManager.save(votingCard)
-
-                const action = new Action();
-                action.id = newGuid()
-                action.sessionUid = sessionUid
-                action.actionType = await actionTypeRepository.findOneByOrFail({ id: 3 })
-                action.actionId = votingCard.id
-                action.actionName = votingCard.election.name;
-                action.createdBy = createdBy
-                action.createdOn = dateNow()
-                action.hasAmount = false
-
-                await transactionalEntityManager.save(action)
-
-                for (const ballot of ballots) {
-                    const votingCardBallot = new VotingCardBallot();
-                    votingCardBallot.votingCard = votingCard
-                    votingCardBallot.ballot = await ballotRepository.findOneByOrFail({ id: ballot.ballotId })
-                    await transactionalEntityManager.save(votingCardBallot)
-                }
 
                 for (const votedBallot of votedBallots) {
                     const votingBallotItem = new VotingBallotItem()
@@ -172,6 +148,9 @@ class VoterController {
                         await transactionalEntityManager.save(votingBallotItemValue)
                     }
                 }
+
+                votingCard.statusId = 2    
+                await transactionalEntityManager.save(votingCard)
 
             })
 
