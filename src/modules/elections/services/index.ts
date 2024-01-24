@@ -11,6 +11,7 @@ import { ElectionStatusSchedule } from "../entities/ElectionStatusSchedule"
 import { userDetailRepository } from "../../users/repositories"
 import { ElectionStatusEnum } from "../../enums"
 import { newGuid } from "../../../utils"
+import { VotingCard } from "../../votings/entities"
 
 
 
@@ -169,18 +170,26 @@ export const serviceProcessElection = async () => {
 
     actualElectionStatusSchedule.state = 2
     await electionStatusScheduleRepository.save(actualElectionStatusSchedule)
-
     var newElectionStatusSchedule = election.statusSchedule.filter(e => (e.state == 0) && (e.status.id > actualElectionStatusSchedule.status.id))[0]
 
+    
     if (newElectionStatusSchedule.status.id == ElectionStatusEnum.startedIn)
     {
         await servicePublishElection(election.id)
         election = await electionRepository.findOne({where: { id: election.id}})
     }
 
+    if (newElectionStatusSchedule.status.id == ElectionStatusEnum.finished)
+    {
+        console.log("100")
+        await serviceCancelElectionVotingCards(election.id)
+        election = await electionRepository.findOne({where: { id: election.id}})
+    }
+
     newElectionStatusSchedule.state = newElectionStatusSchedule.status.id == ElectionStatusEnum.archive ? 2 : 1;
     await electionStatusScheduleRepository.save(newElectionStatusSchedule)
 
+    console.log("4")
     election.actualStatusSchedule = newElectionStatusSchedule
     election.uid = newGuid()
     await electionRepository.save(election)
@@ -196,7 +205,7 @@ export const servicePublishElection = async (electionId: number) => {
     if (election == null) { return {status: 0,   message: "new_election_not_found" } }
 
     var newVotingCards = await userDetailRepository.createQueryBuilder()
-        .select(['UserDetail.id "voterId"', electionId.toString() + ' "electionId"', 'UserDetail.district_id "districtd"'])
+        .select(['UserDetail.id "voterId"', electionId.toString() + ' "electionId"', 'UserDetail.district_id "districtId"', "1" + ' "statusId"'])
         .getRawMany()
 
     await votingCardRepository.createQueryBuilder()
@@ -221,3 +230,25 @@ export const servicePublishElection = async (electionId: number) => {
     
     return {status: 1,  message: "election_published_successfuly" };
 }
+
+export const serviceCancelElectionVotingCards = async (electionId: number) => {
+    var election = await electionRepository.findOne({ 
+        where: { id: electionId },
+        relations: {statusSchedule: {status: true}}
+    })
+    if (election == null) { return {status: 0,   message: "new_election_not_found" } }
+
+    await votingCardRepository.createQueryBuilder()
+    .update()
+    .set({ statusId: 3 })
+    .where("election_id = :electionId and status_id = :statusId ", { electionId: electionId, statusId: 1 })
+    .execute()
+
+
+
+    election.registeredVoters = await votingCardRepository.count({where: {election: {id: electionId}}})
+    await electionRepository.save(election)
+    
+    return {status: 1,  message: "election_published_successfuly" };
+}
+

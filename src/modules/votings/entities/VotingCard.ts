@@ -25,12 +25,16 @@ export class VotingCard {
 
     @Column()
     districtId: number
+
     @OneToOne(() => District)
     @JoinColumn()
     district: District
 
     @OneToMany(() => VotingCardBallot, (votingCardBallot) => votingCardBallot.votingCard)
     votingCardBallots: VotingCardBallot[]
+
+    @Column()
+    statusId: number
 
     @Column()
     createdAt: Date

@@ -45,8 +45,9 @@ class ElectionControler {
         try {
 
             const activeElectionCards = await votingCardRepository.find({
-                where: {voter: {id: voterId}, election: {actualStatusSchedule: {status: {id: Not(ElectionStatusEnum.archive)}}}},
-                relations: {voter:true, election: true}
+                where: {voter: {id: voterId}, statusId: 1 },
+                relations: {voter:true, election: true},
+                order: {election: {id: -1}}
             })
 
 
