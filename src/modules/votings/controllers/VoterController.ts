@@ -132,7 +132,6 @@ class VoterController {
                                                             where: { id: votingCardId, electionId: electionId, voterId: voterId, statusId: 1}, 
                                                             relations: {voter: true}
                                                         })
-            votingCard.votingCardBallots = []
 
             await appDataSource.manager.transaction(async (transactionalEntityManager) => {
 
