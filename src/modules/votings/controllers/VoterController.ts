@@ -139,8 +139,8 @@ class VoterController {
                     
                     const voteBallotItem = new VoteBallotItem()
                     voteBallotItem.code = votingCard.voter.code
-                    voteBallotItem.ballot = await ballotRepository.findOneByOrFail({ id: votedBallot.ballotId })
-                    voteBallotItem.ballotItem = await ballotItemRepository.findOneByOrFail({ id: votedBallot.ballotItem.id })
+                    voteBallotItem.ballotId = votedBallot.ballotId
+                    voteBallotItem.ballotItemId = votedBallot.ballotItem.id
 
                     await transactionalEntityManager.save(voteBallotItem)
 

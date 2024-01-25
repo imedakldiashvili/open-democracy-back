@@ -11,9 +11,15 @@ export class VoteBallotItem {
     @Column()
     code: string
 
+    @Column()
+    ballotId: number
+    
     @OneToOne(() => Ballot)
     @JoinColumn()
     ballot: Ballot
+
+    @Column()
+    ballotItemId: number
 
     @OneToOne(() => BallotItem)
     @JoinColumn()
