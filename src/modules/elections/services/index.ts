@@ -247,14 +247,14 @@ export const serviceCompleteElectionVotingCards = async (electionId: number) => 
     election.participantVoters = await votingCardRepository.count({where: {election: {id: electionId}, statusId: 2}})
     await electionRepository.save(election)
     
-    // var electionBallotItems = await ballotItemRepository.find({where: {ballot: {election: {id: electionId}}}})
+    var ballotItems = await ballotItemRepository.find({where: {ballot: {election: {id: electionId}}}})
 
-    // for(var electionBallotItem of electionBallotItems )
-    // {
-    //     var numberOfVotes = await voteBallotItemRepository.count({where: {ballotItemId: electionBallotItem.id}})
-    //     electionBallotItem.numberOfVotes = numberOfVotes
-    //     await voteBallotItemRepository.save(electionBallotItem)
-    // }
+    for(var ballotItem of ballotItems  )
+    {
+        var numberOfVotes = await voteBallotItemRepository.count({where: {ballotItemId: ballotItem.id}})
+        ballotItem.numberOfVotes = numberOfVotes
+        await ballotItemRepository.save(ballotItem)
+    }
 
     return {status: 1,  message: "election__successfuly" };
 }
