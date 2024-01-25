@@ -152,7 +152,8 @@ class VoterController {
                         await transactionalEntityManager.save(voteBallotItemValue)
                     }
                 }
-
+                let dateTime = new Date()
+                votingCard.votedAt = dateTime
                 votingCard.statusId = 2    
                 await transactionalEntityManager.save(votingCard)
 

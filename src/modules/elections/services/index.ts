@@ -1,4 +1,4 @@
-import { Between, LessThan, LessThanOrEqual, Not } from "typeorm"
+import { Between, LessThan, LessThanOrEqual, MoreThan, MoreThanOrEqual, Not } from "typeorm"
 import { votingCardBallotRepository, votingCardRepository } from "../../votings/repositories"
 import { electionRepository, electionStatusRepository, electionStatusScheduleRepository } from "../repositories"
 import { templateRepository, templateStatusScheduleRepository } from "../../templates/repositories"
@@ -169,6 +169,8 @@ export const serviceProcessElection = async () => {
     if (actualElectionStatusSchedule.valueDateTo >= dateTime) {return {status: 0,   message: "waiting_status_" + actualElectionStatusSchedule.status.code }}
 
     actualElectionStatusSchedule.state = 2
+    actualElectionStatusSchedule.numberOfVoters = await votingCardRepository.count({where:{votedAt: LessThanOrEqual(actualElectionStatusSchedule.valueDateTo)}})
+                                                                
     await electionStatusScheduleRepository.save(actualElectionStatusSchedule)
     var newElectionStatusSchedule = election.statusSchedule.filter(e => (e.state == 0) && (e.status.id > actualElectionStatusSchedule.status.id))[0]
 
@@ -181,7 +183,6 @@ export const serviceProcessElection = async () => {
 
     if (newElectionStatusSchedule.status.id == ElectionStatusEnum.finished)
     {
-        console.log("100")
         await serviceCancelElectionVotingCards(election.id)
         election = await electionRepository.findOne({where: { id: election.id}})
     }

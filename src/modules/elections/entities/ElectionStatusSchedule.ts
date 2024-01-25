@@ -23,6 +23,9 @@ export class ElectionStatusSchedule {
 
     @Column()
     numberOfVoters: number  
+
+    @Column()
+    numberOfParticipantsVoters: number   
      
     @Column()
     state: number   

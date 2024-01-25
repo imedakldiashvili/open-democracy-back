@@ -39,5 +39,7 @@ export class VotingCard {
     @Column()
     createdAt: Date
     
+    @Column()
+    votedAt: Date
     
 }

@@ -28,7 +28,6 @@ export class Election {
     @Column()
     participantVoters: number
 
-   
     @OneToOne(() => ElectionStatusSchedule)
     @JoinColumn()
     actualStatusSchedule: ElectionStatusSchedule 
