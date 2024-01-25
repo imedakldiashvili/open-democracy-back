@@ -1,5 +1,5 @@
-import { VoteBallotItem } from "./VotingBallotItem";
-import { VoteBallotItemValue } from "./VotingBallotItemValue";
+import { VoteBallotItem } from "./VoteBallotItem";
+import { VoteBallotItemValue } from "./VoteBallotItemValue";
 import { VotingCard } from "./VotingCard";
 import { VotingCardBallot } from "./VotingCardBallot";
 

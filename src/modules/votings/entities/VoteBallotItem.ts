@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, OneToOne, OneToMany } from "typeorm"
 import { Ballot, BallotItem } from "../../ballots/entities"
-import { VoteBallotItemValue } from "./VotingBallotItemValue"
+import { VoteBallotItemValue } from "./VoteBallotItemValue"
 
 @Entity('votes_ballots_items')
 export class VoteBallotItem {
