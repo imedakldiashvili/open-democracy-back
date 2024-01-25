@@ -1,5 +1,5 @@
 import { Between, LessThan, LessThanOrEqual, MoreThan, MoreThanOrEqual, Not } from "typeorm"
-import { votingCardBallotRepository, votingCardRepository } from "../../votings/repositories"
+import { voteBallotItemRepository, votingCardBallotRepository, votingCardRepository } from "../../votings/repositories"
 import { electionRepository, electionStatusRepository, electionStatusScheduleRepository } from "../repositories"
 import { templateRepository, templateStatusScheduleRepository } from "../../templates/repositories"
 import { delegateGroupRepository, delegateRepository } from "../../delegates/repositories"
@@ -183,7 +183,7 @@ export const serviceProcessElection = async () => {
 
     if (newElectionStatusSchedule.status.id == ElectionStatusEnum.finished)
     {
-        await serviceCancelElectionVotingCards(election.id)
+        await serviceCompleteElectionVotingCards(election.id)
         election = await electionRepository.findOne({where: { id: election.id}})
     }
 
@@ -231,7 +231,7 @@ export const servicePublishElection = async (electionId: number) => {
     return {status: 1,  message: "election_published_successfuly" };
 }
 
-export const serviceCancelElectionVotingCards = async (electionId: number) => {
+export const serviceCompleteElectionVotingCards = async (electionId: number) => {
     var election = await electionRepository.findOne({ 
         where: { id: electionId },
         relations: {statusSchedule: {status: true}}
@@ -244,11 +244,18 @@ export const serviceCancelElectionVotingCards = async (electionId: number) => {
     .where("election_id = :electionId and status_id = :statusId ", { electionId: electionId, statusId: 1 })
     .execute()
 
-
-
-    election.registeredVoters = await votingCardRepository.count({where: {election: {id: electionId}}})
+    election.participantVoters = await votingCardRepository.count({where: {election: {id: electionId}, statusId: 2}})
     await electionRepository.save(election)
     
-    return {status: 1,  message: "election_published_successfuly" };
+    var electionBallotItems = await ballotItemRepository.find({where: {ballot: {election: {id: electionId}}}})
+
+    for(var electionBallotItem of electionBallotItems )
+    {
+        var numberOfVotes = await voteBallotItemRepository.count({where: {ballotItemId: electionBallotItem.id}})
+        electionBallotItem.numberOfVotes = numberOfVotes
+        await voteBallotItemRepository.save(electionBallotItem)
+    }
+
+    return {status: 1,  message: "election__successfuly" };
 }
 
