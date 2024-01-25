@@ -139,7 +139,7 @@ class VoterController {
                     
                     const voteBallotItem = new VoteBallotItem()
                     voteBallotItem.code = votingCard.voter.code
-                    voteBallotItem.ballotId = votedBallot.ballotId
+                    voteBallotItem.ballotId = votedBallot.ballot.id
                     voteBallotItem.ballotItemId = votedBallot.ballotItem.id
 
                     await transactionalEntityManager.save(voteBallotItem)
