@@ -1,12 +1,15 @@
 import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, OneToOne, OneToMany } from "typeorm"
 import { Ballot, BallotItem } from "../../ballots/entities"
-import { VotingBallotItemValue } from "./VotingBallotItemValue"
+import { VoteBallotItemValue } from "./VotingBallotItemValue"
 
-@Entity('votings_ballots_items')
-export class VotingBallotItem {
+@Entity('votes_ballots_items')
+export class VoteBallotItem {
 
     @PrimaryGeneratedColumn()
     id: number
+
+    @PrimaryGeneratedColumn()
+    code: string
 
     @OneToOne(() => Ballot)
     @JoinColumn()
@@ -16,9 +19,6 @@ export class VotingBallotItem {
     @JoinColumn()
     ballotItem: BallotItem
 
-    @OneToMany(() => VotingBallotItemValue, (votingBallotItemValue) => votingBallotItemValue.votingBallotItem)
-    votingBallotItemValues: VotingBallotItemValue[]
-    
-    @Column()
-    voterCode: string
+    @OneToMany(() => VoteBallotItemValue, (voteBallotItemValue) => voteBallotItemValue.voteBallotItem)
+    VoteBallotItemValues: VoteBallotItemValue[]
 }

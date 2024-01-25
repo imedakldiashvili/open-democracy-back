@@ -6,7 +6,7 @@ import { actionTypeRepository } from '../../actions/repositories';
 import { ballotItemRepository, ballotItemValueRepository, ballotRepository } from '../../ballots/repositories';
 import { electionRepository } from '../../elections/repositories';
 import { districtRepository } from '../../locations/repositories';
-import { VotingBallotItem, VotingBallotItemValue, VotingCard, VotingCardBallot } from '../entities';
+import { VoteBallotItem, VoteBallotItemValue, VotingCard, VotingCardBallot } from '../entities';
 import { userDetailRepository } from '../../users/repositories';
 import { votingCardRepository } from '../repositories';
 
@@ -137,18 +137,20 @@ class VoterController {
             await appDataSource.manager.transaction(async (transactionalEntityManager) => {
 
                 for (const votedBallot of votedBallots) {
-                    const votingBallotItem = new VotingBallotItem()
-                    votingBallotItem.voterCode = votingCard.voter.code
-                    votingBallotItem.ballot = await ballotRepository.findOneByOrFail({ id: votedBallot.ballotId })
-                    votingBallotItem.ballotItem = await ballotItemRepository.findOneByOrFail({ id: votedBallot.ballotItem.id })
+                    
+                    const voteBallotItem = new VoteBallotItem()
+                    voteBallotItem.code = votingCard.voter.code
+                    voteBallotItem.ballot = await ballotRepository.findOneByOrFail({ id: votedBallot.ballotId })
+                    voteBallotItem.ballotItem = await ballotItemRepository.findOneByOrFail({ id: votedBallot.ballotItem.id })
 
-                    await transactionalEntityManager.save(votingBallotItem)
+                    await transactionalEntityManager.save(voteBallotItem)
+
                     for (const value of votedBallot.ballotItem.ballotItemSelectedValues) {
-                        const votingBallotItemValue = new VotingBallotItemValue()
-                        votingBallotItemValue.votingBallotItem = votingBallotItem
-                        votingBallotItemValue.ballotItemValueNumber = value.index
-                        votingBallotItemValue.ballotItemValue = await ballotItemValueRepository.findOneByOrFail({ id: value.id })
-                        await transactionalEntityManager.save(votingBallotItemValue)
+                        const voteBallotItemValue = new VoteBallotItemValue()
+                        voteBallotItemValue.voteBallotItem = voteBallotItem
+                        voteBallotItemValue.ballotItemValueNumber = value.index
+                        voteBallotItemValue.ballotItemValue = await ballotItemValueRepository.findOneByOrFail({ id: value.id })
+                        await transactionalEntityManager.save(voteBallotItemValue)
                     }
                 }
 
