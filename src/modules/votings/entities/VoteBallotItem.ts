@@ -8,7 +8,7 @@ export class VoteBallotItem {
     @PrimaryGeneratedColumn()
     id: number
 
-    @PrimaryGeneratedColumn()
+    @Column()
     code: string
 
     @OneToOne(() => Ballot)
