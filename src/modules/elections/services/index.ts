@@ -258,8 +258,9 @@ export const serviceCompleteElectionVotingCards = async (electionId: number) => 
         var numberOfVotes = await voteBallotItemRepository.count({where: {ballotItemId: ballotItem.id}})
 
         ballotItem.numberOfParticipants = numberOfParticipants
-        ballotItem.numberOfVotes = numberOfVotes
-        
+        ballotItem.numberOfVotes = numberOfVotes        
+        ballotItem.valuePercent = numberOfParticipants ? Math.round((numberOfVotes/numberOfParticipants)*100) : 0
+
         await ballotItemRepository.save(ballotItem)
     }
 
