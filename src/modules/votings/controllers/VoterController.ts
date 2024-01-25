@@ -158,7 +158,7 @@ class VoterController {
 
             })
 
-            return res.json({votingCardId: votingCard.id});
+            return res.json({votingCard});
 
         } catch (error) {
             next(error)
