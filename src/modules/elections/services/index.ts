@@ -169,7 +169,7 @@ export const serviceProcessElection = async () => {
     if (actualElectionStatusSchedule.valueDateTo >= dateTime) {return {status: 0,   message: "waiting_status_" + actualElectionStatusSchedule.status.code }}
 
     actualElectionStatusSchedule.state = 2
-    actualElectionStatusSchedule.numberOfVoters = await votingCardRepository.count({where:{votedAt: LessThanOrEqual(actualElectionStatusSchedule.valueDateTo)}})
+    actualElectionStatusSchedule.numberOfVoters = await votingCardRepository.count({where:{electionId: election.id,  votedAt: LessThanOrEqual(actualElectionStatusSchedule.valueDateTo)}})
                                                                 
     await electionStatusScheduleRepository.save(actualElectionStatusSchedule)
     var newElectionStatusSchedule = election.statusSchedule.filter(e => (e.state == 0) && (e.status.id > actualElectionStatusSchedule.status.id))[0]
@@ -190,7 +190,6 @@ export const serviceProcessElection = async () => {
     newElectionStatusSchedule.state = newElectionStatusSchedule.status.id == ElectionStatusEnum.archive ? 2 : 1;
     await electionStatusScheduleRepository.save(newElectionStatusSchedule)
 
-    console.log("4")
     election.actualStatusSchedule = newElectionStatusSchedule
     election.uid = newGuid()
     await electionRepository.save(election)
