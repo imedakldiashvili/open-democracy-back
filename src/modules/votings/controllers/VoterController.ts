@@ -9,6 +9,7 @@ import { districtRepository } from '../../locations/repositories';
 import { VoteBallotItem, VoteBallotItemValue, VotingCard, VotingCardBallot } from '../entities';
 import { userDetailRepository } from '../../users/repositories';
 import { votingCardRepository } from '../repositories';
+import { serviceAddVotingAction } from '../../actions/services';
 
 
 class VoterController {
@@ -130,13 +131,10 @@ class VoterController {
 
             const votingCard = await votingCardRepository.findOneOrFail({ 
                                                             where: { id: votingCardId, electionId: electionId, voterId: voterId, statusId: 1}, 
-                                                            relations: {voter: true}
+                                                            relations: {voter: true, election: true}
                                                         })
-
             await appDataSource.manager.transaction(async (transactionalEntityManager) => {
-
-                for (const votedBallot of votedBallots) {
-                    
+                for (const votedBallot of votedBallots) {    
                     const voteBallotItem = new VoteBallotItem()
                     voteBallotItem.code = votingCard.voter.code
                     voteBallotItem.ballotId = votedBallot.ballot.id
@@ -158,6 +156,9 @@ class VoterController {
                 await transactionalEntityManager.save(votingCard)
 
             })
+
+            var electionName = votingCard.election.name
+            await serviceAddVotingAction({voterId, sessionUid, votingCardId, electionName })
 
             return res.json({votingCard});
 

@@ -8,6 +8,8 @@ export class Action {
     @PrimaryColumn()
     id: string
 
+    @Column()
+    actionTypeId: number
     @OneToOne(() => ActionType)
     @JoinColumn()
     actionType: ActionType
@@ -24,12 +26,18 @@ export class Action {
     @Column()
     Amount: number
 
+    @Column()
+    currencyId: number
+
     @OneToOne(() => Currency)
     @JoinColumn()
     currency: Currency
 
     @Column()
     sessionUid: string
+
+    @Column()
+    assingneTo: number
 
     @Column()
     createdBy: number

@@ -11,3 +11,13 @@ export enum ElectionStatusEnum {
     result = 5000,
     archive = 6000,
   }
+
+
+  export enum ActionTypeEnum {
+    signUp = 1,
+    singIn = 2,
+    singOut = 3,
+    donation = 4,
+    inivitation = 5,
+    voting = 1000,
+  }
