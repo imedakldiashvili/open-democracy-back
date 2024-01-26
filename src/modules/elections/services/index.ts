@@ -157,7 +157,7 @@ export const serviceCreateElection = async () => {
 
 export const serviceProcessElection = async () => {
     var election = await electionRepository.findOne({ 
-        where: { actualStatusSchedule: { status: {id:  LessThan(ElectionStatusEnum.result)}}},
+        where: { actualStatusSchedule: { status: {jobProcessingFlag: true}}},
         relations: {actualStatusSchedule: {status: true}, statusSchedule: {status: true}},
         order: {statusSchedule: {status: {id: +1}}}
     })

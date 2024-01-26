@@ -32,12 +32,10 @@ export class ElectionStatus {
     @Column()
     stageProgress: number    
 
+    @Column()
+    jobProcessingFlag: boolean
 
     @OneToMany(() => TemplateStatusSchedule, (statusSchedule) => statusSchedule.status)
-    statusSchedule: TemplateStatusSchedule[]    
-
-
-   
-    
+    statusSchedule: TemplateStatusSchedule[]
 
 }
