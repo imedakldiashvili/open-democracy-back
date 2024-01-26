@@ -45,6 +45,6 @@ export const serviceAddVotingAction = async ({ sessionUid, voterId, votingCardId
         await actionRepository.save(action);
         return action;
     } catch (error) {
-        return error
+        console.log(error) 
     }
 };

@@ -1,5 +1,5 @@
 import * as express from "express";
-import { VoterController, VotingController } from "../controllers";
+import { VoterController } from "../controllers";
 
 
 
@@ -13,7 +13,6 @@ voterRouter.post("/votings/votingCard", VoterController.votingCard)
 
 voterRouter.post("/votings/postVote", VoterController.vote)
 
-voterRouter.post("/votingCards/getNew", VotingController.getNewVotingCard)
 
 
 

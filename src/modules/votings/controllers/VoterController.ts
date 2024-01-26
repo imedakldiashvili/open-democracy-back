@@ -158,6 +158,7 @@ class VoterController {
             })
 
             var electionName = votingCard.election.name
+            
             await serviceAddVotingAction({voterId, sessionUid, votingCardId, electionName })
 
             return res.json({votingCard});
