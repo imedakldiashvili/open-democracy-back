@@ -52,9 +52,13 @@ export const serviceCreateElection = async () => {
 
     var electon = new Election()
 
+    var lastElection = await electionRepository.findOne({order: {id: -1}})
+
+    var electionNumber = (lastElection == null) ? lastElection.id + 1 : 1
+
     electon.uid = newGuid()
-    electon.code = template.code + " " + electon.uid
-    electon.name = template.name + " " + electon.uid
+    electon.code = template.code + " " + electionNumber.toString()
+    electon.name = template.name + " " + electionNumber.toString()
     electon.registeredVoters = 0
     electon.participantVoters = 0
     electon.createdAt = dateValue,
