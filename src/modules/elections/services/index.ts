@@ -17,7 +17,7 @@ import { VotingCard } from "../../votings/entities"
 
 export const serviceCreateElection = async () => {
     
-    var exElections =  await electionRepository.find({where:  {actualStatusSchedule: { status: {id: LessThan(ElectionStatusEnum.result) }}}})
+    var exElections =  await electionRepository.find({where:  {actualStatusSchedule: { status: {jobProcessingFlag: true}}}})
     if (exElections.length > 0) { return {status: 0,  message: "not_complete_elections_exists"};}
     
     var resultedElections =  await electionRepository.find({
@@ -236,6 +236,7 @@ export const serviceCompleteElectionVotingCards = async (electionId: number) => 
         where: { id: electionId },
         relations: {statusSchedule: {status: true}}
     })
+    
     if (election == null) { return {status: 0,   message: "new_election_not_found" } }
 
     await votingCardRepository.createQueryBuilder()
