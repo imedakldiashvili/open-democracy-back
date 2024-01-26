@@ -40,8 +40,6 @@ export const serviceCreateElection = async () => {
 
     var dateValue = dateNowMinute();
 
-    var yearMont = dateValue.getFullYear().toString() + "-" + dateNowMilliseconds().toString() 
-
     var template = await templateRepository.findOne({ 
         where: { isActive: true},
         relations: { templateBallots: {ballotType: true}, statusSchedule: true },
@@ -52,13 +50,9 @@ export const serviceCreateElection = async () => {
 
     var electon = new Election()
 
-    var lastElection = await electionRepository.findOne({order: {id: -1}})
-
-    var electionNumber = (lastElection == null) ? lastElection.id + 1 : 1
-
     electon.uid = newGuid()
-    electon.code = template.code + " " + electionNumber.toString()
-    electon.name = template.name + " " + electionNumber.toString()
+    electon.code = template.code + " " + electon.uid.toString()
+    electon.name = template.name + " " + electon.uid.toString()
     electon.registeredVoters = 0
     electon.participantVoters = 0
     electon.createdAt = dateValue,
