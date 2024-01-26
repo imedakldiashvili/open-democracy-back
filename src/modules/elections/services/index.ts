@@ -4,7 +4,7 @@ import { electionRepository, electionStatusRepository, electionStatusScheduleRep
 import { templateRepository, templateStatusScheduleRepository } from "../../templates/repositories"
 import { delegateGroupRepository, delegateRepository } from "../../delegates/repositories"
 import { Ballot, BallotItem, BallotItemValue } from "../../ballots/entities"
-import { addMinutes, dateNowMinute } from "../../../utils/dates"
+import { addMinutes, dateNowMilliseconds, dateNowMinute } from "../../../utils/dates"
 import { Election } from "../entities"
 import { ballotItemRepository, ballotItemValueRepository, ballotRepository } from "../../ballots/repositories"
 import { ElectionStatusSchedule } from "../entities/ElectionStatusSchedule"
@@ -40,7 +40,7 @@ export const serviceCreateElection = async () => {
 
     var dateValue = dateNowMinute();
 
-    var yearMont = dateValue.getFullYear().toString() + "-" + dateValue.getMonth().toString() 
+    var yearMont = dateValue.getFullYear().toString() + "-" + dateNowMilliseconds().toString() 
 
     var template = await templateRepository.findOne({ 
         where: { isActive: true},
