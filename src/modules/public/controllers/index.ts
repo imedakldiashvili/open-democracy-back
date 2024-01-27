@@ -3,7 +3,6 @@ import { NextFunction, Request, Response } from 'express'
 import { electionRepository } from '../../elections/repositories';
 import { BankTransactionRepository } from '../../donations/repositories';
 import { userDetailRepository } from '../../users/repositories';
-import { ElectionStatusEnum } from '../../enums';
 import { votingCardRepository } from '../../votings/repositories';
 import { delegateGroupRepository, delegateRepository } from '../../delegates/repositories';
 
@@ -77,7 +76,7 @@ class PublicControler {
 
     };
 
-    static finDelegates= async (req: Request, res: Response, next: NextFunction) => {
+    static findDelegates= async (req: Request, res: Response, next: NextFunction) => {
         try {
             const data = await delegateRepository.find({
                 select: { user: {id: true, userDetail: {fullName: true}}, delegateGroup: {id: true, name: true, number: true}, numberOfSupporters: true, }
@@ -89,7 +88,7 @@ class PublicControler {
 
     };
 
-    static finDelegatesGroups= async (req: Request, res: Response, next: NextFunction) => {
+    static findDelegatesGroups= async (req: Request, res: Response, next: NextFunction) => {
         try {
             const data = await delegateGroupRepository.find({where: {isActive: true}});
             return res.json(data);
