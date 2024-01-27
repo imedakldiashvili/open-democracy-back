@@ -24,10 +24,8 @@ export class Delegate {
     @JoinColumn()
     delegateGroup: DelegateGroup   
 
-
     @OneToOne(() => User)
     @JoinColumn()
     user: User
-
    
 }

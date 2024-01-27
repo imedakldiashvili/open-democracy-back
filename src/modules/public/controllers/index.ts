@@ -5,6 +5,7 @@ import { BankTransactionRepository } from '../../donations/repositories';
 import { userDetailRepository } from '../../users/repositories';
 import { votingCardRepository } from '../../votings/repositories';
 import { delegateGroupRepository, delegateRepository } from '../../delegates/repositories';
+import { Not } from 'typeorm';
 
 class PublicControler {
 
@@ -79,6 +80,8 @@ class PublicControler {
     static findDelegates= async (req: Request, res: Response, next: NextFunction) => {
         try {
             const data = await delegateRepository.find({
+                where: {valueDateFrom: Not(null)},
+                relations: {user: {userDetail: true}, delegateGroup: true},
                 select: { user: {id: true, userDetail: {fullName: true}}, delegateGroup: {id: true, name: true, number: true}, numberOfSupporters: true, }
             });
             return res.json(data);
