@@ -3,9 +3,6 @@ import { DelegateGroup } from "./DelegateGroup"
 import { User } from "../../users/entities"
 
 
-
-
-
 @Entity('delegates')
 export class Delegate {
 
@@ -16,7 +13,12 @@ export class Delegate {
     numberOfSupporters: number
 
     @Column()
-    valueDate: Date
+    valueDateNumberOfSupporters: Date
+
+    @Column()
+    valueDateFrom: Date
+    @Column()
+    valueDateTo: Date
 
     @OneToOne(() => DelegateGroup)
     @JoinColumn()

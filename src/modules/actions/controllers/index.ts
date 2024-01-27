@@ -30,12 +30,11 @@ class ActionController {
     };
     
     static getUserRecentActions = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            
+        try {            
             const userSession = req.body.userSession;
             const userRecentActions = await actionRepository
             .find({
-                where: {createdBy: userSession.UserId},
+                where: {createdBy: userSession.user.id},
                 relations: {actionType: true, currency: true}, 
                 order: {createdOn: -1},
                 take: 10, 
@@ -48,11 +47,10 @@ class ActionController {
 
     static getUserAllActions = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            console.log(req.body)
             const userSession = req.body.userSession;
             const userRecentActions = await actionRepository
             .find({
-                where: {createdBy: userSession.UserId},
+                where: {createdBy: userSession.user.id},
                 relations: {actionType: true, currency: true}, 
                 order: {createdOn: -1},
             });

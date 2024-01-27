@@ -9,10 +9,16 @@ export class DelegateGroup {
     id: number
 
     @Column()
+    number: number
+
+    @Column()
     code: string
 
     @Column()
     name: string
+
+    @Column()
+    isActive: boolean
 
     @OneToMany(() => Delegate, (delegate) => delegate.delegateGroup)
     delegates: Delegate[]   

@@ -11,6 +11,9 @@ export class UserDetail {
     code: string
 
     @Column()
+    fullName: string
+
+    @Column()
     firstName: string
 
     @Column()

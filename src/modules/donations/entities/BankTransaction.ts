@@ -7,6 +7,9 @@ export class BankTransaction {
 
     @PrimaryGeneratedColumn()
     id: number
+    
+    @Column()
+    channelCode: string
 
     @Column()
     transactionUid: string
@@ -16,6 +19,10 @@ export class BankTransaction {
 
     @Column()
     transactionAccount: string
+
+
+    @Column()
+    transactionAccountMask: string
 
     @Column()
     transactionDescription: string

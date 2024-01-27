@@ -7,7 +7,7 @@ const publicRouter = Router();
 publicRouter.post("/public/actualelection", PublicControler.findElectionsActual)
 publicRouter.post("/public/elections", PublicControler.findElections)
 publicRouter.post("/public/donations", PublicControler.findDonations)
-publicRouter.post("/public/voters", PublicControler.finVoters)
+publicRouter.post("/public/supporters", PublicControler.finSupporters)
 
 
 export default publicRouter;
