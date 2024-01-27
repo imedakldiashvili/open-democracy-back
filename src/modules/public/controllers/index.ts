@@ -41,7 +41,7 @@ class PublicControler {
 
     static findElectionsVingCards = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            var electionId = parseInt(req.params.electionId)
+            var electionId = parseInt(req.body.electionId)
             const data = await votingCardRepository.find({
                 where: { electionId: electionId },
                 relations: { district: { region: true }, voter: true },
