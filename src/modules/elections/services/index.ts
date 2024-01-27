@@ -239,7 +239,7 @@ export const serviceCompleteElectionVotingCards = async (electionId: number) => 
 
     await votingCardRepository.createQueryBuilder()
     .update()
-    .set({ statusId: 3 })
+    .set({ statusId: -1 })
     .where("election_id = :electionId and status_id = :statusId ", { electionId: electionId, statusId: 1 })
     .execute()
 
