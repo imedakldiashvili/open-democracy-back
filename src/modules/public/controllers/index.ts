@@ -45,6 +45,7 @@ class PublicControler {
             const data = await votingCardRepository.find({
                 where: { electionId: electionId },
                 relations: { district: { region: true }, voter: true },
+                order: {votedAt: -1},
                 select: { id: true, district: { name: true, region: { name: true } }, votedAt: true, statusId: true }
             });
             return res.json(data);
