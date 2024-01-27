@@ -24,6 +24,9 @@ export class Delegate {
     @JoinColumn()
     delegateGroup: DelegateGroup   
 
+    @Column()
+    isActive: boolean
+
     @OneToOne(() => User)
     @JoinColumn()
     user: User

@@ -84,7 +84,7 @@ class PublicControler {
     static findDelegates = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const data = await delegateRepository.find({
-                where: { valueDateTo: Not(null) },
+                where: { isActive: true },
                 relations: { user: { userDetail: true }, delegateGroup: true },
                 order: { id: -1 },
                 select: { user: { id: true, userDetail: { fullName: true } }, delegateGroup: { id: true, name: true, number: true }, numberOfSupporters: true, }
@@ -100,7 +100,7 @@ class PublicControler {
         try {
             const data = await delegateGroupRepository.find({
                 where: { isActive: true }, order: { number: +1 },
-                relations: { delegates: { user: { userDetail: true } } }
+                relations: { delegates: {user: { userDetail: true } } },
             });
             return res.json(data);
         } catch (error) {
