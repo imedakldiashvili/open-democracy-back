@@ -68,7 +68,7 @@ class PublicControler {
         try {
             const data = await userDetailRepository.find({
                 relations: {district: {region: true} },
-                select: { district: { name: true, region: {name: true} },  id: true, firstName: true, lastName: true }
+                select: { district: { id: true, name: true, region: {id: true, name: true} },  id: true, fullName: true,  firstName: true, lastName: true }
             });
             return res.json(data);
         } catch (error) {
