@@ -19,6 +19,9 @@ export class BallotItemValue {
     @Column()
     name: string
 
+    @Column()
+    imageUrl: string
+
     @OneToOne(() => BallotItem)
     @JoinColumn()
     ballotItem: BallotItem   

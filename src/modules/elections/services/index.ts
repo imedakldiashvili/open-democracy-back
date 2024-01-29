@@ -42,7 +42,7 @@ export const serviceCreateElection = async () => {
 
     var template = await templateRepository.findOne({ 
         where: { isActive: true },
-        relations: { templateBallots: {ballotType: true}, statusSchedule: true },
+        relations: { templateBallots: {ballotType: true, templateBallotItems: {templateBallotItemValues: true}  }, statusSchedule: true},
         order: {templateBallots: {index: +1}, statusSchedule: {id: +1} }
     })
 
@@ -115,44 +115,83 @@ export const serviceCreateElection = async () => {
         
         await ballotRepository.save(ballot);
         
-        var delegatesGroups = await delegateGroupRepository.find({
-            relations: {delegates: {user: true}},
-            order: {delegates: {numberOfSupporters: -1}}
-        });
-
-        var itemIndex = 0;
-        for (var delegateGroup of delegatesGroups)
+        if (tempateBallot.isDelegateGroup)
         {
-            itemIndex++;
-            var ballotItem = new BallotItem()
-            
-            ballotItem.ballot = ballot
-            ballotItem.index = itemIndex;
-            ballotItem.code = delegateGroup.code;
-            ballotItem.name = delegateGroup.name;
-            ballotItem.hasItemValue = (delegateGroup.delegates.length > 0)
-            ballotItem.numberOfItemValue = delegateGroup.delegates.length > 10 ? 10 : delegateGroup.delegates.length;
-            await ballotItemRepository.save(ballotItem);
-
-            var itemValueindex = 0;
-            for (var delegate of delegateGroup.delegates)
+            var delegatesGroups = await delegateGroupRepository.find({
+                relations: {delegates: {user: true}},
+                order: {number: +1}
+            });
+    
+            var itemIndex = 0;
+            for (var delegateGroup of delegatesGroups)
             {
-                itemValueindex ++;
-                var ballotItemValue = new BallotItemValue()
-                ballotItemValue.ballotItem = ballotItem;
-                ballotItemValue.code = delegate.user.userName
-                ballotItemValue.name = delegate.user.userName
-                ballotItemValue.title = delegateGroup.name
-                ballotItemValue.index = itemValueindex 
-
-                await ballotItemValueRepository.save(ballotItemValue);
-
+                itemIndex++;
+                var ballotItem = new BallotItem()
+                
+                ballotItem.ballot = ballot
+                ballotItem.index = itemIndex;
+                ballotItem.code = delegateGroup.code;
+                ballotItem.name = delegateGroup.name;
+                ballotItem.hasItemValue = (delegateGroup.delegates.length > 0)
+                ballotItem.numberOfItemValue = delegateGroup.delegates.length > 10 ? 10 : delegateGroup.delegates.length;
+                await ballotItemRepository.save(ballotItem);
+    
+                var itemValueindex = 0;
+                for (var delegate of delegateGroup.delegates)
+                {
+                    itemValueindex ++;
+                    var ballotItemValue = new BallotItemValue()
+                    ballotItemValue.ballotItem = ballotItem;
+                    ballotItemValue.code = delegate.user.userName
+                    ballotItemValue.name = delegate.user.userName
+                    ballotItemValue.title = delegateGroup.name
+                    ballotItemValue.index = itemValueindex 
+                    ballotItemValue.imageUrl = delegateGroup.code
+                    
+                    await ballotItemValueRepository.save(ballotItemValue);
+    
+                }
+    
+            }
+        }
+        else
+        {
+            var itemIndex = 0;
+            for (var templateBallotItem of tempateBallot.templateBallotItems)
+            {
+                itemIndex++;
+                var ballotItem = new BallotItem()
+                
+                ballotItem.ballot = ballot
+                ballotItem.index = itemIndex;
+                ballotItem.code = templateBallotItem.code;
+                ballotItem.name = templateBallotItem.name;
+                ballotItem.hasItemValue = templateBallotItem.hasItemValue
+                ballotItem.numberOfItemValue = templateBallotItem.templateBallotItemValues.length;
+                await ballotItemRepository.save(ballotItem);
+    
+                var itemValueindex = 0;
+                for (var templateBallotItemValue of templateBallotItem.templateBallotItemValues)
+                {
+                    itemValueindex ++;
+                    var ballotItemValue = new BallotItemValue()
+                    ballotItemValue.ballotItem = ballotItem;
+                    ballotItemValue.code = templateBallotItemValue.code
+                    ballotItemValue.name = templateBallotItemValue.name
+                    ballotItemValue.title = templateBallotItemValue.title
+                    ballotItemValue.index = templateBallotItemValue.index
+                    ballotItemValue.imageUrl = templateBallotItemValue.imageUrl
+    
+                    await ballotItemValueRepository.save(ballotItemValue);
+    
+                }
+    
             }
 
         }
+
+        
     }
-
-
 
     return {status: 1,  message: "election_created_successfuly" };
 }

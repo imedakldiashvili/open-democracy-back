@@ -18,6 +18,9 @@ export class DelegateGroup {
     name: string
 
     @Column()
+    imageUrl: string
+
+    @Column()
     isActive: boolean
 
     @OneToMany(() => Delegate, (delegate) => delegate.delegateGroup)

@@ -18,7 +18,6 @@ export class Template {
     @Column()
     name: string
 
-    
     @Column()
     isActive: Boolean
 
@@ -27,5 +26,7 @@ export class Template {
     
     @OneToMany(() => TemplateStatusSchedule, (statusSchedule) => statusSchedule.template)
     statusSchedule: TemplateStatusSchedule[] 
+
+    
 
 }

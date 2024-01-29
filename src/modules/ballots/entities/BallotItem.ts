@@ -18,6 +18,10 @@ export class BallotItem {
     @Column()
     name: string
 
+    
+    @Column()
+    imageUrl: string
+
     @Column()
     hasItemValue: boolean
         
