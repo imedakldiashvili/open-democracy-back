@@ -13,7 +13,7 @@ export class TemplateBallotItemValue {
     id: number
 
     @Column()
-    templateBallotItemd: number
+    templateBallotItemId: number
     
     @Column()
     index: number
