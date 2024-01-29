@@ -30,9 +30,6 @@ export class TemplateBallotItemValue {
     @Column()
     imageUrl: string
 
-    @Column()
-    hasItemValue: boolean
-
     @OneToOne(() => TemplateBallotItem)
     @JoinColumn()
     templateBallotItem: TemplateBallotItem
