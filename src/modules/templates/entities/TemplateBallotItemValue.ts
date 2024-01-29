@@ -13,11 +13,10 @@ export class TemplateBallotItemValue {
     id: number
 
     @Column()
-    templateBallotId: number
+    templateBallotItemd: number
     
     @Column()
     index: number
-
     
     @Column()
     code: string
@@ -31,13 +30,12 @@ export class TemplateBallotItemValue {
     @Column()
     imageUrl: string
 
+    @Column()
+    hasItemValue: boolean
 
     @OneToOne(() => TemplateBallotItem)
     @JoinColumn()
     templateBallotItem: TemplateBallotItem
 
 
-    @Column()
-    hasItemValue: boolean
-   
 }
