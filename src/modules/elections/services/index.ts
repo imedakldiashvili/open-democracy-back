@@ -41,7 +41,7 @@ export const serviceCreateElection = async () => {
     var dateValue = dateNowMinute();
 
     var template = await templateRepository.findOne({ 
-        where: { isActive: true},
+        where: { isActive: true },
         relations: { templateBallots: {ballotType: true}, statusSchedule: true },
         order: {templateBallots: {index: +1}, statusSchedule: {id: +1} }
     })
@@ -51,11 +51,16 @@ export const serviceCreateElection = async () => {
     var electon = new Election()
 
     electon.uid = newGuid()
-    electon.code = template.code + " " + electon.uid.toString()
-    electon.name = template.name + " " + electon.uid.toString()
+    electon.code = template.code
+    electon.name = template.name
     electon.registeredVoters = 0
     electon.participantVoters = 0
     electon.createdAt = dateValue,
+
+    await electionRepository.save(electon);
+
+    electon.code = template.code + ' / ' + electon.id
+    electon.name = template.name + ' / ' + electon.id
 
     await electionRepository.save(electon);
 
