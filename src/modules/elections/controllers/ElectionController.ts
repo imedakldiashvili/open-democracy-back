@@ -47,7 +47,7 @@ class ElectionControler {
             const activeElectionCards = await votingCardRepository.find({
                 where: {voter: {id: voterId}, statusId: 1, election: {actualStatusSchedule: {status: {stage: {isActual: true}}}} },
                 relations: {voter:{district: true}, election: true, votingCardBallots: {ballot: {ballotItems: {ballotItemValues: true}, ballotType: true}}},
-                order: {election: {id: -1}}
+                order: {election: {id: -1, ballots: {index:+1, ballotItems: {index:+1, ballotItemValues: {index: +1}}}}}
             })
 
 
