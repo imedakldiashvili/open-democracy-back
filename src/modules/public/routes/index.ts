@@ -5,6 +5,8 @@ import PublicControler from "../controllers";
 const publicRouter = Router();
 
 publicRouter.post("/public/actualelection", PublicControler.findElectionsActual)
+publicRouter.post("/public/electionsdetail", PublicControler.findElectionsDetail)
+
 publicRouter.post("/public/elections", PublicControler.findElections)
 publicRouter.post("/public/electionsvotingcards", PublicControler.findElectionsVingCards)
 

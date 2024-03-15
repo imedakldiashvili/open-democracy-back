@@ -8,15 +8,15 @@ import { UserOTP, UserSession } from "../entities";
 import { userDetailRepository, userOTPRepository, userPasswordRepository, userRepository, userSessionRepository } from "../../users/repositories";
 
 
-    export const  getLoginUser = async (loginUserName: string) => {
+    export const  getLoginUser = async (loginEmail: string) => {
 
-        const userName = loginUserName.toLocaleLowerCase();
+        const email = loginEmail.toLocaleLowerCase();
         const loginUser = await userRepository.findOne({
-            where: { userName: userName}
+            where: { email: email}
         })
 
         if (loginUser === null) {
-            throw AppError.notFound(`user_with_user_name_not_found`);
+            throw AppError.notFound(`user_with_email_not_found`);
         }
 
         return loginUser
@@ -42,10 +42,10 @@ import { userDetailRepository, userOTPRepository, userPasswordRepository, userRe
         return userPassword
     }
 
-    export const  loginUserService = async (deviceUid: string, userName: string, password: string) => {
+    export const  loginUserService = async (deviceUid: string, email: string, password: string) => {
         
-        const loginUserName = userName.toLocaleLowerCase();
-        const loginUser = await getLoginUser(loginUserName)
+        const loginEmail = email.toLocaleLowerCase();
+        const loginUser = await getLoginUser(loginEmail)
         
         const userPassword = await checkPassword(loginUser.id, password)
         const passwordIsTemporary = userPassword.isTemporary

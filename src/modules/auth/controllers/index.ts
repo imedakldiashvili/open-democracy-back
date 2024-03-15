@@ -9,18 +9,19 @@ import { userPasswordRepository, userRepository, userSessionRepository } from ".
 import { addOTP, loginUserService, checkOTP } from '../../users/services';
 
 import { User, UserPassword } from '../../users/entities';
+import { use } from 'passport';
 
 class AuthContoller {
     
     static signUpOTP = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const {deviceUid, userName, mobileNumber } = req.body;  
+            const {deviceUid, email} = req.body;  
 
-            const newUserName = userName.toLowerCase();
-            const users = await userRepository.find({where: {userName: newUserName}});
-            if (users.length > 0) { throwBadRequest("user_name_already_exists") }
+            const newEmail = email.toLowerCase();
+            const users = await userRepository.find({where: {email: newEmail}});
+            if (users.length > 0) { throwBadRequest("email_already_exists") }
 
-            const result = await addOTP(deviceUid, "mobile", mobileNumber, 1)          
+            const result = await addOTP(deviceUid, "email", email, 1)          
 
             return res.json( result );
         
@@ -31,20 +32,20 @@ class AuthContoller {
 
     static signUp = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const {deviceUid, userName, password, mobileNumber,  mobileOtpCode} = req.body;  
+            const {deviceUid, email, password,  emailOtpCode} = req.body;  
             
-            const newUserName = userName.toLowerCase();
-            const users = await userRepository.find({where: {userName: newUserName}});
+            const newEmail = email.toLowerCase();
+            const users = await userRepository.find({where: {email: newEmail}});
 
-            if (users.length > 0) { throwBadRequest("user_name_already_exists") }
+            if (users.length > 0) { throwBadRequest("email_already_exists") }
 
-            const  mobileOtp = await checkOTP(deviceUid, "mobile", mobileNumber, 1, mobileOtpCode )
+            const  emailOtp = await checkOTP(deviceUid, "email", email, 1, emailOtpCode )
           
             const user = new User();
 
-            user.userName = userName;
-            user.mobileNumber = mobileNumber;
-            user.mobileNumberVerificationOtpId = mobileOtp.id,
+            user.userName = newEmail;
+            user.email = newEmail,
+            user.emailVerificationOtpId = emailOtp.id,
             user.isActive = true,
             user.createdBy = 1,
             user.createdOn = new Date();
@@ -65,7 +66,7 @@ class AuthContoller {
 
             const resUserPassword = await userPasswordRepository.save(userPassword)
 
-            var result = await loginUserService(deviceUid, userName, password)
+            var result = await loginUserService(deviceUid, newEmail, password)
 
             return res.json(result);
         

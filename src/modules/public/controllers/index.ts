@@ -24,6 +24,22 @@ class PublicControler {
 
     };
 
+    static findElectionsDetail = async (req: Request, res: Response, next: NextFunction) => {
+        
+        var electionId = parseInt(req.body.electionId)
+        try {
+            const Elections = await electionRepository.findOne({
+                where: { id: electionId} ,
+                relations: { actualStatusSchedule: { status: { stage: true } }, statusSchedule: { status: true }, ballots: { ballotItems: { ballotItemValues: true } } },
+                order: { id: -1, statusSchedule: { status: { id: -1 } }, ballots: { index: +1, ballotItems: { valuePercent: -1, index: +1 } } }
+            });
+            return res.json(Elections);
+        } catch (error) {
+            next(error)
+        }
+
+    };
+
     static findElections = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const data = await electionRepository.find({
