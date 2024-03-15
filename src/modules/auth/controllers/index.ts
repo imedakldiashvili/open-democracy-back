@@ -77,8 +77,8 @@ class AuthContoller {
 
     static signIn = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const {deviceUid, userName, password}  = req.body
-            var result = await loginUserService(deviceUid, userName.toLowerCase(), password)
+            const {deviceUid, email, password}  = req.body
+            var result = await loginUserService(deviceUid, email.toLowerCase(), password)
             return res.json(result);
 
         } catch (error) {
