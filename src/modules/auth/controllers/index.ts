@@ -32,7 +32,7 @@ class AuthContoller {
 
     static signUp = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const {deviceUid, email, password,  emailOtpCode} = req.body;  
+            const {deviceUid, email, password, emailOtpCode} = req.body;  
             
             const newEmail = email.toLowerCase();
             const users = await userRepository.find({where: {email: newEmail}});
@@ -51,6 +51,17 @@ class AuthContoller {
             user.createdOn = new Date();
 
             const newUser = await userRepository.save(user)
+
+            var idString = newUser.id.toString();
+            var idStringSum = 0;
+            for (let i = 0; i < idString.length; i++) {
+                var number = +idString.substring(i, 1);
+                idStringSum = idStringSum + number;
+            }
+            newUser.userName = (newUser.id * 100 + idStringSum % 97).toString()
+            await userRepository.save(user)
+            
+
 
             const passwordSalt = newGuid();
             const passwordHash = generateHash(password,passwordSalt)
