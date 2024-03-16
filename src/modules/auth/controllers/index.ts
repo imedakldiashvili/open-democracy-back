@@ -55,7 +55,7 @@ class AuthContoller {
             var idString = newUser.id.toString();
             var idStringSum = 0;
             for (let i = 0; i < idString.length; i++) {
-                var number = +idString.substring(i, 1);
+                var number = +idString.substring(i, i+1);
                 idStringSum = idStringSum + number;
             }
             newUser.userName = (newUser.id * 100 + idStringSum % 97).toString()
