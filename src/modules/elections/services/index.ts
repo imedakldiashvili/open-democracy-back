@@ -168,6 +168,7 @@ export const serviceCreateElection = async () => {
                     
                     ballotItem.ballot = ballot
                     ballotItem.index = itemIndex;
+                    ballotItem.index = templateBallotItem.index, 
                     ballotItem.code = templateBallotItem.code;
                     ballotItem.name = templateBallotItem.name;
                     ballotItem.imageUrl = templateBallotItem.imageUrl;
@@ -182,10 +183,10 @@ export const serviceCreateElection = async () => {
                         itemValueindex ++;
                         var ballotItemValue = new BallotItemValue()
                         ballotItemValue.ballotItem = ballotItem;
+                        ballotItemValue.index = templateBallotItemValue.index
                         ballotItemValue.code = templateBallotItemValue.code
                         ballotItemValue.name = templateBallotItemValue.name
                         ballotItemValue.title = templateBallotItemValue.title
-                        ballotItemValue.index = templateBallotItemValue.index
                         ballotItemValue.imageUrl = templateBallotItemValue.imageUrl
         
                         await ballotItemValueRepository.save(ballotItemValue);
