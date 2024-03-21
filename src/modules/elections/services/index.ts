@@ -311,7 +311,7 @@ export const serviceCompleteElectionVotingCards = async (electionId: number) => 
         ballotItem.numberOfVotes = numberOfVotes        
         ballotItem.valuePercent = numberOfParticipants ? Math.round((numberOfVotes/numberOfParticipants)*100) : 0
 
-        if (ballotItem.hasItemValue)
+        if (!ballotItem.ballotItemValues)
         {
             for(var ballotItemValue of ballotItem.ballotItemValues  )
             {
