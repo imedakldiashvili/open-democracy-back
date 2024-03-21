@@ -22,6 +22,10 @@ export class BallotItemValue {
     @Column()
     imageUrl: string
 
+    
+    @Column()
+    votedValue: number
+
     @OneToOne(() => BallotItem)
     @JoinColumn()
     ballotItem: BallotItem   

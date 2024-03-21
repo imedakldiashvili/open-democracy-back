@@ -1,5 +1,5 @@
 import { Between, LessThan, LessThanOrEqual, MoreThan, MoreThanOrEqual, Not } from "typeorm"
-import { voteBallotItemRepository, votingCardBallotRepository, votingCardRepository } from "../../votings/repositories"
+import { voteBallotItemRepository, votegBallotItemValueRepository, votingCardBallotRepository, votingCardRepository } from "../../votings/repositories"
 import { electionRepository, electionStatusRepository, electionStatusScheduleRepository } from "../repositories"
 import { templateRepository, templateStatusScheduleRepository } from "../../templates/repositories"
 import { delegateGroupRepository, delegateRepository } from "../../delegates/repositories"
@@ -173,21 +173,19 @@ export const serviceCreateElection = async () => {
                     ballotItem.name = templateBallotItem.name;
                     ballotItem.imageUrl = templateBallotItem.imageUrl;
                     ballotItem.hasItemValue = templateBallotItem.hasItemValue
-                    ballotItem.numberOfItemValue = templateBallotItem.templateBallotItemValues.length;
+                    ballotItem.numberOfItemValue = templateBallotItem.numberOfItemValue;
                     
                     await ballotItemRepository.save(ballotItem);
         
-                    var itemValueindex = 0;
                     for (var templateBallotItemValue of templateBallotItem.templateBallotItemValues)
                     {
-                        itemValueindex ++;
-                        var ballotItemValue = new BallotItemValue()
                         ballotItemValue.ballotItem = ballotItem;
                         ballotItemValue.index = templateBallotItemValue.index
                         ballotItemValue.code = templateBallotItemValue.code
                         ballotItemValue.name = templateBallotItemValue.name
                         ballotItemValue.title = templateBallotItemValue.title
                         ballotItemValue.imageUrl = templateBallotItemValue.imageUrl
+                        ballotItemValue.votedValue = 0
         
                         await ballotItemValueRepository.save(ballotItemValue);
         
@@ -311,6 +309,12 @@ export const serviceCompleteElectionVotingCards = async (electionId: number) => 
         ballotItem.numberOfParticipants = numberOfParticipants
         ballotItem.numberOfVotes = numberOfVotes        
         ballotItem.valuePercent = numberOfParticipants ? Math.round((numberOfVotes/numberOfParticipants)*100) : 0
+
+        for(var ballotItemValue of ballotItem.ballotItemValues  )
+        {
+            var nummberVotedBallotItemValue =  await votegBallotItemValueRepository.count({where: {ballotItemValue: {id: ballotItemValue.id}}});
+            ballotItemValue.votedValue = nummberVotedBallotItemValue;            
+        }
 
         await ballotItemRepository.save(ballotItem)
     }

@@ -41,6 +41,9 @@ export class TemplateBallotItem {
     @Column()
     hasItemValue: boolean
 
+    @Column()
+    numberOfItemValue: number
+
     @OneToMany(() => TemplateBallotItemValue, (templateBallotItemValue) => templateBallotItemValue.templateBallotItem)
     templateBallotItemValues: TemplateBallotItemValue[] 
 

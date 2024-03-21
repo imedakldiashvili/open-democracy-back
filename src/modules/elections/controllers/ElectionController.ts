@@ -49,7 +49,7 @@ class ElectionControler {
                 relations: {voter:{district: true}, election: true, votingCardBallots: {ballot: {ballotItems: {ballotItemValues: true}, ballotType: true}}},
                 order: {
                     election: {id: -1, 
-                    ballots: {index:+1, ballotItems: {index:+1, ballotItemValues: {index: +1}}}},
+                    ballots: {index:+1, ballotItems: {index:+1, ballotItemValues: {index: +1, }}}},
                     votingCardBallots: {ballot: {index:+1, ballotItems: {index:+1, ballotItemValues: {index: +1}}}} 
                 }
             })
