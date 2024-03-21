@@ -179,6 +179,7 @@ export const serviceCreateElection = async () => {
         
                     for (var templateBallotItemValue of templateBallotItem.templateBallotItemValues)
                     {
+                        var ballotItemValue = new BallotItemValue()
                         ballotItemValue.ballotItem = ballotItem;
                         ballotItemValue.index = templateBallotItemValue.index
                         ballotItemValue.code = templateBallotItemValue.code
