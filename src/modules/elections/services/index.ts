@@ -311,11 +311,15 @@ export const serviceCompleteElectionVotingCards = async (electionId: number) => 
         ballotItem.numberOfVotes = numberOfVotes        
         ballotItem.valuePercent = numberOfParticipants ? Math.round((numberOfVotes/numberOfParticipants)*100) : 0
 
-        for(var ballotItemValue of ballotItem.ballotItemValues  )
+        if (ballotItem.hasItemValue)
         {
-            var nummberVotedBallotItemValue =  await votegBallotItemValueRepository.count({where: {ballotItemValue: {id: ballotItemValue.id}}});
-            ballotItemValue.votedValue = nummberVotedBallotItemValue;            
+            for(var ballotItemValue of ballotItem.ballotItemValues  )
+            {
+                var nummberVotedBallotItemValue =  await votegBallotItemValueRepository.count({where: {ballotItemValue: {id: ballotItemValue.id}}});
+                ballotItemValue.votedValue = nummberVotedBallotItemValue;            
+            }
         }
+        
 
         await ballotItemRepository.save(ballotItem)
     }
