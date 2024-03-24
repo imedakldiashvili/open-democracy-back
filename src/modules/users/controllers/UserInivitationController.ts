@@ -43,7 +43,8 @@ class UserInivitationController {
             
             const sessionUid = req.body.userSession.id
             const inivitaitaionId = entity.id;
-            await serviceAddUserInivitaionAction({email, inivitaitaionId, mobile, personalId, sessionUid, createdUserId })
+
+            await serviceAddUserInivitaionAction({sessionUid, inivitaitaionId, createdUserId, email, personalId, mobile})
 
             return res.json(entity);
         } catch (error) {
