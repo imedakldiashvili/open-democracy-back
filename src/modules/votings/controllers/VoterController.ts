@@ -20,7 +20,8 @@ class VoterController {
             const voterId = parseInt(req.body.userSession.user.id);
             const election = await votingCardRepository.find({ 
                                         where: {voterId :voterId}, 
-                                        relations: {election: true, district: true, voter: true }
+                                        relations: {election: true, district: true, voter: true },
+                                        order: {id: -1}
                                     });
             return res.json(election);
         } catch (error) {
@@ -34,7 +35,8 @@ class VoterController {
             const voterId = parseInt(req.body.userSession.user.id);
             const election = await votingCardRepository.find({ 
                                        where: {voterId :voterId, statusId: 1}, 
-                                       relations: {election: true, district: true, voter: true }
+                                       relations: {election: true, district: true, voter: true },
+                                       order: {id: -1}
                                     });
             return res.json(election);
         } catch (error) {
@@ -49,7 +51,8 @@ class VoterController {
             const electionId = req.body.electionId;
             const election = await votingCardRepository.find({ 
                                         where: {electionId:electionId}, 
-                                        relations: {election: true, district: true, voter: true }
+                                        relations: {election: true, district: true, voter: true },
+                                        order: {id: -1}
                                     });
             return res.json(election);
         } catch (error) {
