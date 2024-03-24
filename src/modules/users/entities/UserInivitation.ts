@@ -10,6 +10,9 @@ export class UserInivitation {
     personalId: string
 
     @Column()
+    fullName: string
+
+    @Column()
     mobile: string
 
     @Column()

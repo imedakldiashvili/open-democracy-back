@@ -29,11 +29,12 @@ class UserInivitationController {
     static add = async (req: Request, res: Response, next: NextFunction) => {
         try {
 
-            const {personalId, mobile, email } = req.body; 
+            const {personalId, fullName, mobile, email } = req.body; 
             const createdUserId = req.body.userSession.user.id
             const entity = new UserInivitation();            
             entity.createdUserId = createdUserId
             entity.personalId = personalId,
+            entity.fullName = fullName,
             entity.mobile = mobile
             entity.email = email
             entity.expireOn =  dateNow();
