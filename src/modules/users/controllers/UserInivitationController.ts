@@ -30,7 +30,7 @@ class UserInivitationController {
         try {
 
             const {personalId, mobile, email } = req.body; 
-            const createdUserId = req.body.userSession.user.Id
+            const createdUserId = req.body.userSession.user.id
             const entity = new UserInivitation();            
             entity.createdUserId = createdUserId
             entity.personalId = personalId,
