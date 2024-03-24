@@ -50,7 +50,7 @@ export const serviceAddVotingAction = async ({ sessionUid, voterId, votingCardId
 };
 
 
-export const serviceAddUserInivitaionAction = async ({ sessionUid, createdUserId, inivitaitaionId, email, personalId, mobile }) => {    
+export const serviceAddUserInivitaionAction = async ({ sessionUid, createdUserId, inivitaitaionId, personalId, fullName, email, mobile }) => {    
     const action = new Action ()
 
         action.id = newGuid()
@@ -60,7 +60,7 @@ export const serviceAddUserInivitaionAction = async ({ sessionUid, createdUserId
         action.sessionUid = sessionUid
 
         action.actionId = inivitaitaionId
-        action.actionName = email
+        action.actionName = fullName
         
         action.hasAmount = false
         
