@@ -5,9 +5,6 @@ export class UserInivitation {
 
     @PrimaryGeneratedColumn()
     id: number
-    
-    @Column()
-    senderUserId: number
 
     @Column()
     personalId: string
@@ -16,7 +13,7 @@ export class UserInivitation {
     mobile: string
 
     @Column()
-    fullName: string
+    email: string
 
     @Column()
     expireOn: Date

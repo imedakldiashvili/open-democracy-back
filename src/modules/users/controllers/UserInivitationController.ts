@@ -15,8 +15,8 @@ class UserInivitationController {
     
     static findBySender = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const sernderUserId = req.body.senderUserId
-            const users = await userInivitationRepository.findBy({senderUserId: sernderUserId});
+            const createdUserId = req.body.userSession.user.Id
+            const users = await userInivitationRepository.findBy({createdUserId: createdUserId});
             return res.json(users);
         } catch (error) {
             next(error)
@@ -28,13 +28,13 @@ class UserInivitationController {
     static add = async (req: Request, res: Response, next: NextFunction) => {
         try {
 
-            const {senderUserId, personalId, mobile, fullName } = req.body; 
-            console.log( req.body)
+            const {personalId, mobile, email } = req.body; 
+            const createdUserId = req.body.userSession.user.Id
             const entity = new UserInivitation();            
-            entity.senderUserId = senderUserId
+            entity.createdUserId = createdUserId
             entity.personalId = personalId,
             entity.mobile = mobile
-            entity.fullName = fullName            
+            entity.email = email
             entity.expireOn =  dateNow();
             entity.statusId = 1
 
