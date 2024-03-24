@@ -51,8 +51,7 @@ export const serviceAddVotingAction = async ({ sessionUid, voterId, votingCardId
 
 
 export const serviceAddUserInivitaionAction = async ({ sessionUid, createdUserId, inivitaitaionId, email, personalId, mobile }) => {    
-    try {
-        const action = new Action ()
+    const action = new Action ()
 
         action.id = newGuid()
         action.actionTypeId = ActionTypeEnum.inivitation
@@ -70,8 +69,4 @@ export const serviceAddUserInivitaionAction = async ({ sessionUid, createdUserId
         
         await actionRepository.save(action);
         return action;
-
-    } catch (error) {
-        return error
-    }
 };
