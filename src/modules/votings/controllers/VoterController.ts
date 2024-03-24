@@ -14,6 +14,52 @@ import { serviceAddVotingAction } from '../../actions/services';
 
 class VoterController {
 
+
+    static findUserSessionVotingCards = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const voterId = parseInt(req.body.userSession.user.id);
+            const election = await votingCardRepository.find({ 
+                                        where: {voterId :voterId}, 
+                                        relations: {election: true, district: true, voter: true }
+                                    });
+            return res.json(election);
+        } catch (error) {
+            next(error)
+        }
+
+    };
+
+    static findUserSessionNewVotingCards = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const voterId = parseInt(req.body.userSession.user.id);
+            const election = await votingCardRepository.find({ 
+                                       where: {voterId :voterId, statusId: 1}, 
+                                       relations: {election: true, district: true, voter: true }
+                                    });
+            return res.json(election);
+        } catch (error) {
+            next(error)
+        }
+
+    };
+
+
+    static findElectionVotingCards = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const electionId = req.body.electionId;
+            const election = await votingCardRepository.find({ 
+                                        where: {electionId:electionId}, 
+                                        relations: {election: true, district: true, voter: true }
+                                    });
+            return res.json(election);
+        } catch (error) {
+            next(error)
+        }
+
+    };
+
+
+
     static voter = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const Voters = await userDetailRepository.find();
@@ -28,8 +74,6 @@ class VoterController {
     static getNewVotingCard = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { electionId, voterId } = req.body;
-
-
             
             const election = await electionRepository.findOneOrFail({
                 where: { id: electionId, actualStatusSchedule: { status: {id:1 }}, }
