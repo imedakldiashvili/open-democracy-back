@@ -48,3 +48,30 @@ export const serviceAddVotingAction = async ({ sessionUid, voterId, votingCardId
         console.log(error) 
     }
 };
+
+
+export const serviceAddUserInivitaionAction = async ({ sessionUid, createdUserId, inivitaitaionId, personalId, email, mobile }) => {    
+    try {
+        const action = new Action ()
+
+        action.id = newGuid()
+        action.actionTypeId = ActionTypeEnum.voting
+        
+        action.assingneTo = createdUserId,
+        action.sessionUid = sessionUid
+
+        action.actionId = inivitaitaionId
+        action.actionName = email
+        
+        action.hasAmount = false
+        
+        action.createdBy = createdUserId,
+        action.createdOn = new Date()
+        
+        await actionRepository.save(action);
+        return action;
+
+    } catch (error) {
+        return error
+    }
+};

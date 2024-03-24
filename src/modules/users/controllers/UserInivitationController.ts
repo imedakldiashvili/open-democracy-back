@@ -6,6 +6,7 @@ import { UserInivitation } from '../entities';
 
 import { userInivitationRepository, userRepository } from '../repositories';
 import { dateNow } from '../../../utils';
+import { serviceAddUserInivitaionAction } from '../../actions/services';
 
 
 
@@ -39,6 +40,11 @@ class UserInivitationController {
             entity.statusId = 1
 
             await userInivitationRepository.save(entity);
+            
+            const sessionUid = req.body.userSession.id
+            const inivitaitaionId = entity.id;
+            await serviceAddUserInivitaionAction({email, inivitaitaionId, mobile,personalId, sessionUid, createdUserId })
+
             return res.json(entity);
         } catch (error) {
             next(error)
