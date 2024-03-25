@@ -34,7 +34,7 @@ class AuthContoller {
 
     static signUp = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const {deviceUid, email, personalId, password, emailOtpCode} = req.body;  
+            const {deviceUid, personalId, email, password, emailOtpCode} = req.body;  
             
             const newEmail = email.toLowerCase();
             const users = await userRepository.find({where: {email: newEmail}});
