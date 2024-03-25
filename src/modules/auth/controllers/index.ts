@@ -5,7 +5,7 @@ import { generateHash } from '../../../middlewares/security';
 
 import { dateNow, newGuid } from '../../../utils';
 
-import { userInivitationRepository, userPasswordRepository, userRepository, userSessionRepository } from "../../users/repositories";
+import { userDetailRepository, userInivitationRepository, userPasswordRepository, userRepository, userSessionRepository } from "../../users/repositories";
 import { addOTP, loginUserService, checkOTP } from '../../users/services';
 
 import { User, UserDetail, UserPassword } from '../../users/entities';
@@ -41,7 +41,7 @@ class AuthContoller {
 
             if (users.length > 0) { throwBadRequest("email_already_exists") }
 
-            const  emailOtp = await checkOTP(deviceUid, "email", email, 1, emailOtpCode )
+            const  emailOtp = await checkOTP(deviceUid, "email", email,  1, emailOtpCode )
           
             const user = new User();
 
@@ -65,6 +65,8 @@ class AuthContoller {
                 usedDetail.fullName = userInivitaion.fullName;
                 usedDetail.isActive = true;
                 usedDetail.isDelegate = false;
+
+                await userDetailRepository.save(usedDetail)
             }
 
  
