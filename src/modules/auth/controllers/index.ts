@@ -5,11 +5,13 @@ import { generateHash } from '../../../middlewares/security';
 
 import { dateNow, newGuid } from '../../../utils';
 
-import { userPasswordRepository, userRepository, userSessionRepository } from "../../users/repositories";
+import { userInivitationRepository, userPasswordRepository, userRepository, userSessionRepository } from "../../users/repositories";
 import { addOTP, loginUserService, checkOTP } from '../../users/services';
 
-import { User, UserPassword } from '../../users/entities';
+import { User, UserDetail, UserPassword } from '../../users/entities';
 import { use } from 'passport';
+import { Like } from 'typeorm';
+import { userInfo } from 'os';
 
 class AuthContoller {
     
@@ -32,7 +34,7 @@ class AuthContoller {
 
     static signUp = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const {deviceUid, email, password, emailOtpCode} = req.body;  
+            const {deviceUid, email, personalId, password, emailOtpCode} = req.body;  
             
             const newEmail = email.toLowerCase();
             const users = await userRepository.find({where: {email: newEmail}});
@@ -43,23 +45,37 @@ class AuthContoller {
           
             const user = new User();
 
-            user.userName = newEmail;
+            user.userName = personalId,
             user.email = newEmail,
             user.emailVerificationOtpId = emailOtp.id,
             user.isActive = true,
             user.createdBy = 1,
             user.createdOn = new Date();
 
+            
             const newUser = await userRepository.save(user)
 
-            var idString = newUser.id.toString();
-            var idStringSum = 0;
-            for (let i = 0; i < idString.length; i++) {
-                var number = +idString.substring(i, i+1);
-                idStringSum = idStringSum + number;
+            const userInivitaion = await userInivitationRepository.findOne({where: { personalId: personalId, email: Like(`%${email}%`)}})
+
+            if (userInivitaion)
+            {
+                const usedDetail = new UserDetail();
+                usedDetail.id = newUser.id
+                usedDetail.code = userInivitaion.personalId;
+                usedDetail.fullName = userInivitaion.fullName;
+                usedDetail.isActive = true;
+                usedDetail.isDelegate = false;
             }
-            newUser.userName = (newUser.id * 100 + idStringSum % 97).toString()
-            await userRepository.save(user)
+
+ 
+            // var idString = newUser.id.toString();
+            // var idStringSum = 0;
+            // for (let i = 0; i < idString.length; i++) {
+            //     var number = +idString.substring(i, i+1);
+            //     idStringSum = idStringSum + number;
+            // }
+            // newUser.userName = (newUser.id * 100 + idStringSum % 97).toString()
+            // await userRepository.save(user)
             
 
 
