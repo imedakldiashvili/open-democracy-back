@@ -73,7 +73,7 @@ class ElectionControler {
 
     static findOneElection = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const id = parseInt(req.params.id)
+            const {id} = req.body.electionId
             const election = await electionRepository.findOneBy({ id: id });
             return res.json(election);
         } catch (error) {
