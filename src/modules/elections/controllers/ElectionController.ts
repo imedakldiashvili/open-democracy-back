@@ -74,7 +74,10 @@ class ElectionControler {
     static findOneElection = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const {id} = req.body.electionId
-            const election = await electionRepository.findOneBy({ id: id });
+            const election = await electionRepository.findOne({ 
+                                                        where:{ id: id },
+                                                        relations: {actualStatusSchedule: true}
+                                                      });
             return res.json(election);
         } catch (error) {
             next(error)
