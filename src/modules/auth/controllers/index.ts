@@ -44,7 +44,6 @@ class AuthContoller {
             const  emailOtp = await checkOTP(deviceUid, "email", email,  1, emailOtpCode )
           
             const user = new User();
-
             user.userName = personalId,
             user.email = newEmail,
             user.emailVerificationOtpId = emailOtp.id,
@@ -52,10 +51,9 @@ class AuthContoller {
             user.createdBy = 1,
             user.createdOn = new Date();
 
-            
             const newUser = await userRepository.save(user)
 
-            const userInivitaion = await userInivitationRepository.findOne({where: { personalId: personalId, email: Like(`%${email}%`)}})
+            const userInivitaion = await userInivitationRepository.findOne({ where: { personalId: personalId, email: Like(`%${newEmail}%`) } })
 
             if (userInivitaion)
             {
@@ -65,7 +63,6 @@ class AuthContoller {
                 usedDetail.fullName = userInivitaion.fullName;
                 usedDetail.isActive = true;
                 usedDetail.isDelegate = false;
-
                 await userDetailRepository.save(usedDetail)
             }
 
@@ -93,7 +90,7 @@ class AuthContoller {
             userPassword.createdBy = 1
             userPassword.createdOn = new Date()
 
-            const resUserPassword = await userPasswordRepository.save(userPassword)
+            await userPasswordRepository.save(userPassword)
 
             var result = await loginUserService(deviceUid, newEmail, password)
 

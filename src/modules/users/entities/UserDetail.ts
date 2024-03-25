@@ -1,11 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, OneToOne } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, OneToOne, PrimaryColumn } from "typeorm"
 import { District } from "../../locations/entities"
 import { User } from "./User"
 
 @Entity('users_details')
 export class UserDetail {
 
-    @PrimaryGeneratedColumn()
+    @PrimaryColumn()
     id: number
 
     @Column()
