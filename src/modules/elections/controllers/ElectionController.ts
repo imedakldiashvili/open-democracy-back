@@ -76,7 +76,7 @@ class ElectionControler {
             const {id} = req.body.electionId
             const election = await electionRepository.findOne({ 
                                                         where:{ id: id },
-                                                        relations: {actualStatusSchedule: true}
+                                                        relations: {actualStatusSchedule: {status: true}}
                                                       });
             return res.json(election);
         } catch (error) {
