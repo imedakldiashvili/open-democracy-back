@@ -181,6 +181,7 @@ class VoterController {
                                                             relations: {voter: true, election: true}
                                                         })
             await appDataSource.manager.transaction(async (transactionalEntityManager) => {
+                
                 for (const votedBallot of votedBallots) {    
                     const voteBallotItem = new VoteBallotItem()
                     voteBallotItem.code = votingCard.voter.code
@@ -206,7 +207,7 @@ class VoterController {
 
             var electionName = votingCard.election.name
             
-            await serviceAddVotingAction({voterId, sessionUid, votingCardId, electionName })
+            await serviceAddVotingAction({sessionUid, votingCardId, electionName, voterId })
 
             return res.json({votingCard});
 

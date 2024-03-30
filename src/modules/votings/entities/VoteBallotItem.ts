@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, OneToOne, OneToMany
 import { Ballot, BallotItem } from "../../ballots/entities"
 import { VoteBallotItemValue } from "./VoteBallotItemValue"
 
-@Entity('votes_ballots_items')
+@Entity('voted_ballots_items')
 export class VoteBallotItem {
 
     @PrimaryGeneratedColumn()

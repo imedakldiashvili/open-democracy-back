@@ -9,9 +9,10 @@ import { userDetailRepository, userInivitationRepository, userPasswordRepository
 import { addOTP, loginUserService, checkOTP } from '../../users/services';
 
 import { User, UserDetail, UserPassword } from '../../users/entities';
-import { use } from 'passport';
 import { Like } from 'typeorm';
-import { userInfo } from 'os';
+import { sendMail } from '../../notifications/services';
+
+import settings from '../../../settings';
 
 class AuthContoller {
     
@@ -23,9 +24,12 @@ class AuthContoller {
             const users = await userRepository.find({where: {email: newEmail}});
             if (users.length > 0) { throwBadRequest("email_already_exists") }
 
-            const result = await addOTP(deviceUid, "email", email, 1)          
+            const result = await addOTP(deviceUid, "email", email, 1)    
+            const mailMsg = { from: settings.SENDGRID_FROM_EMAIL, to: result.value, subject: "Email Verification Code", html: "Email Verification Code: " + result.code }
+            
+            await sendMail(mailMsg)
 
-            return res.json( result );
+            return res.json( { status: result.status } );
         
         } catch (error) {
             next(error)
@@ -111,8 +115,6 @@ class AuthContoller {
             next(error)
         }
     };
-
-
 
 }
 

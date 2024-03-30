@@ -23,7 +23,7 @@ export const serviceAddDonationAction = async ({ sessionUid, userId, amount, cur
     }
 };
 
-export const serviceAddVotingAction = async ({ sessionUid, voterId, votingCardId, electionName }) => {    
+export const serviceAddVotingAction = async ({ sessionUid, votingCardId, electionName, voterId }) => {    
     try {
         const action = new Action ()
         

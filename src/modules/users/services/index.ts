@@ -110,7 +110,7 @@ import { userDetailRepository, userOTPRepository, userPasswordRepository, userRe
         otp.expirationDate = dateNowAddMinutes(5)
     
         await userOTPRepository.save(otp)
-        const result = { type: otp.type, value: otp.value, status: "otp_send_successfuly"}
+        const result = { type: otp.type, value: otp.value, code: otp.code, status: "otp_send_successfuly"}
         return  result
     } 
 
