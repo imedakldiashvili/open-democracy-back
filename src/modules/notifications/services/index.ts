@@ -1,7 +1,7 @@
 import * as sendgrid from "@sendgrid/mail";
 import settings from "../../../settings";
 import { MailMsg, SmsMsg } from "../interfaces";
-sendgrid.setApiKey(settings.SENDGRID_API);
+sendgrid.setApiKey(settings.SENDGRID_API_KEY);
 
 
 export const sendMail = async (mailMsg: MailMsg) => {
