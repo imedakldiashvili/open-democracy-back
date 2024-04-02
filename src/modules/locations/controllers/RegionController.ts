@@ -4,7 +4,7 @@ import { regionRepository } from '../repositories';
 
 class RegionController {
     
-    static fingRegions = async (req: Request, res: Response, next: NextFunction) => {
+    static findRegions = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const Regions = await regionRepository.find({relations: {districts: true}});
             return res.json(Regions);
