@@ -8,9 +8,21 @@ import voterRouter from '../modules/votings/routers';
 import donationRouter from '../modules/donations/routes';
 import publicRouter from '../modules/public/routes';
 import notificationRouter from '../modules/notifications/routes';
+import locationRouter from '../modules/locations/routers';
+
+
 
 const router = express.Router();
 
-router.use("/", authRouter, electionRouter, userRouter, actionRouter, voterRouter, donationRouter, publicRouter, notificationRouter)
+router.use("/", 
+            authRouter, 
+            electionRouter, 
+            userRouter, 
+            actionRouter, 
+            voterRouter, 
+            donationRouter, 
+            publicRouter, 
+            notificationRouter, 
+            locationRouter)
 
 export default router;
