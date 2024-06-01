@@ -36,7 +36,6 @@ class UserInivitationController {
             entity.createdUserId = createdUserId
             entity.personalId = personalId,
             entity.fullName = fullName,
-            entity.mobile = mobile
             entity.email = email
             entity.expireOn =  dateNow();
             entity.statusId = 1
@@ -49,6 +48,24 @@ class UserInivitationController {
             await serviceAddUserInivitaionAction({sessionUid, inivitaitaionId, createdUserId, personalId, fullName, email, mobile})
 
             return res.json(entity);
+        } catch (error) {
+            next(error)
+        }
+    };
+
+    static findActiveByEmailPersonalId = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const {personalId, email} = req.body; 
+            var  userInivitations = await userInivitationRepository.find({where: {statusId: 1
+                                                                                , expireOn: MoreThan(dateNow()) 
+                                                                                , email: email
+                                                                                , personalId: personalId}});
+            if (userInivitations.length == 1)
+            {
+                var userInivitation = userInivitations[0]
+                return res.json(userInivitation);
+            }
+            return res.json(null);
         } catch (error) {
             next(error)
         }

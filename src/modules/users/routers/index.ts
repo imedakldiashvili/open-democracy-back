@@ -15,6 +15,7 @@ userRouter.put("/users/edit", UserController.edit)
 
 userRouter.post("/UsersInivitations/add", UserInivitationController.add)
 userRouter.post("/UsersInivitations/findBySender", UserInivitationController.findBySender)
+userRouter.post("/UsersInivitations/findActive", UserInivitationController.findActiveByEmailPersonalId)
 
 userRouter.post("/Users/verification", UserVerificationController.verification)
 

@@ -57,7 +57,7 @@ class AuthContoller {
 
             const newUser = await userRepository.save(user)
 
-            const userInivitaion = await userInivitationRepository.findOne({ where: { personalId: personalId, email: Like(`%${newEmail}%`) } })
+            const userInivitaion = await userInivitationRepository.findOne({ where: { personalId: personalId, email: newEmail } })
 
             if (userInivitaion)
             {
@@ -69,18 +69,6 @@ class AuthContoller {
                 usedDetail.isDelegate = false;
                 await userDetailRepository.save(usedDetail)
             }
-
- 
-            // var idString = newUser.id.toString();
-            // var idStringSum = 0;
-            // for (let i = 0; i < idString.length; i++) {
-            //     var number = +idString.substring(i, i+1);
-            //     idStringSum = idStringSum + number;
-            // }
-            // newUser.userName = (newUser.id * 100 + idStringSum % 97).toString()
-            // await userRepository.save(user)
-            
-
 
             const passwordSalt = newGuid();
             const passwordHash = generateHash(password,passwordSalt)

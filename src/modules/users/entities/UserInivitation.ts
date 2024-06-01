@@ -13,9 +13,6 @@ export class UserInivitation {
     fullName: string
 
     @Column()
-    mobile: string
-
-    @Column()
     email: string
 
     @Column()
