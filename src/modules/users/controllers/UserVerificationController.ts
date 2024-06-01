@@ -19,17 +19,11 @@ class UserVerificationController {
         try {
 
             const {districtId, personalId, email, firstName, lastName} = req.body;
-            
-            const createdBy = req.body.userSession.user.id
-
-            console.log(districtId, personalId, email, firstName, lastName, createdBy)
-
+            const userId = req.body.userSession.user.id
+            console.log(districtId, personalId, email, firstName, lastName, userId)
             const result = await verification(personalId
                                             , email
-                                            , firstName
-                                            , lastName
-                                            , districtId
-                                            , createdBy)
+                                            , userId)
             return res.json(result);
         } catch (error) {
             next(error)

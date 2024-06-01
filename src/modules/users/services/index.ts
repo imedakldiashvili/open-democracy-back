@@ -138,7 +138,7 @@ export const checkOTP = async (deviceUid: string, type: string, value: string, c
 }
 
 
-export const verification = async (personalId: string, email: string, firstName: string, lastName: string, districtId: number, createdBy: number) => {
+export const verification = async (personalId: string, email: string, userId: number) => {
 
     const inivitations = await userInivitationRepository.find({
         where: {
@@ -158,11 +158,9 @@ export const verification = async (personalId: string, email: string, firstName:
     await userInivitationRepository.save(inivitation)
 
     var newUserDetail = new UserDetail()
-    newUserDetail.id = createdBy
-    newUserDetail.districtId = districtId
+    newUserDetail.id = userId
     newUserDetail.code = personalId;
-    newUserDetail.firstName = firstName
-    newUserDetail.lastName = lastName
+    newUserDetail.fullName = inivitation.fullName
     newUserDetail.isActive = true
     newUserDetail.isDelegate = false
     await userDetailRepository.save(newUserDetail)
