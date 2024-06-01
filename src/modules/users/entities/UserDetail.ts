@@ -23,6 +23,9 @@ export class UserDetail {
     @Column()
     isActive: boolean    
     
+    @Column()
+    districtId: number
+
     @OneToOne(() => District)
     @JoinColumn()
     district: District

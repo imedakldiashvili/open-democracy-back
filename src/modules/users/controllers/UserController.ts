@@ -12,6 +12,7 @@ import { dateNow } from '../../../utils';
 
 
 class UserController {
+    
     static find = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const users = await userRepository.find();

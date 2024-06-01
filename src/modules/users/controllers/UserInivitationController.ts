@@ -1,12 +1,13 @@
 import { NextFunction, Request, Response } from 'express'
 
-import { AppError } from '../../../middlewares/error';
+import { AppError, throwBadRequest } from '../../../middlewares/error';
 
-import { UserInivitation } from '../entities';
+import { UserDetail, UserInivitation } from '../entities';
 
-import { userInivitationRepository, userRepository } from '../repositories';
+import { userDetailRepository, userInivitationRepository, userRepository } from '../repositories';
 import { dateNow } from '../../../utils';
 import { serviceAddUserInivitaionAction } from '../../actions/services';
+import { MoreThan } from 'typeorm';
 
 
 
