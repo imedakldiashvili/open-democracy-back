@@ -6,6 +6,7 @@ import { User, UserPassword } from '../entities';
 
 import { userPasswordRepository, userRepository, userSessionRepository } from '../repositories';
 import { dateNow } from '../../../utils';
+import { refreshSessionService } from '../services';
 
 
 
@@ -74,6 +75,21 @@ class UserController {
             next(error)
         }
     };
+
+    static refreshSession= async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const userId = req.body.userSession.user.id
+            const deviceUid = req.body.userSession.deviceUid
+            const userSession = await refreshSessionService(userId, deviceUid)
+            return res.json(userSession);
+
+        } catch (error) {
+            next(error)
+        }
+    };
+
+
+    
 
 }
 

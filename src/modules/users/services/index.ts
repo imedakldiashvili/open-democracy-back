@@ -79,6 +79,7 @@ export const createSession = async (loginUser: any, deviceUid: string, passwordI
 
     return ({
         session: {
+            deviceUid: loginSesion.deviceUid,
             sessionUid: newSession.sessionUid,
             passwordIsTemporary: passwordIsTemporary,
             voter: voter,
@@ -89,6 +90,56 @@ export const createSession = async (loginUser: any, deviceUid: string, passwordI
     });
 
 }
+
+
+export const refreshSessionService = async (loginUserId: number, deviceUid: string) => {
+
+    const sessionUid = newGuid()
+
+    const loginUser = await userRepository.findOne({where: { id: loginUserId } })
+
+    const userPasswords = await userPasswordRepository.find({
+        where: { userId: loginUserId },
+        order: { id: -1 }
+    })
+
+    if (userPasswords.length === 0) {
+        throw AppError.notFound(`password_not_Found`);
+    }
+    const userPassword = userPasswords[0]
+
+    const passwordIsTemporary = userPassword.isTemporary
+
+    const voters = await userDetailRepository.find({
+        where: { id: loginUserId },
+        relations: { district: true }
+    })
+
+    const voter = voters.length == 1 ? voters[0] : null
+
+    const newSession = new UserSession()
+    newSession.deviceUid = deviceUid
+    newSession.isActive = true
+    newSession.createdAt = dateNow()
+    newSession.sessionUid = sessionUid
+    newSession.user = loginUser
+    newSession.passwordIsTemporary = false
+    const loginSesion = await userSessionRepository.save(newSession)
+
+   
+    return ({
+        session: {
+            deviceUid: loginSesion.deviceUid,
+            sessionUid: newSession.sessionUid,
+            passwordIsTemporary: passwordIsTemporary,
+            voter: voter,
+            user: loginUser
+        }
+    });
+
+}
+
+
 
 export const addOTP = async (deviceUid: string, type: string, value: string, createdBy: number) => {
 
@@ -138,7 +189,7 @@ export const checkOTP = async (deviceUid: string, type: string, value: string, c
 }
 
 
-export const verification = async (personalId: string, email: string, userId: number) => {
+export const verification = async (deviceUid: string, personalId: string, email: string, userId: number) => {
 
     const inivitations = await userInivitationRepository.find({
         where: {
@@ -164,6 +215,8 @@ export const verification = async (personalId: string, email: string, userId: nu
     newUserDetail.isActive = true
     newUserDetail.isDelegate = false
     await userDetailRepository.save(newUserDetail)
+    
+    var newSession = await refreshSessionService(userId, deviceUid);
 
-    return newUserDetail
+    return newSession
 }

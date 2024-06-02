@@ -9,7 +9,7 @@ const userRouter = Router();
 userRouter.post("/otps/add", OtpController.addOTP)
 userRouter.post("/otps/check", OtpController.checkOTP)
 
-
+userRouter.post("/Users/refreshsession", UserController.refreshSession)
 userRouter.post("/users/signOut", UserController.signOut)
 userRouter.put("/users/edit", UserController.edit)
 
@@ -18,6 +18,8 @@ userRouter.post("/UsersInivitations/findBySender", UserInivitationController.fin
 userRouter.post("/UsersInivitations/findActive", UserInivitationController.findActiveByEmailPersonalId)
 
 userRouter.post("/Users/verification", UserVerificationController.verification)
+
+
 
 
 export default userRouter;
