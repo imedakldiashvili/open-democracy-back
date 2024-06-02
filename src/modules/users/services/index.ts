@@ -193,7 +193,7 @@ export const verification = async (deviceUid: string, personalId: string, email:
 
     const inivitations = await userInivitationRepository.find({
         where: {
-            personalId: personalId
+              personalId: personalId
             , email: email
             , expireOn: MoreThan(dateNow())
             , statusId: 1
