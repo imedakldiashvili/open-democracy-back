@@ -189,7 +189,7 @@ export const checkOTP = async (deviceUid: string, type: string, value: string, c
 }
 
 
-export const verification = async (deviceUid: string, personalId: string, email: string, userId: number) => {
+export const verification = async (deviceUid: string, personalId: string, email: string, directinId: number, userId: number) => {
 
     const inivitations = await userInivitationRepository.find({
         where: {
@@ -212,6 +212,7 @@ export const verification = async (deviceUid: string, personalId: string, email:
     newUserDetail.id = userId
     newUserDetail.code = personalId;
     newUserDetail.fullName = inivitation.fullName
+    newUserDetail.districtId = directinId
     newUserDetail.isActive = true
     newUserDetail.isDelegate = false
     await userDetailRepository.save(newUserDetail)

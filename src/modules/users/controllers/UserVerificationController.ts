@@ -18,13 +18,14 @@ class UserVerificationController {
     static verification = async (req: Request, res: Response, next: NextFunction) => {
         try {
 
-            const {personalId, email} = req.body;
+            const {personalId, email, districtId} = req.body;
             const userId = req.body.userSession.user.id
             const deviceUid = req.body.userSession.deviceUid
 
             const result = await verification(deviceUid
                                             , personalId
                                             , email
+                                            , districtId
                                             , userId)
             return res.json(result);
         } catch (error) {
