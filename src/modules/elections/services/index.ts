@@ -63,8 +63,8 @@ export const serviceCreateElection = async () => {
 
         await electionRepository.save(electon);
 
-        electon.code = template.code + ' / ' + electon.id
-        electon.name = template.name + ' / ' + electon.id
+        // electon.code = template.code + ' / ' + electon.id
+        // electon.name = template.name + ' / ' + electon.id
 
         await electionRepository.save(electon);
 
