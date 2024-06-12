@@ -42,9 +42,12 @@ class PublicControler {
     };
 
     static findElections = async (req: Request, res: Response, next: NextFunction) => {
-        const {pagination}= req.query       
+        const pagination = req.query       
         const skip = getPageIndex(pagination)
         const take = getPageSize(pagination)
+
+        console.log();
+        
         try {
             const pageList = await electionRepository.find({
                 relations: { actualStatusSchedule: { status: true } },
@@ -64,7 +67,7 @@ class PublicControler {
 
     static findElectionsVingCards = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const {pagination}= req.query       
+            const pagination = req.query   
             const skip = getPageIndex(pagination)
             const take = getPageSize(pagination)
 
@@ -88,7 +91,7 @@ class PublicControler {
 
     static findDonations = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const {pagination}= req.query       
+            const pagination = req.query 
             const skip = getPageIndex(pagination)
             const take = getPageSize(pagination)
 
@@ -108,7 +111,7 @@ class PublicControler {
 
     static finSupporters = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const {pagination}= req.query       
+            const pagination = req.query 
             const skip = getPageIndex(pagination)
             const take = getPageSize(pagination)
 
@@ -129,7 +132,7 @@ class PublicControler {
 
     static findDelegates = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const {pagination}= req.query       
+            const pagination = req.query 
             const skip = getPageIndex(pagination)
             const take = getPageSize(pagination)
 
