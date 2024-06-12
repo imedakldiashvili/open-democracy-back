@@ -5,8 +5,7 @@ import { BankTransactionRepository } from '../../donations/repositories';
 import { userDetailRepository } from '../../users/repositories';
 import { votingCardRepository } from '../../votings/repositories';
 import { delegateGroupRepository, delegateRepository } from '../../delegates/repositories';
-import { Not } from 'typeorm';
-import { getPageIndex, getPageSize } from '../../../utils/pagination';
+import { getTake, getSkip } from '../../../utils/pagination';
 
 class PublicControler {
 
@@ -43,10 +42,9 @@ class PublicControler {
 
     static findElections = async (req: Request, res: Response, next: NextFunction) => {
         const pagination = req.query       
-        const skip = getPageIndex(pagination)
-        const take = getPageSize(pagination)
+        const skip = getSkip(pagination)
+        const take = getTake(pagination)
 
-        console.log();
         
         try {
             const pageList = await electionRepository.find({
@@ -68,16 +66,16 @@ class PublicControler {
     static findElectionsVingCards = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const pagination = req.query   
-            const skip = getPageIndex(pagination)
-            const take = getPageSize(pagination)
+            const skip = getSkip(pagination)
+            const take = getTake(pagination)
 
             var electionId = parseInt(req.body.electionId)
             const pageList = await votingCardRepository.find({
                 where: { electionId: electionId },
                 relations: { district: { region: true }, voter: true },
                 order: {statusId: -1},
-                take: take,
                 skip: skip,
+                take: take,
                 select: { id: true, district: { name: true, region: { name: true } }, votedAt: true, statusId: true },
                 
             });
@@ -92,13 +90,13 @@ class PublicControler {
     static findDonations = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const pagination = req.query 
-            const skip = getPageIndex(pagination)
-            const take = getPageSize(pagination)
+            const skip = getSkip(pagination)
+            const take = getSkip(pagination)
 
             const pageList = await BankTransactionRepository.find({
                 order: { id: -1 },
-                take: take,
                 skip: skip,
+                take: take,
                 select: { channelCode: true, transactionAccountMask: true, transactionClientName: true, transactionAmount: true, transactionDate: true }
             });
             const count = await BankTransactionRepository.count()
@@ -112,8 +110,8 @@ class PublicControler {
     static finSupporters = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const pagination = req.query 
-            const skip = getPageIndex(pagination)
-            const take = getPageSize(pagination)
+            const skip = getSkip(pagination)
+            const take = getTake(pagination)
 
             const pageList = await userDetailRepository.find({
                 relations: { district: { region: true } },
@@ -133,8 +131,11 @@ class PublicControler {
     static findDelegates = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const pagination = req.query 
-            const skip = getPageIndex(pagination)
-            const take = getPageSize(pagination)
+            const skip = getSkip(pagination)
+            const take = getTake(pagination)
+
+            
+            
 
             const pageList = await userDetailRepository.find({
                 where: {isDelegate: true},
@@ -142,9 +143,11 @@ class PublicControler {
                 order: { id: -1 },
                 skip: skip,
                 take: take,
+                                
                 select: { district: { id: true, name: true, region: { id: true, name: true } }, id: true, fullName: true, firstName: true, lastName: true }
             });
             const count = await userDetailRepository.count()
+            console.log(skip, take, count);
             return res.json({pageList, count});
         } catch (error) {
             next(error)
