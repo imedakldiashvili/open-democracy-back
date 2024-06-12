@@ -46,7 +46,7 @@ class PublicControler {
         const skip = getPageIndex(pagination)
         const take = getPageSize(pagination)
         try {
-            const data = await electionRepository.find({
+            const pageList = await electionRepository.find({
                 relations: { actualStatusSchedule: { status: true } },
                 order: { id: -1 },
                 skip: skip,
@@ -55,7 +55,7 @@ class PublicControler {
                             
             });            
             const count = await electionRepository.count()
-            return res.json({data, count});
+            return res.json({pageList, count});
         } catch (error) {
             next(error)
         }
@@ -69,7 +69,7 @@ class PublicControler {
             const take = getPageSize(pagination)
 
             var electionId = parseInt(req.body.electionId)
-            const data = await votingCardRepository.find({
+            const pageList = await votingCardRepository.find({
                 where: { electionId: electionId },
                 relations: { district: { region: true }, voter: true },
                 order: {statusId: -1},
@@ -79,7 +79,7 @@ class PublicControler {
                 
             });
             const count = await votingCardRepository.count({where: { electionId: electionId }})
-            return res.json({data, count});
+            return res.json({pageList, count});
         } catch (error) {
             next(error)
         }
@@ -92,14 +92,14 @@ class PublicControler {
             const skip = getPageIndex(pagination)
             const take = getPageSize(pagination)
 
-            const data = await BankTransactionRepository.find({
+            const pageList = await BankTransactionRepository.find({
                 order: { id: -1 },
                 take: take,
                 skip: skip,
                 select: { channelCode: true, transactionAccountMask: true, transactionClientName: true, transactionAmount: true, transactionDate: true }
             });
             const count = await BankTransactionRepository.count()
-            return res.json({data, count});
+            return res.json({pageList, count});
         } catch (error) {
             next(error)
         }
@@ -112,7 +112,7 @@ class PublicControler {
             const skip = getPageIndex(pagination)
             const take = getPageSize(pagination)
 
-            const data = await userDetailRepository.find({
+            const pageList = await userDetailRepository.find({
                 relations: { district: { region: true } },
                 order: { id: -1 },
                 skip: skip,
@@ -120,7 +120,7 @@ class PublicControler {
                 select: { district: { id: true, name: true, region: { id: true, name: true } }, id: true, fullName: true, firstName: true, lastName: true }
             });
             const count = await userDetailRepository.count()
-            return res.json({data, count});
+            return res.json({pageList, count});
         } catch (error) {
             next(error)
         }
@@ -133,7 +133,7 @@ class PublicControler {
             const skip = getPageIndex(pagination)
             const take = getPageSize(pagination)
 
-            const data = await userDetailRepository.find({
+            const pageList = await userDetailRepository.find({
                 where: {isDelegate: true},
                 relations: { district: { region: true } },
                 order: { id: -1 },
@@ -142,7 +142,7 @@ class PublicControler {
                 select: { district: { id: true, name: true, region: { id: true, name: true } }, id: true, fullName: true, firstName: true, lastName: true }
             });
             const count = await userDetailRepository.count()
-            return res.json({data, count});
+            return res.json({pageList, count});
         } catch (error) {
             next(error)
         }
