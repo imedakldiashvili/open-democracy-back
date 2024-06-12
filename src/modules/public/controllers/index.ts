@@ -132,11 +132,8 @@ class PublicControler {
         try {
             const pagination = req.query 
             const skip = getSkip(pagination)
-            const take = getTake(pagination)
-
+            const take = getTake(pagination)          
             
-            
-
             const pageList = await userDetailRepository.find({
                 where: {isDelegate: true},
                 relations: { district: { region: true } },
@@ -146,8 +143,8 @@ class PublicControler {
                                 
                 select: { district: { id: true, name: true, region: { id: true, name: true } }, id: true, fullName: true, firstName: true, lastName: true }
             });
-            const count = await userDetailRepository.count()
-            console.log(skip, take, count);
+            const count = await userDetailRepository.count({where: {isDelegate: true}})
+            
             return res.json({pageList, count});
         } catch (error) {
             next(error)
