@@ -19,6 +19,9 @@ export class DelegateGroup {
 
     @Column()
     imageUrl: string
+    
+    @Column()
+    color: string
 
     @Column()
     isActive: boolean
