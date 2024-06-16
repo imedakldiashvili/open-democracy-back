@@ -52,7 +52,7 @@ class PublicControler {
                 order: { id: -1 },
                 skip: skip,
                 take: take,
-                select: { id: true, name: true, valueDateFrom: true, valueDateTo: true, registeredVoters: true, participantVoters: true, actualStatusSchedule: { status: { id: true, name: true } } },
+                select: { id: true, name: true, valueDateFrom: true, valueDateTo: true, registeredVoters: true, participantVoters: true, actualStatusSchedule: { id: true, status: { id: true, name: true } } },
                             
             });            
             const count = await electionRepository.count()
