@@ -36,7 +36,7 @@ export class BankTransaction {
     @Column()
     createdOn: Date
     
-    @Column()
+    @Column("decimal", { precision: 5, scale: 2 })
     transactionAmount: number
 
     @Column()
