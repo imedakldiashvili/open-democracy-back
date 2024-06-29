@@ -25,7 +25,7 @@ export const serviceBOGTransactionProcesing = async () => {
         newBankTransaction.transactionClientCode = transaction.clientCode
         newBankTransaction.transactionClientName = transaction.clientName
         newBankTransaction.transactionAccount = transaction.accountNumber
-        newBankTransaction.transactionAccountMask = transaction.accountNumber.substring(0, 6) + '***' + transaction.accountNumber.substring(21, 2)
+        newBankTransaction.transactionAccountMask = transaction.accountNumber.substring(0, 6) + '***' + transaction.accountNumber.substring(2, 21)
         newBankTransaction.transactionAmount = transaction.amount
         newBankTransaction.transactionDescription = transaction.desctiption
         newBankTransaction.transactionDate = transaction.date
