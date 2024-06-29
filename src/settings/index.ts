@@ -26,7 +26,9 @@ export default {
 	},
 
 	BANKS: {
-		BOG_ACCOUNT: process.env.BOG_ACCOUNT || 'GE67BG0000000161311283'
+		BOG_ACCOUNT: process.env.BOG_ACCOUNT || 'GE67BG0000000161311283',
+		BOG_USER: process.env.BOG_USER || '4efbdf7f-dc94-4c3c-88b7-c2d1bfee36cc',
+		BOG_PASSWORD: process.env.BOG_PASSWORD || '5c3c2711-cf48-4a92-bd22-b3f501375d8d'
 	}
 
 }
