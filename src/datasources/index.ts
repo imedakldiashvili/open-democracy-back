@@ -9,7 +9,7 @@ const dataSource : DataSourceOptions = {
     port: appSettings.DATABASE.POSTGRE.PORT,
     username: appSettings.DATABASE.POSTGRE.USERNAME,
     password: appSettings.DATABASE.POSTGRE.PASSWORD,
-    database: appSettings.DATABASE.POSTGRE.APP_DB_NAME,
+    database: appSettings.DATABASE.POSTGRE.DB_NAME,
     synchronize: false,
     entities: ["src/modules/**/entities/**/*.ts"],
     migrations: [],
