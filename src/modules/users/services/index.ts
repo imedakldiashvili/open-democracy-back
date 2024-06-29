@@ -217,11 +217,11 @@ export const verification = async (deviceUid: string, personalId: string, email:
     return newSession
 }
 
-export const addUserInivitation = async (personalId: string, fullName: string, mobile: string, email: string, createdBy: number, sessionUid: string) => {
+export const addUserInivitation = async (personalId: string, fullName: string, uid: string, createdBy: number, sessionUid: string) => {
     var exUsersByCode = await userRepository.find({ where: { userDetail: { code: personalId } } })
     if (exUsersByCode.length) { return }
     
-    var exUserInivitations = await userInivitationRepository.find({where: {statusId: 1, personalId: personalId }});
+    var exUserInivitations = await userInivitationRepository.find({where: {statusId: 1, personalId: personalId, uid: uid }});
 
     for (var exUserInivitation of exUserInivitations) {
         exUserInivitation.statusId = -1
@@ -233,7 +233,7 @@ export const addUserInivitation = async (personalId: string, fullName: string, m
     newUserInivitation.createdUserId = createdUserId
     newUserInivitation.personalId = personalId,
     newUserInivitation.fullName = fullName,
-    newUserInivitation.email = email
+    newUserInivitation.uid = uid
     newUserInivitation.expireOn = dateNowAddMinutes(2 * 24 * 60);
     newUserInivitation.statusId = 1
 
@@ -241,7 +241,7 @@ export const addUserInivitation = async (personalId: string, fullName: string, m
 
     const inivitaitaionId = newUserInivitation.id;
 
-    await serviceAddUserInivitaionAction({ sessionUid, inivitaitaionId, createdUserId, personalId, fullName, email, mobile })
+    await serviceAddUserInivitaionAction({ sessionUid, inivitaitaionId, createdUserId, personalId, fullName, uid })
 
     return newUserInivitation;
 };

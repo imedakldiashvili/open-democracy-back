@@ -57,7 +57,7 @@ class AuthContoller {
 
             const newUser = await userRepository.save(user)
 
-            const userInivitaion = await userInivitationRepository.findOne({ where: { personalId: personalId, email: newEmail } })
+            const userInivitaion = await userInivitationRepository.findOne({ where: { personalId: personalId, uid: newEmail } })
 
             if (userInivitaion)
             {

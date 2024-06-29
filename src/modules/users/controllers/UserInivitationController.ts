@@ -34,7 +34,7 @@ class UserInivitationController {
             const {personalId, fullName, mobile, email} = req.body; 
             const createdUserId = req.body.userSession.user.id
             const sessionUid = req.body.userSession.id
-            const result = await addUserInivitation( personalId, fullName, mobile, email, createdUserId, sessionUid );
+            const result = await addUserInivitation( personalId, fullName, email, createdUserId, sessionUid );
             return res.json(result);
         } catch (error) {
             next(error)
@@ -46,7 +46,7 @@ class UserInivitationController {
             const {personalId, email} = req.body; 
             var  userInivitations = await userInivitationRepository.find({where: {statusId: 1
                                                                                 , expireOn: MoreThan(dateNow()) 
-                                                                                , email: email
+                                                                                , uid: email
                                                                                 , personalId: personalId}});
             if (userInivitations.length == 1)
             {

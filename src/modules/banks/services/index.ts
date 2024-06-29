@@ -42,7 +42,7 @@ export const serviceBOGTransactionProcesing = async () => {
         }
 
         try {
-            await addUserInivitation(transaction.clientCode, transaction.clientName, null, null, 1, 'bank')
+            await addUserInivitation(transaction.clientCode, transaction.clientName, transaction.uid, 1, 'bank')
         } catch (error) {
             console.log(error)
         }

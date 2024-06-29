@@ -13,7 +13,7 @@ export class UserInivitation {
     fullName: string
 
     @Column()
-    email: string
+    uid: string
 
     @Column()
     expireOn: Date
