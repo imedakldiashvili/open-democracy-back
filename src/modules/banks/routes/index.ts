@@ -5,9 +5,9 @@ import BanksContoller from "../controllers";
 
 const bankRouter = Router();
 
-bankRouter.post("/banks/newbogtoken", BanksContoller.NewBOGToken)
-bankRouter.post("/banks/todaysactivities/:account", BanksContoller.BOGTodaysActivities)
-
+bankRouter.post("/banks/bognewtoken", BanksContoller.NewBOGToken)
+bankRouter.post("/banks/bogtodaysactivities/:account", BanksContoller.BOGTodaysActivities)
+bankRouter.post("/banks/bogtransactionprocesing", BanksContoller.BOGTransactionProcesing)
 
 
 

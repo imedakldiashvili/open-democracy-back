@@ -220,8 +220,6 @@ export const verification = async (deviceUid: string, personalId: string, email:
 export const addUserInivitation = async (personalId: string, fullName: string, mobile: string, email: string, createdBy: number, sessionUid: string) => {
     var exUsersByCode = await userRepository.find({ where: { userDetail: { code: personalId } } })
     if (exUsersByCode.length) { return }
-    var exUsersByEmail = await userRepository.find({ where: { email: email} })
-    if (exUsersByEmail.length) { return }
     
     var exUserInivitations = await userInivitationRepository.find({where: {statusId: 1, personalId: personalId }});
 

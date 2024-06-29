@@ -35,7 +35,6 @@ export const serviceBOGTransactionProcesing = async () => {
     }
 
     for (var transaction of transactions) {
-        console.log(3)
         try {
             await addBankTransaction(transaction)
         } catch (error) {
