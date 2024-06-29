@@ -4,9 +4,10 @@ import { generateHash, generateRefreshToken, generateToken } from "../../../midd
 
 import { dateNow, dateNowAddMinutes, newGuid, otpCode } from "../../../utils";
 
-import { UserDetail, UserOTP, UserSession } from "../entities";
+import { UserDetail, UserInivitation, UserOTP, UserSession } from "../entities";
 import { userDetailRepository, userInivitationRepository, userOTPRepository, userPasswordRepository, userRepository, userSessionRepository } from "../../users/repositories";
-import { MoreThan } from "typeorm";
+import { LessThan, MoreThan } from "typeorm";
+import { serviceAddUserInivitaionAction } from "../../actions/services";
 
 
 export const getLoginUser = async (loginEmail: string) => {
@@ -91,12 +92,11 @@ export const createSession = async (loginUser: any, deviceUid: string, passwordI
 
 }
 
-
 export const refreshSessionService = async (loginUserId: number, deviceUid: string) => {
 
     const sessionUid = newGuid()
 
-    const loginUser = await userRepository.findOne({where: { id: loginUserId } })
+    const loginUser = await userRepository.findOne({ where: { id: loginUserId } })
 
     const userPasswords = await userPasswordRepository.find({
         where: { userId: loginUserId },
@@ -126,7 +126,7 @@ export const refreshSessionService = async (loginUserId: number, deviceUid: stri
     newSession.passwordIsTemporary = false
     const loginSesion = await userSessionRepository.save(newSession)
 
-   
+
     return ({
         session: {
             deviceUid: loginSesion.deviceUid,
@@ -138,8 +138,6 @@ export const refreshSessionService = async (loginUserId: number, deviceUid: stri
     });
 
 }
-
-
 
 export const addOTP = async (deviceUid: string, type: string, value: string, createdBy: number) => {
 
@@ -188,19 +186,16 @@ export const checkOTP = async (deviceUid: string, type: string, value: string, c
     return result
 }
 
-
 export const verification = async (deviceUid: string, personalId: string, email: string, directinId: number, userId: number) => {
 
     const inivitations = await userInivitationRepository.find({
         where: {
-              personalId: personalId
-            , email: email
+            personalId: personalId
+            // , email: email
             , expireOn: MoreThan(dateNow())
             , statusId: 1
         }
     });
-
-    console.log(inivitations)
 
     if (inivitations.length != 1) { throwBadRequest("inivitation_not_found") }
 
@@ -216,8 +211,39 @@ export const verification = async (deviceUid: string, personalId: string, email:
     newUserDetail.isActive = true
     newUserDetail.isDelegate = false
     await userDetailRepository.save(newUserDetail)
-    
+
     var newSession = await refreshSessionService(userId, deviceUid);
 
     return newSession
 }
+
+export const addUserInivitation = async (personalId: string, fullName: string, mobile: string, email: string, createdBy: number, sessionUid: string) => {
+    var exUsersByCode = await userRepository.find({ where: { userDetail: { code: personalId } } })
+    if (exUsersByCode.length) { return }
+    var exUsersByEmail = await userRepository.find({ where: { email: email} })
+    if (exUsersByEmail.length) { return }
+    
+    var exUserInivitations = await userInivitationRepository.find({where: {statusId: 1, personalId: personalId }});
+
+    for (var exUserInivitation of exUserInivitations) {
+        exUserInivitation.statusId = -1
+        await userInivitationRepository.save(exUserInivitation);
+    }
+
+    const createdUserId = createdBy
+    const newUserInivitation = new UserInivitation();
+    newUserInivitation.createdUserId = createdUserId
+    newUserInivitation.personalId = personalId,
+    newUserInivitation.fullName = fullName,
+    newUserInivitation.email = email
+    newUserInivitation.expireOn = dateNowAddMinutes(2 * 24 * 60);
+    newUserInivitation.statusId = 1
+
+    await userInivitationRepository.save(newUserInivitation);
+
+    const inivitaitaionId = newUserInivitation.id;
+
+    await serviceAddUserInivitaionAction({ sessionUid, inivitaitaionId, createdUserId, personalId, fullName, email, mobile })
+
+    return newUserInivitation;
+};

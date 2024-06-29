@@ -9,6 +9,7 @@ import donationRouter from '../modules/donations/routes';
 import publicRouter from '../modules/public/routes';
 import notificationRouter from '../modules/notifications/routes';
 import locationRouter from '../modules/locations/routers';
+import bankRouter from '../modules/banks/routes';
 
 
 
@@ -23,6 +24,9 @@ router.use("/",
             donationRouter, 
             publicRouter, 
             notificationRouter, 
-            locationRouter)
+            locationRouter,
+            bankRouter
+
+        )
 
 export default router;

@@ -8,6 +8,7 @@ import { userDetailRepository, userInivitationRepository, userRepository } from 
 import { dateNow } from '../../../utils';
 import { serviceAddUserInivitaionAction } from '../../actions/services';
 import { MoreThan } from 'typeorm';
+import { addUserInivitation } from '../services';
 
 
 
@@ -30,24 +31,11 @@ class UserInivitationController {
     static add = async (req: Request, res: Response, next: NextFunction) => {
         try {
 
-            const {personalId, fullName, mobile, email } = req.body; 
+            const {personalId, fullName, mobile, email} = req.body; 
             const createdUserId = req.body.userSession.user.id
-            const entity = new UserInivitation();            
-            entity.createdUserId = createdUserId
-            entity.personalId = personalId,
-            entity.fullName = fullName,
-            entity.email = email
-            entity.expireOn =  dateNow();
-            entity.statusId = 1
-
-            await userInivitationRepository.save(entity);
-            
             const sessionUid = req.body.userSession.id
-            const inivitaitaionId = entity.id;
-
-            await serviceAddUserInivitaionAction({sessionUid, inivitaitaionId, createdUserId, personalId, fullName, email, mobile})
-
-            return res.json(entity);
+            const result = await addUserInivitation( personalId, fullName, mobile, email, createdUserId, sessionUid );
+            return res.json(result);
         } catch (error) {
             next(error)
         }

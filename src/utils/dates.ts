@@ -18,8 +18,17 @@ export const dateNowAddMinutes = (minutes: number) => {
     return date
 }
 
+export const dateNowAddSecunds = (secunds: number) => {
+    const date = addSecunds(new Date(), secunds)
+    return date
+}
+
 export const addMinutes = (date: Date, minutes: number) => {
     return new Date(date.getTime() + minutes * 60000);
+}
+
+export const addSecunds = (date: Date, secunds: number) => {
+    return new Date(date.getTime() + secunds * 1000);
 }
 
 export const newDateW = (date: Date, minutes: number) => {

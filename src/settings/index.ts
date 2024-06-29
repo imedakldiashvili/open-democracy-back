@@ -23,6 +23,10 @@ export default {
 			PASSWORD: key.DB_PASSWORD,
 			APP_DB_NAME: process.env.POSTGRES_DB || "open-democracy-db",
 		}
+	},
+
+	BANKS: {
+		BOG_ACCOUNT: process.env.BOG_ACCOUNT || 'GE67BG0000000161311283'
 	}
 
 }
