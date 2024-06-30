@@ -222,6 +222,8 @@ export const addUserInivitation = async (personalId: string, fullName: string, u
     if (exUsersByCode.length) { return }
     
     var exUserInivitations = await userInivitationRepository.find({where: {statusId: 1, personalId: personalId, uid: uid }});
+    
+    if (createdBy == 1 && exUserInivitations.filter(e=> e.createdUserId == 1 && e.uid == uid && e.personalId == personalId).length) { return }
 
     for (var exUserInivitation of exUserInivitations) {
         exUserInivitation.statusId = -1
