@@ -192,7 +192,7 @@ export const verification = async (deviceUid: string, personalId: string, email:
         where: {
             personalId: personalId
             // , email: email
-            , expireOn: MoreThan(dateNow())
+            // , expireOn: MoreThan(dateNow())
             , statusId: 1
         }
     });
