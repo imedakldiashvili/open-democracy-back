@@ -38,7 +38,7 @@ class AuthContoller {
 
     static signUp = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const {deviceUid, personalId, email, password, emailOtpCode} = req.body;  
+            const {deviceUid, email, password, emailOtpCode} = req.body;  
             
             const newEmail = email.toLowerCase();
             const users = await userRepository.find({where: {email: newEmail}});
@@ -48,7 +48,7 @@ class AuthContoller {
             const  emailOtp = await checkOTP(deviceUid, "email", email,  1, emailOtpCode )
           
             const user = new User();
-            user.userName = personalId,
+            user.userName = newEmail,
             user.email = newEmail,
             user.emailVerificationOtpId = emailOtp.id,
             user.isActive = true,
@@ -56,19 +56,6 @@ class AuthContoller {
             user.createdOn = new Date();
 
             const newUser = await userRepository.save(user)
-
-            const userInivitaion = await userInivitationRepository.findOne({ where: { personalId: personalId, uid: newEmail } })
-
-            if (userInivitaion)
-            {
-                const usedDetail = new UserDetail();
-                usedDetail.id = newUser.id
-                usedDetail.code = userInivitaion.personalId;
-                usedDetail.fullName = userInivitaion.fullName;
-                usedDetail.isActive = true;
-                usedDetail.isDelegate = false;
-                await userDetailRepository.save(usedDetail)
-            }
 
             const passwordSalt = newGuid();
             const passwordHash = generateHash(password,passwordSalt)
