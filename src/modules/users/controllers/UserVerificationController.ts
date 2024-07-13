@@ -18,15 +18,29 @@ class UserVerificationController {
     static verification = async (req: Request, res: Response, next: NextFunction) => {
         try {
 
-            const {personalId, email, districtId} = req.body;
+            const {personalId, firstName, lastName } = req.body;
             const userId = req.body.userSession.user.id
             const deviceUid = req.body.userSession.deviceUid
 
             const result = await verification(deviceUid
                                             , personalId
-                                            , email
-                                            , districtId
+                                            , firstName
+                                            , lastName
                                             , userId)
+            return res.json(result);
+        } catch (error) {
+            next(error)
+        }
+    };
+
+    static setLocation = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+
+            const {locationId} = req.body;
+            const userId = req.body.userSession.user.id
+            const deviceUid = req.body.userSession.deviceUid
+
+            const result = await this.setLocation(deviceUid, locationId, userId)
             return res.json(result);
         } catch (error) {
             next(error)

@@ -186,7 +186,7 @@ export const checkOTP = async (deviceUid: string, type: string, value: string, c
     return result
 }
 
-export const verification = async (deviceUid: string, personalId: string, email: string, directinId: number, userId: number) => {
+export const verification = async (deviceUid: string, personalId: string, fistName: string,  lastName: string, userId: number) => {
 
     const inivitations = await userInivitationRepository.find({
         where: {
@@ -206,8 +206,10 @@ export const verification = async (deviceUid: string, personalId: string, email:
     var newUserDetail = new UserDetail()
     newUserDetail.id = userId
     newUserDetail.code = personalId;
+    newUserDetail.firstName = fistName
+    newUserDetail.lastName = lastName
     newUserDetail.fullName = inivitation.fullName
-    newUserDetail.districtId = directinId
+    newUserDetail.districtId = 0
     newUserDetail.isActive = true
     newUserDetail.isDelegate = false
     await userDetailRepository.save(newUserDetail)
@@ -247,3 +249,19 @@ export const addUserInivitation = async (personalId: string, fullName: string, u
 
     return newUserInivitation;
 };
+
+
+export const setLocation = async (deviceUid: string, districtId: number, userId: number) => {
+
+    const userDetails = await userDetailRepository.find({where: {id: userId}});
+
+    if (userDetails.length != 1) { throwBadRequest("user_detail_not_found") }
+
+    var userDetail = userDetails[0]
+    userDetail.districtId = districtId;
+    await userDetailRepository.save(userDetail)
+
+    var newSession = await refreshSessionService(userId, deviceUid);
+
+    return newSession
+}
