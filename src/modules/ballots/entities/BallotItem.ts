@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany } from "typeorm"
 import { Ballot } from "./Ballot"
 import { BallotItemValue } from "./BallotItemValue"
+import { BallotItemSubject } from "./BallotItemSubject"
 
 
 @Entity('ballots_items')
@@ -43,6 +44,10 @@ export class BallotItem {
 
     @OneToMany(() => BallotItemValue, (ballotItemValue) => ballotItemValue.ballotItem)
     ballotItemValues: BallotItemValue[]
+
+    @OneToMany(() => BallotItemSubject, (ballotItemSubject) => ballotItemSubject.ballotItem)
+    ballotItemSubjects: BallotItemSubject[]
+
     
     
 }

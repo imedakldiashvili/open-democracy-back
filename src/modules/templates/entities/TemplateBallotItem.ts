@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn, OneToOne, ManyToMany, JoinTable } from "typeorm"
 import { TemplateBallot } from "./TemplateBallot"
 import { TemplateBallotItemValue } from "./TemplateBallotItemValue"
+import { TemplateBallotItemSubject } from "./TemplateBallotItemSubject"
 
 
 
@@ -46,5 +47,10 @@ export class TemplateBallotItem {
 
     @OneToMany(() => TemplateBallotItemValue, (templateBallotItemValue) => templateBallotItemValue.templateBallotItem)
     templateBallotItemValues: TemplateBallotItemValue[] 
+
+    
+    @OneToMany(() => TemplateBallotItemSubject, (templateBallotItemSubject) => templateBallotItemSubject.templateBallotItem)
+    templateBallotItemSubjects: TemplateBallotItemSubject[] 
+    
 
 }

@@ -6,13 +6,15 @@ import { delegateGroupRepository, delegateRepository } from "../../delegates/rep
 import { Ballot, BallotItem, BallotItemValue } from "../../ballots/entities"
 import { addMinutes, dateNowMilliseconds, dateNowMinute } from "../../../utils/dates"
 import { Election } from "../entities"
-import { ballotItemRepository, ballotItemValueRepository, ballotRepository } from "../../ballots/repositories"
+import { ballotItemRepository, ballotItemSubjectRepository, ballotItemValueRepository, ballotRepository } from "../../ballots/repositories"
 import { ElectionStatusSchedule } from "../entities/ElectionStatusSchedule"
 import { userDetailRepository } from "../../users/repositories"
 import { ElectionStatusEnum } from "../../enums"
 import { newGuid } from "../../../utils"
 import { VotingCard } from "../../votings/entities"
 import { appDataSource } from "../../../datasources"
+import { TemplateBallotItemSubject } from "../../templates/entities/TemplateBallotItemSubject"
+import { BallotItemSubject } from "../../ballots/entities/BallotItemSubject"
 
 
 
@@ -24,10 +26,13 @@ export const serviceCreateElection = async () => {
     var resultedElections =  await electionRepository.find({
         where:  {statusSchedule: true, actualStatusSchedule: { status: {id: ElectionStatusEnum.finished }}}
     })
-
     
+
+
     for (var resultedElection of resultedElections)
     {
+        console.log(resultedElections);
+        
         var newElectionStatusSchedule = resultedElection.statusSchedule.filter(e => (e.state == 0) && (e.status.id = ElectionStatusEnum.result))[0]
         resultedElection.actualStatusSchedule = newElectionStatusSchedule;
 
@@ -43,7 +48,7 @@ export const serviceCreateElection = async () => {
 
     var template = await templateRepository.findOne({ 
         where: { isActive: true },
-        relations: { templateBallots: {ballotType: true, templateBallotItems: {templateBallotItemValues: true}  }, statusSchedule: true},
+        relations: { templateBallots: {ballotType: true, templateBallotItems: {templateBallotItemValues: true, templateBallotItemSubjects: true}  }, statusSchedule: true},
         order: {templateBallots: {index: +1, templateBallotItems: {index: +1, templateBallotItemValues: {index: +1}} }, statusSchedule: {id: +1} }
     })
 
@@ -190,6 +195,19 @@ export const serviceCreateElection = async () => {
                         await ballotItemValueRepository.save(ballotItemValue);
         
                     }
+
+                    for (var templateBallotItemSubject of templateBallotItem.templateBallotItemSubjects)
+                        {
+                            var newBallotItemSubject = new BallotItemSubject()
+                            newBallotItemSubject.ballotItem = ballotItem;
+                            newBallotItemSubject.index = templateBallotItemSubject.index
+                            newBallotItemSubject.code = templateBallotItemSubject.code
+                            newBallotItemSubject.name = templateBallotItemSubject.name
+                            newBallotItemSubject.imageUrl = templateBallotItemSubject.imageUrl
+            
+                            await ballotItemSubjectRepository.save(newBallotItemSubject);
+            
+                        }
         
                 }
 
