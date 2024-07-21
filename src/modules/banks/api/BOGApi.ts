@@ -1,6 +1,6 @@
 import axios from "axios";
 import { stringify } from "querystring";
-import { BankBOGTokenRepository } from "../repositories";
+import { bankBOGTokenRepository } from "../repositories";
 import { BankBOGToken } from "../entities/BankBOGToken";
 import { newGuid } from "../../../utils";
 import { addSecunds, dateNow } from "../../../utils/dates";
@@ -65,14 +65,14 @@ export const getBOGTodaysActivities = async (account) => {
 
 export const getBOGToken = async () => {
   var dateTimeNow = dateNow();
-  var allTockens = await BankBOGTokenRepository.find()
+  var allTockens = await bankBOGTokenRepository.find()
   var activeTokens = allTockens.filter(e => e.expiredOn < dateTimeNow);
   var token = new BankBOGToken()
   if (activeTokens.length) {
     token = activeTokens[0]
   }
   else {
-    await BankBOGTokenRepository.remove(allTockens)
+    await bankBOGTokenRepository.remove(allTockens)
     const result = await getNewBOGToken()
     token.id = newGuid()
     token.token = result.tokenType + " " + result.token
@@ -80,7 +80,7 @@ export const getBOGToken = async () => {
     token.createdOn = dateTimeNow
     token.expireIn = result.expiresIn
     token.expiredOn = addSecunds(dateTimeNow, result.expiresIn)
-    await BankBOGTokenRepository.save(token)
+    await bankBOGTokenRepository.save(token)
   }
   return token
 };
