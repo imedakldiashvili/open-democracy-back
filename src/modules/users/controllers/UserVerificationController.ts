@@ -8,7 +8,7 @@ import { userDetailRepository, userInivitationRepository, userRepository } from 
 import { dateNow } from '../../../utils';
 import { serviceAddUserInivitaionAction } from '../../actions/services';
 import { MoreThan } from 'typeorm';
-import { verification } from '../services';
+import { setLocation, verification } from '../services';
 
 
 
@@ -40,7 +40,7 @@ class UserVerificationController {
             const userId = req.body.userSession.user.id
             const deviceUid = req.body.userSession.deviceUid
 
-            const result = await this.setLocation(deviceUid, locationId, userId)
+            const result = await setLocation(deviceUid, locationId, userId)
             return res.json(result);
         } catch (error) {
             next(error)
