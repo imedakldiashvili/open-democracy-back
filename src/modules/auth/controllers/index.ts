@@ -6,7 +6,7 @@ import { generateHash } from '../../../middlewares/security';
 import { dateNow, newGuid } from '../../../utils';
 
 import { userDetailRepository, userInivitationRepository, userPasswordRepository, userRepository, userSessionRepository } from "../../users/repositories";
-import { addOTP, loginUserService, checkOTP } from '../../users/services';
+import { addOTP, loginUserService, checkOTP, addPassword } from '../../users/services';
 
 import { User, UserDetail, UserPassword } from '../../users/entities';
 import { Like } from 'typeorm';
@@ -56,22 +56,8 @@ class AuthContoller {
             user.createdOn = new Date();
 
             const newUser = await userRepository.save(user)
-
-            const passwordSalt = newGuid();
-            const passwordHash = generateHash(password,passwordSalt)
-            const userPassword = new UserPassword()
-
-            userPassword.userId = newUser.id
-            userPassword.passwordSalt = passwordSalt
-            userPassword.passwordHash = passwordHash
-            userPassword.isActive = true
-            userPassword.isTemporary = false
-            userPassword.createdBy = 1
-            userPassword.createdOn = new Date()
-
-            await userPasswordRepository.save(userPassword)
-
-            var result = await loginUserService(deviceUid, newEmail, password)
+            const newPassword = await addPassword(newUser.id, password, 1)
+            const result = await loginUserService(deviceUid, newEmail, password)
 
             return res.json(result);
         

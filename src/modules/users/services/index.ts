@@ -4,7 +4,7 @@ import { generateHash, generateRefreshToken, generateToken } from "../../../midd
 
 import { dateNow, dateNowAddMinutes, newGuid, otpCode } from "../../../utils";
 
-import { UserDetail, UserInivitation, UserOTP, UserSession } from "../entities";
+import { UserDetail, UserInivitation, UserOTP, UserPassword, UserSession } from "../entities";
 import { userDetailRepository, userInivitationRepository, userOTPRepository, userPasswordRepository, userRepository, userSessionRepository } from "../../users/repositories";
 import { LessThan, MoreThan } from "typeorm";
 import { serviceAddUserInivitaionAction } from "../../actions/services";
@@ -40,6 +40,31 @@ export const checkPassword = async (loginUserId: number, password: string) => {
     if (!isAuthorized) {
         throw AppError.forbidden(`wrong_password`);
     }
+
+    return userPassword
+}
+
+export const addPassword = async (userId: number, password: string, createdUserId: number) => {
+
+    var exPasswords = await userPasswordRepository.find({where: {isActive: true, userId: userId}})
+    for( var exPassword of exPasswords )
+    {
+        exPassword.isActive = false
+        await userPasswordRepository.save(exPassword)
+    }
+    
+    const passwordSalt = newGuid();
+    const passwordHash = generateHash(password,passwordSalt)
+    const userPassword = new UserPassword()
+    userPassword.userId = userId
+    userPassword.passwordSalt = passwordSalt
+    userPassword.passwordHash = passwordHash
+    userPassword.isActive = true
+    userPassword.isTemporary = false
+    userPassword.createdBy = createdUserId
+    userPassword.createdOn = new Date()
+    
+    await userPasswordRepository.save(userPassword)   
 
     return userPassword
 }

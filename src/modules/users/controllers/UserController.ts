@@ -6,7 +6,7 @@ import { User, UserPassword } from '../entities';
 
 import { userPasswordRepository, userRepository, userSessionRepository } from '../repositories';
 import { dateNow } from '../../../utils';
-import { refreshSessionService } from '../services';
+import { addPassword, checkPassword, loginUserService, refreshSessionService } from '../services';
 
 
 
@@ -75,6 +75,34 @@ class UserController {
             next(error)
         }
     };
+
+    static passwordChange= async (req: Request, res: Response, next: NextFunction) => {
+        try {
+
+            let userSession = req.body.userSession
+
+            const userId = userSession.userId
+            const email = userSession.email
+            const deviceUid = userSession.deviceUid
+            
+            const exPasswordText = req.body.exPassword
+            const newPasswordText = req.body.newPasswordText
+
+
+            await checkPassword(userSession.userId, exPasswordText)
+            
+            const newPassword = await addPassword(userId, newPasswordText, userId)
+
+            const result = await loginUserService(deviceUid, email, newPasswordText)
+
+            return res.json(result);
+
+        } catch (error) {
+            next(error)
+        }
+    };
+
+
 
     static refreshSession= async (req: Request, res: Response, next: NextFunction) => {
         try {
