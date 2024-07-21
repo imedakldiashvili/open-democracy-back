@@ -18,6 +18,7 @@ userRouter.post("/UsersInivitations/findBySender", UserInivitationController.fin
 userRouter.post("/UsersInivitations/findActive", UserInivitationController.findActiveByEmailPersonalId)
 
 userRouter.post("/Users/verification", UserVerificationController.verification)
+userRouter.post("/Users/setLocation", UserVerificationController.setLocation)
 
 
 
