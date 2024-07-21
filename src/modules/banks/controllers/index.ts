@@ -18,7 +18,19 @@ import { serviceBankAccounts, serviceBOGTransactionProcesing } from '../services
 
 
 class BanksContoller {
+   
     
+    static findBankAccounts = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const result = await serviceBankAccounts()
+            return res.json(result);
+        
+        } catch (error) {
+            next(error)
+        }
+    };
+
+
     static NewBOGToken = async (req: Request, res: Response, next: NextFunction) => {
         try {            
             const result = await getNewBOGToken()
