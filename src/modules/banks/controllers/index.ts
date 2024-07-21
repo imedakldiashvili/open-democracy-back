@@ -14,7 +14,7 @@ import { sendMail } from '../../notifications/services';
 
 import settings from '../../../settings';
 import { getBOGTodaysActivities, getNewBOGToken } from '../api';
-import { serviceBOGTransactionProcesing } from '../services';
+import { serviceBankAccounts, serviceBOGTransactionProcesing } from '../services';
 
 
 class BanksContoller {
@@ -55,7 +55,15 @@ class BanksContoller {
         }
     };
 
-    serviceBOGTransactionProcesing
+    static BankAccounts = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const result = await serviceBankAccounts()
+            return res.json(result);
+        
+        } catch (error) {
+            next(error)
+        }
+    };
 
 
 }

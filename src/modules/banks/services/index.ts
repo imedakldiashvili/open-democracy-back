@@ -1,3 +1,4 @@
+import { Like } from "typeorm";
 import settings from "../../../settings";
 import { dateNow, dateNowAddMinutes } from "../../../utils";
 import { BankTransaction } from "../../donations/entities";
@@ -6,6 +7,7 @@ import { UserInivitation } from "../../users/entities";
 import { userInivitationRepository } from "../../users/repositories";
 import { addUserInivitation } from "../../users/services";
 import { getBOGTodaysActivities } from "../api";
+import { bankSettingRepository } from "../repositories";
 
 
 export const serviceBOGTransactionProcesing = async () => {
@@ -49,4 +51,10 @@ export const serviceBOGTransactionProcesing = async () => {
     }
 
     return { status: 1, message: "BOG Transaction processed successfuly" };
+}
+
+export const serviceBankAccounts = async () => {
+
+    const bankSettings = await bankSettingRepository.find({where: {code: Like('%ACCOUNT')}});
+    return bankSettings;
 }

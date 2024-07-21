@@ -4,7 +4,9 @@ import PublicControler from "../controllers";
 
 const publicRouter = Router();
 
-publicRouter.post("/public/actualelection", PublicControler.findElectionsActual)
+
+publicRouter.post("/public/BankAccounts", PublicControler.findBankAccounts)
+
 publicRouter.post("/public/electionsdetail", PublicControler.findElectionsDetail)
 
 publicRouter.post("/public/elections", PublicControler.findElections)
