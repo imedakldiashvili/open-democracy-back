@@ -253,7 +253,7 @@ export const addUserInivitation = async (personalId: string, fullName: string, u
 
 export const setLocation = async (deviceUid: string, districtId: number, userId: number) => {
 
-    const userDetails = await userDetailRepository.find({where: {id: userId}});
+    const userDetails = await userDetailRepository.find({where: {user: {id: userId}, isActive: true}});
 
     if (userDetails.length != 1) { throwBadRequest("user_detail_not_found") }
 
