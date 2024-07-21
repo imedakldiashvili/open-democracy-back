@@ -12,6 +12,6 @@ export class BankSetting {
     code: string
 
     @Column()
-    values: string
+    value: string
   
 }
