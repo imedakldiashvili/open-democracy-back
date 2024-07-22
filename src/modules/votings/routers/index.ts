@@ -1,9 +1,13 @@
 import * as express from "express";
-import { VoterController } from "../controllers";
+import { VoterController, VotingCardController } from "../controllers";
 
 
 
 const voterRouter = express.Router();
+
+
+
+voterRouter.post("/votinCards/findDetail", VotingCardController.findDetail)
 
 
 voterRouter.post("/votings/findUserSessionVotingCards", VoterController.findUserSessionVotingCards)

@@ -1,9 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 import { appDataSource } from '../../../datasources';
-import { dateNow, newGuid } from '../../../utils';
-import { Action } from '../../actions/entities';
-import { actionTypeRepository } from '../../actions/repositories';
-import { ballotItemRepository, ballotItemValueRepository, ballotRepository } from '../../ballots/repositories';
+import { ballotItemValueRepository, ballotRepository } from '../../ballots/repositories';
 import { electionRepository } from '../../elections/repositories';
 import { districtRepository } from '../../locations/repositories';
 import { VoteBallotItem, VoteBallotItemValue, VotingCard, VotingCardBallot } from '../entities';
@@ -60,8 +57,6 @@ class VoterController {
         }
 
     };
-
-
 
     static voter = async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -150,22 +145,6 @@ class VoterController {
         }
 
     };
-
-    static findCard = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-
-            const { id } = req.body;
-            var votingCard = await votingCardRepository.findOne({
-                                                                    where: {id: id},
-                                                                    relations: {district: true, election: true, voter: true}
-                                                                });
-            return res.json(votingCard);
-            
-        } catch (error) {
-            next(error)
-        }
-    };
-
 
     static votingCard = async (req: Request, res: Response, next: NextFunction) => {
         try {
