@@ -63,12 +63,9 @@ class ActionController {
 
     static getUserActionDetail = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const userSession = req.body.userSession;
-            const userId = userSession.userId
-            const {actionId} = req.body;
-
-
-            const result = await  serviceGetActionDetail({actionId, userId})
+            const {id, actionId, userSession} = req.body;
+            const userId = userSession.UserId;
+            const result = await  serviceGetActionDetail({id, actionId, userId})
 
             return res.json(result);
         } catch (error) {
