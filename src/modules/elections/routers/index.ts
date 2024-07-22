@@ -7,6 +7,7 @@ const electionRouter = express.Router();
 electionRouter.post("/elections/findItems", ElectionControler.findItems)
 electionRouter.post("/elections/findDetails", ElectionControler.findDetails)
 electionRouter.post("/elections/findAll", ElectionControler.findAll)
+electionRouter.post("/elections/findActiveByVoter", ElectionControler.findActiveByVoter)
 
 
 electionRouter.post("/elections/create", ElectionControler.createElection)
