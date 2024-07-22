@@ -68,9 +68,9 @@ class ActionController {
             const {actionId} = req.body;
 
 
-            const userRecentActions = await  serviceGetActionDetail({actionId, userId})
+            const result = await  serviceGetActionDetail({actionId, userId})
 
-            return res.json(userRecentActions);
+            return res.json(result);
         } catch (error) {
             next(error)
         }

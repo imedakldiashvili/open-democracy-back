@@ -74,9 +74,9 @@ export const serviceAddUserInivitaionAction = async ({ sessionUid, createdUserId
         return action;
 };
 
-export const serviceGetActionDetail = async ({ actionId, userId }) => {    
+export const serviceGetActionDetail = async ({ id, actionId, userId }) => {    
     
-    const  action = await actionRepository.findOne({where:{createdBy: userId, id: actionId}});
+    const  action = await actionRepository.findOne({where:{id: id, actionId: actionId, createdBy: userId}});
     
     if (action.actionTypeId = ActionTypeEnum.inivitation)
     {
