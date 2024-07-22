@@ -24,7 +24,7 @@ class UserController {
 
     };
 
-    static findById = async (req: Request, res: Response, next: NextFunction) => {
+    static findDetail = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = parseInt(req.params.id)
             const user = await userRepository.findOneBy({id: id});
@@ -35,29 +35,6 @@ class UserController {
 
     };
 
-    static edit = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            return res.json("Not Implimented");
-        } catch (error) {
-            next(error)
-        }
-    };
-
-    static setActivity = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            return res.json("Not Implimented");
-        } catch (error) {
-            next(error)
-        }
-    };
-
-    static delete = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            return res.json("Not Implimented");
-        } catch (error) {
-            next(error)
-        }
-    };
 
     static signOut= async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -101,8 +78,6 @@ class UserController {
             next(error)
         }
     };
-
-
 
     static refreshSession= async (req: Request, res: Response, next: NextFunction) => {
         try {

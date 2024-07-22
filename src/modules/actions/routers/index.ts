@@ -5,10 +5,10 @@ import ActionController from "../controllers";
 const actionRouter = express.Router();
 
 
-actionRouter.post("/actions/Add", ActionController.addActions)
-actionRouter.post("/actions/findUserDetail", ActionController.getUserActionDetail)
-actionRouter.post("/actions/findUserAll", ActionController.getUserAllActions)
-actionRouter.post("/actions/findUserRecent", ActionController.getUserRecentActions)
+actionRouter.post("/actions/Add", ActionController.add)
+actionRouter.post("/actions/findDetail", ActionController.findDetail)
+actionRouter.post("/actions/findRecentByUser", ActionController.findRecentByUser)
+actionRouter.post("/actions/findAllByUser", ActionController.findAllByUser)
 
 
 

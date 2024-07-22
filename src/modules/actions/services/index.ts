@@ -78,20 +78,29 @@ export const serviceGetActionDetail = async ({ id, actionId, userId }) => {
     
     const  action = await actionRepository.findOne({where:{id: id, actionId: actionId, createdBy: userId}});
     
-    if (action.actionTypeId = ActionTypeEnum.inivitation)
+    console.log(action)
+
+
+    if (action.actionTypeId == ActionTypeEnum.inivitation)
     {
+        console.log("inivitation")
         var inivitation = await userInivitationRepository.findOne({where: {id: action.actionId}});
         return inivitation;
     }
     
-    if (action.actionTypeId = ActionTypeEnum.voting)
+    if (action.actionTypeId == ActionTypeEnum.voting)
     {
-        var votingCard = await votingCardRepository.findOne({where: {id: action.actionId}});
+        console.log("voting")
+        var votingCard = await votingCardRepository.findOne({
+                                                                where: {id: action.actionId}, 
+                                                                relations: {district: true, election: true, voter: true}
+                                                            });
         return votingCard;
     }
 
-    if (action.actionTypeId = ActionTypeEnum.donation)
+    if (action.actionTypeId == ActionTypeEnum.donation)
     {
+        console.log("bankTransaction")
         var bankTransaction = await BankTransactionRepository.findOne({where: {transactionClientCode: userId}});
         return bankTransaction;
     }

@@ -5,7 +5,7 @@ import { RegionController, DistrictController } from "../controllers";
 
 const locationRouter = express.Router();
 
-locationRouter.post("/locations/findRegions", RegionController.findRegions)
-locationRouter.post("/locations/findDistrictsByRegionId", DistrictController.findDistrictsByRegionId)
+locationRouter.post("/Regions/find", RegionController.findAll)
+locationRouter.post("/Districts/findByRegionId", DistrictController.findByRegionId)
 
 export default locationRouter

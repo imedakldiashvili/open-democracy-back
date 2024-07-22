@@ -26,7 +26,6 @@ class UserInivitationController {
         }
 
     };
-
     
     static add = async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -59,21 +58,6 @@ class UserInivitationController {
         }
     };
 
-    static setActivity = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            return res.json("Not Implimented");
-        } catch (error) {
-            next(error)
-        }
-    };
-
-    static delete = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            return res.json("Not Implimented");
-        } catch (error) {
-            next(error)
-        }
-    };
 
 }
 

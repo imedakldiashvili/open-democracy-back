@@ -13,7 +13,6 @@ userRouter.post("/otps/check", OtpController.checkOTP)
 userRouter.post("/Users/refreshsession", UserController.refreshSession)
 userRouter.post("/Users/passwordChange", UserController.passwordChange)
 userRouter.post("/users/signOut", UserController.signOut)
-userRouter.put("/users/edit", UserController.edit)
 
 userRouter.post("/UsersInivitations/add", UserInivitationController.add)
 userRouter.post("/UsersInivitations/findBySender", UserInivitationController.findBySender)

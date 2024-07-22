@@ -151,6 +151,22 @@ class VoterController {
 
     };
 
+    static findCard = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+
+            const { id } = req.body;
+            var votingCard = await votingCardRepository.findOne({
+                                                                    where: {id: id},
+                                                                    relations: {district: true, election: true, voter: true}
+                                                                });
+            return res.json(votingCard);
+            
+        } catch (error) {
+            next(error)
+        }
+    };
+
+
     static votingCard = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { electionId, districtId, voterId, ballots } = req.body;

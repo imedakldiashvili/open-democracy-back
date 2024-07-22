@@ -30,17 +30,14 @@ class BanksContoller {
         }
     };
 
-
-    static NewBOGToken = async (req: Request, res: Response, next: NextFunction) => {
+    static BOGNewToken = async (req: Request, res: Response, next: NextFunction) => {
         try {            
             const result = await getNewBOGToken()
             return res.json(result);
         } catch (error) {
             next(error)
         }
-    };
-
-    
+    };    
 
     static BOGTodaysActivities = async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -54,22 +51,11 @@ class BanksContoller {
         }
     };
 
-
     static BOGTransactionProcesing = async (req: Request, res: Response, next: NextFunction) => {
         try {
             
             const account = req.params.account
             const result = await serviceBOGTransactionProcesing()
-            return res.json(result);
-        
-        } catch (error) {
-            next(error)
-        }
-    };
-
-    static BankAccounts = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const result = await serviceBankAccounts()
             return res.json(result);
         
         } catch (error) {

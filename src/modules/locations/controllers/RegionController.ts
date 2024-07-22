@@ -4,7 +4,7 @@ import { regionRepository } from '../repositories';
 
 class RegionController {
     
-    static findRegions = async (req: Request, res: Response, next: NextFunction) => {
+    static findAll = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const Regions = await regionRepository.find({relations: {districts: true}});
             return res.json(Regions);
@@ -14,7 +14,7 @@ class RegionController {
 
     };
 
-    static getRegionById = async (req: Request, res: Response, next: NextFunction) => {
+    static findDetail = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = parseInt(req.params.id)
             const Regions = await regionRepository.findOne({where: {id: id}});
@@ -23,40 +23,6 @@ class RegionController {
             next(error)
         }
 
-    };
-
-    static addRegion = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const Region = req.body;
-            await regionRepository.save(Region);
-            return res.json("success");
-        } catch (error) {
-            next(error)
-        }
-    };
-
-    static editRegion = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            return res.json("Not Implimented");
-        } catch (error) {
-            next(error)
-        }
-    };
-
-    static setActiveRegion = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            return res.json("Not Implimented");
-        } catch (error) {
-            next(error)
-        }
-    };
-
-    static deleteRegion = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            return res.json("Not Implimented");
-        } catch (error) {
-            next(error)
-        }
     };
 
 }

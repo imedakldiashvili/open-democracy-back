@@ -9,7 +9,7 @@ import { serviceGetActionDetail } from '../services';
 
 class ActionController {
 
-    static addActions = async (req: Request, res: Response, next: NextFunction) => {
+    static add = async (req: Request, res: Response, next: NextFunction) => {
         
         const { actionTypeId, hasCurrency, CurrencyId } = req.body
         
@@ -29,8 +29,21 @@ class ActionController {
             next(error)
         }
     };
+
+    static findDetail = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const {id, actionId, userSession} = req.body;
+            const userId = userSession.UserId;
+            const result = await  serviceGetActionDetail({id, actionId, userId})
+
+            return res.json(result);
+        } catch (error) {
+            next(error)
+        }
+    };
+
     
-    static getUserRecentActions = async (req: Request, res: Response, next: NextFunction) => {
+    static findRecentByUser = async (req: Request, res: Response, next: NextFunction) => {
         try {            
             const userSession = req.body.userSession;
             const userRecentActions = await actionRepository
@@ -46,7 +59,7 @@ class ActionController {
         }
     };
 
-    static getUserAllActions = async (req: Request, res: Response, next: NextFunction) => {
+    static findAllByUser = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const userSession = req.body.userSession;
             const userRecentActions = await actionRepository
@@ -61,17 +74,6 @@ class ActionController {
         }
     };
 
-    static getUserActionDetail = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const {id, actionId, userSession} = req.body;
-            const userId = userSession.UserId;
-            const result = await  serviceGetActionDetail({id, actionId, userId})
-
-            return res.json(result);
-        } catch (error) {
-            next(error)
-        }
-    };
 
 
 
