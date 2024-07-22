@@ -3,6 +3,7 @@ import { newGuid } from '../../../utils';
 import { currencyRepository } from '../../currencies/repositories';
 import { Action } from '../entities';
 import { actionRepository, actionTypeRepository } from '../repositories';
+import { serviceGetActionDetail } from '../services';
 
 
 
@@ -59,6 +60,22 @@ class ActionController {
             next(error)
         }
     };
+
+    static getUserActionDetail = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const userSession = req.body.userSession;
+            const userId = userSession.userId
+            const {actionId} = req.body;
+
+
+            const userRecentActions = await  serviceGetActionDetail({actionId, userId})
+
+            return res.json(userRecentActions);
+        } catch (error) {
+            next(error)
+        }
+    };
+
 
 
 

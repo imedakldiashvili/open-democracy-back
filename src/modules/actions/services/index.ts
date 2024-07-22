@@ -1,5 +1,8 @@
 import { newGuid } from "../../../utils";
+import { BankTransactionRepository } from "../../donations/repositories";
 import { ActionTypeEnum } from "../../enums";
+import { userInivitationRepository } from "../../users/repositories";
+import { votingCardBallotRepository } from "../../votings/repositories";
 import { Action } from "../entities";
 import { actionRepository, actionTypeRepository } from "../repositories";
 
@@ -69,4 +72,30 @@ export const serviceAddUserInivitaionAction = async ({ sessionUid, createdUserId
         
         await actionRepository.save(action);
         return action;
+};
+
+export const serviceGetActionDetail = async ({ actionId, userId }) => {    
+    
+    const  action = await actionRepository.findOne({where:{createdBy: userId, id: actionId}});
+    
+    if (action.actionTypeId = ActionTypeEnum.inivitation)
+    {
+        await userInivitationRepository.findOne({where: {id: action.actionId}});
+        return action;
+    }
+    
+    if (action.actionTypeId = ActionTypeEnum.voting)
+    {
+        await votingCardBallotRepository.findOne({where: {id: action.actionId}});
+        return action;
+    }
+
+    if (action.actionTypeId = ActionTypeEnum.donation)
+    {
+        await BankTransactionRepository.findOne({where: {transactionClientCode: userId}});
+        return action;
+    }
+
+    return action;
+    
 };
