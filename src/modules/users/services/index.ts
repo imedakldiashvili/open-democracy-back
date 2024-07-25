@@ -6,7 +6,7 @@ import { dateNow, dateNowAddMinutes, newGuid, otpCode } from "../../../utils";
 
 import { UserDetail, UserInivitation, UserOTP, UserPassword, UserSession } from "../entities";
 import { userDetailRepository, userInivitationRepository, userOTPRepository, userPasswordRepository, userRepository, userSessionRepository } from "../../users/repositories";
-import { LessThan, MoreThan } from "typeorm";
+import { LessThan, MoreThan, MoreThanOrEqual } from "typeorm";
 import { serviceAddUserInivitaionAction } from "../../actions/services";
 
 
@@ -250,7 +250,7 @@ export const addUserInivitation = async (personalId: string, fullName: string, u
     
     const createdUserId = createdBy
 
-    var exUserInivitations = await userInivitationRepository.find({where: {statusId: MoreThan(0), personalId: personalId }});
+    var exUserInivitations = await userInivitationRepository.find({where: {statusId: MoreThanOrEqual(0), personalId: personalId }});
     if (exUserInivitations.filter(e=> e.createdUserId == 1 && e.uid == uid).length) { return }
 
     let inivitaitaionId = 0;
