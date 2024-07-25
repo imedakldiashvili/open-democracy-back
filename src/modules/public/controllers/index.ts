@@ -94,7 +94,7 @@ class PublicControler {
                 order: { id: -1 },
                 skip: skip,
                 take: take,
-                select: { channelCode: true, transactionAccountMask: true, transactionClientName: true, transactionAmount: true, transactionDate: true }
+                select: { channelCode: true, transactionAccountMask: true, transactionAmount: true, transactionDate: true }
             });
             const count = await BankTransactionRepository.count()
             return res.json({ pageList, count });
