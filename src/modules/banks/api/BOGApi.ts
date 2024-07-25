@@ -53,7 +53,7 @@ export const getBOGTodaysActivities = async (account) => {
     return {
       uid: data?.Id,
       date: data?.PostDate,
-      clientCode: + data?.PayerInn,
+      clientCode: data?.PayerInn,
       clientName: data?.PayerName,
       accountNumber: data?.Sender?.AccountNumber,      
       amount: data?.Amount,

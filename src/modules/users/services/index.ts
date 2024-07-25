@@ -248,31 +248,75 @@ export const addUserInivitation = async (personalId: string, fullName: string, u
     var exUsersByCode = await userRepository.find({ where: { userDetail: { code: personalId } } })
     if (exUsersByCode.length) { return }
     
-    var exUserInivitations = await userInivitationRepository.find({where: {statusId: 1, personalId: personalId }});
-    
+    const createdUserId = createdBy
+
+    var exUserInivitations = await userInivitationRepository.find({where: {statusId: MoreThan(0), personalId: personalId }});
     if (exUserInivitations.filter(e=> e.createdUserId == 1 && e.uid == uid).length) { return }
 
-    for (var exUserInivitation of exUserInivitations) {
-        exUserInivitation.statusId = -1
-        await userInivitationRepository.save(exUserInivitation);
+    let inivitaitaionId = 0;
+
+    if (createdUserId == 1)
+    {
+        var notBankInivitaions = exUserInivitations.filter(e=> e.statusId == 0 && e.createdUserId != 1)
+        if (notBankInivitaions.length == 1)
+        {
+            var notBankInivitaion = notBankInivitaions[0]
+            notBankInivitaion.uid = uid
+            notBankInivitaion.expireOn = dateNowAddMinutes(2 * 24 * 60);
+            notBankInivitaion.statusId = 1     
+            await userInivitationRepository.save(notBankInivitaion);
+            return notBankInivitaion;
+        }
+        else
+        {
+            for (var exUserInivitation of exUserInivitations) 
+            {
+                exUserInivitation.statusId = -1
+                await userInivitationRepository.save(exUserInivitation);
+            }    
+            
+            const newUserInivitation = new UserInivitation();
+            newUserInivitation.createdUserId = createdUserId
+            newUserInivitation.personalId = personalId,
+            newUserInivitation.fullName = fullName,
+            newUserInivitation.uid = uid
+            newUserInivitation.expireOn = dateNowAddMinutes(2 * 24 * 60);
+            newUserInivitation.statusId = 1                
+            await userInivitationRepository.save(newUserInivitation);
+            inivitaitaionId = newUserInivitation.id;
+            await serviceAddUserInivitaionAction({ sessionUid, inivitaitaionId, createdUserId, personalId, fullName, uid })
+            return newUserInivitation;
+        }
+    }
+    else
+    {
+        for (var exUserInivitation of exUserInivitations) 
+        {
+            exUserInivitation.statusId = -1
+            await userInivitationRepository.save(exUserInivitation);
+        }    
+        
+        const newUserInivitation = new UserInivitation();
+        newUserInivitation.createdUserId = createdUserId
+        newUserInivitation.personalId = personalId,
+        newUserInivitation.fullName = fullName,
+        newUserInivitation.uid = uid
+        newUserInivitation.expireOn = dateNowAddMinutes(2 * 24 * 60);
+        newUserInivitation.statusId = 0
+    
+        await userInivitationRepository.save(newUserInivitation);
+    
+        inivitaitaionId = newUserInivitation.id;
+        await serviceAddUserInivitaionAction({ sessionUid, inivitaitaionId, createdUserId, personalId, fullName, uid })
+
+        return newUserInivitation;
     }
 
-    const createdUserId = createdBy
-    const newUserInivitation = new UserInivitation();
-    newUserInivitation.createdUserId = createdUserId
-    newUserInivitation.personalId = personalId,
-    newUserInivitation.fullName = fullName,
-    newUserInivitation.uid = uid
-    newUserInivitation.expireOn = dateNowAddMinutes(2 * 24 * 60);
-    newUserInivitation.statusId = 1
+    
 
-    await userInivitationRepository.save(newUserInivitation);
+    
 
-    const inivitaitaionId = newUserInivitation.id;
-
-    await serviceAddUserInivitaionAction({ sessionUid, inivitaitaionId, createdUserId, personalId, fullName, uid })
-
-    return newUserInivitation;
+    
 };
 
 
