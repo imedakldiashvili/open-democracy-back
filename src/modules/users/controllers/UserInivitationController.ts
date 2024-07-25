@@ -19,7 +19,7 @@ class UserInivitationController {
     static findBySender = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const createdUserId = req.body.userSession.user.Id
-            const users = await userInivitationRepository.findBy({createdUserId: createdUserId});
+            const users = await userInivitationRepository.find({ where:{createdUserId: createdUserId} });
             return res.json(users);
         } catch (error) {
             next(error)
