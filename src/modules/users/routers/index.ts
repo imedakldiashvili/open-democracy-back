@@ -3,6 +3,7 @@ import { Router } from "express";
 import { OtpController, UserInivitationController, UserVerificationController } from "../controllers";
 
 import UserController from "../controllers/UserController";
+import UserDelegateController from "../controllers/UserDelegateController";
 
 const userRouter = Router();
 
@@ -20,6 +21,8 @@ userRouter.post("/UsersInivitations/findActive", UserInivitationController.findA
 
 userRouter.post("/Users/verification", UserVerificationController.verification)
 userRouter.post("/Users/setLocation", UserVerificationController.setLocation)
+
+userRouter.post("/Users/setDelegate", UserDelegateController.setDelagate)
 
 
 

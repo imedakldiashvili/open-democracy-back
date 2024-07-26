@@ -319,7 +319,6 @@ export const addUserInivitation = async (personalId: string, fullName: string, u
     
 };
 
-
 export const setLocation = async (deviceUid: string, districtId: number, userId: number) => {
 
     const userDetails = await userDetailRepository.find({where: {id: userId}});
@@ -328,6 +327,20 @@ export const setLocation = async (deviceUid: string, districtId: number, userId:
 
     var userDetail = userDetails[0]
     userDetail.districtId = districtId;
+    await userDetailRepository.save(userDetail)
+
+    var newSession = await refreshSessionService(userId, deviceUid);
+
+    return newSession
+}
+
+export const setDelagate = async (deviceUid: string, userId: number) => {
+
+    const userDetails = await userDetailRepository.find({where: {id: userId}});
+    if (userDetails.length != 1) { throwBadRequest("user_detail_not_found") }
+
+    var userDetail = userDetails[0]
+    userDetail.isDelegate = !userDetail.isDelegate;
     await userDetailRepository.save(userDetail)
 
     var newSession = await refreshSessionService(userId, deviceUid);
