@@ -1,14 +1,14 @@
-import { Entity, Column, PrimaryColumn } from "typeorm"
+import { Entity, Column, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm"
 import { Ballot, BallotItem } from "../../ballots/entities"
 import { VoteBallotItemValue } from "./VoteBallotItemValue"
 
-@Entity('voted_cards')
-export class VoteBallotItem {
+@Entity('votes')
+export class Vote{
 
-    @PrimaryColumn()
-    id: number
+    @PrimaryGeneratedColumn("uuid")
+    id: string
 
     @Column()
-    code: string
+    votingCardId: number
 
 }

@@ -3,9 +3,9 @@ import { appDataSource } from '../../../datasources';
 import { ballotItemValueRepository, ballotRepository } from '../../ballots/repositories';
 import { electionRepository } from '../../elections/repositories';
 import { districtRepository } from '../../locations/repositories';
-import { VoteBallotItem, VoteBallotItemValue, VotingCard, VotingCardBallot } from '../entities';
+import { Vote, VoteBallotItem, VoteBallotItemValue, VotingCard, VotingCardBallot } from '../entities';
 import { userDetailRepository } from '../../users/repositories';
-import { votingCardRepository } from '../repositories';
+import { voteRepository, votingCardRepository } from '../repositories';
 import { serviceAddVotingAction } from '../../actions/services';
 
 
@@ -150,6 +150,7 @@ class VoterController {
         try {
             const { electionId, districtId, voterId, ballots } = req.body;
 
+
             const votingCard = new VotingCard();
             votingCard.election = await electionRepository.findOneByOrFail({ id: electionId })
             votingCard.district = await districtRepository.findOneByOrFail({ id: districtId })
@@ -168,24 +169,22 @@ class VoterController {
 
 
     static vote = async (req: Request, res: Response, next: NextFunction) => {
+        const { electionId, votingCode, votingCardId, votedBallots, userSession} = req.body;
+        
+        const voterId = userSession.user.id
         try {
-            const { sessionUid, electionId, voterId, votingCardId, votingCode, votedBallots} = req.body;
-
-            const votingCard = await votingCardRepository.findOneOrFail({ 
-                                                            where: { id: votingCardId, electionId: electionId, voterId: voterId, statusId: 1}, 
-                                                            relations: { election: true}
-                                                        })
-
-            await appDataSource.manager.transaction(async (transactionalEntityManager) => {
+             await appDataSource.manager.transaction(async (transactionalEntityManager) => {
                 
+                const newVote = new Vote()
+                newVote.votingCardId = votingCardId; 
+                await voteRepository.save(newVote);
+
                 for (const votedBallot of votedBallots) {    
                     const voteBallotItem = new VoteBallotItem()
                     voteBallotItem.code = votingCode
                     voteBallotItem.ballotId = votedBallot.ballot.id
                     voteBallotItem.ballotItemId = votedBallot.ballotItem.id
-
                     await transactionalEntityManager.save(voteBallotItem)
-
                     for (const value of votedBallot.ballotItem.ballotItemSelectedValues) {
                         const voteBallotItemValue = new VoteBallotItemValue()
                         voteBallotItemValue.voteBallotItemId = voteBallotItem.id
@@ -194,18 +193,13 @@ class VoterController {
                         await transactionalEntityManager.save(voteBallotItemValue)
                     }
                 }
-                let dateTime = new Date()
-                votingCard.votedAt = dateTime
-                votingCard.statusId = 2    
-                await transactionalEntityManager.save(votingCard)
 
             })
 
-            var electionName = votingCard.election.name
-            
-            await serviceAddVotingAction({sessionUid, votingCardId, electionName, voterId })
+            const sessionUid = userSession.id;
+            var action = await serviceAddVotingAction({ sessionUid, votingCardId, electionName:"", voterId })
 
-            return res.json({votingCard});
+            return res.json({action});
 
         } catch (error) {
             next(error)
