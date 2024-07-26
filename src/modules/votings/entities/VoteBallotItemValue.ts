@@ -5,12 +5,11 @@ import { VoteBallotItem } from "./VoteBallotItem"
 @Entity('voted_ballots_items_values')
 export class VoteBallotItemValue {
 
-    @PrimaryGeneratedColumn()
-    id: number
+    @PrimaryGeneratedColumn("uuid")
+    id: string
 
-    @OneToOne(() => VoteBallotItem)
-    @JoinColumn()
-    voteBallotItem: VoteBallotItem
+    @Column()
+    voteBallotItemId: string
 
     @Column()
     ballotItemValueNumber: number

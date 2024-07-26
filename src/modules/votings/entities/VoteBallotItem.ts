@@ -5,8 +5,8 @@ import { VoteBallotItemValue } from "./VoteBallotItemValue"
 @Entity('voted_ballots_items')
 export class VoteBallotItem {
 
-    @PrimaryGeneratedColumn()
-    id: number
+    @PrimaryGeneratedColumn("uuid")
+    id: string
 
     @Column()
     code: string
@@ -25,6 +25,4 @@ export class VoteBallotItem {
     @JoinColumn()
     ballotItem: BallotItem
 
-    @OneToMany(() => VoteBallotItemValue, (voteBallotItemValue) => voteBallotItemValue.voteBallotItem)
-    VoteBallotItemValues: VoteBallotItemValue[]
 }

@@ -169,17 +169,18 @@ class VoterController {
 
     static vote = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { votingCardId, electionId, voterId, sessionUid, votedBallots} = req.body;
+            const { sessionUid, electionId, voterId, votingCardId, votingCode, votedBallots} = req.body;
 
             const votingCard = await votingCardRepository.findOneOrFail({ 
                                                             where: { id: votingCardId, electionId: electionId, voterId: voterId, statusId: 1}, 
-                                                            relations: {voter: true, election: true}
+                                                            relations: { election: true}
                                                         })
+
             await appDataSource.manager.transaction(async (transactionalEntityManager) => {
                 
                 for (const votedBallot of votedBallots) {    
                     const voteBallotItem = new VoteBallotItem()
-                    voteBallotItem.code = votingCard.voter.code
+                    voteBallotItem.code = votingCode
                     voteBallotItem.ballotId = votedBallot.ballot.id
                     voteBallotItem.ballotItemId = votedBallot.ballotItem.id
 
@@ -187,7 +188,7 @@ class VoterController {
 
                     for (const value of votedBallot.ballotItem.ballotItemSelectedValues) {
                         const voteBallotItemValue = new VoteBallotItemValue()
-                        voteBallotItemValue.voteBallotItem = voteBallotItem
+                        voteBallotItemValue.voteBallotItemId = voteBallotItem.id
                         voteBallotItemValue.ballotItemValueNumber = value.index
                         voteBallotItemValue.ballotItemValue = await ballotItemValueRepository.findOneByOrFail({ id: value.id })
                         await transactionalEntityManager.save(voteBallotItemValue)
