@@ -185,6 +185,7 @@ class VoterController {
                     voteBallotItem.ballotId = votedBallot.ballot.id
                     voteBallotItem.ballotItemId = votedBallot.ballotItem.id
                     await transactionalEntityManager.save(voteBallotItem)
+                    
                     for (const value of votedBallot.ballotItem.ballotItemSelectedValues) {
                         const voteBallotItemValue = new VoteBallotItemValue()
                         voteBallotItemValue.voteBallotItemId = voteBallotItem.id
@@ -193,11 +194,18 @@ class VoterController {
                         await transactionalEntityManager.save(voteBallotItemValue)
                     }
                 }
+            
+                var votingCard = await votingCardRepository.findOneBy({id: votingCardId}) 
+                votingCard.statusId = 1;
+                await votingCardRepository.save(votingCard);
 
             })
 
             const sessionUid = userSession.id;
-            var action = await serviceAddVotingAction({ sessionUid, votingCardId, electionName:"", voterId })
+            
+
+            var election = await electionRepository.findOneBy({id: electionId}) 
+            var action = await serviceAddVotingAction({ sessionUid, votingCardId, electionName: election.name, voterId })
 
             return res.json({action});
 
