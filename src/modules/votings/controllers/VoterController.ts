@@ -196,7 +196,8 @@ class VoterController {
                 }
             
                 var votingCard = await votingCardRepository.findOneBy({id: votingCardId}) 
-                votingCard.statusId = 1;
+                votingCard.statusId = 2
+                votingCard.votedAt = new Date()
                 await votingCardRepository.save(votingCard);
 
             })
