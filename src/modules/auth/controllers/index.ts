@@ -100,12 +100,12 @@ class AuthContoller {
     static resetPassword = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const {deviceUid, email, password, emailOtpCode} = req.body;  
-            
+
             const newEmail = email.toLowerCase();
             const users = await userRepository.find({where: {email: newEmail}});
             if (users.length != 1) { throwBadRequest("email_already_exists") }
             const user = users[0]
-            const  emailOtp = await checkOTP(deviceUid, "email", email,  1, emailOtpCode )
+            const  emailOtp = await checkOTP(deviceUid, "email", email,  user.id, emailOtpCode )
           
             user.updatedBy = user.id,
             user.updatedOn = new Date();
