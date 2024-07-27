@@ -12,6 +12,8 @@ authRouter.post("/auth/signUp", AuthController.signUp)
 
 authRouter.post("/auth/signIn", AuthController.signIn)
 
+authRouter.post("/auth/resetPasswordOTP", AuthController.resetPasswordOTP)
+authRouter.post("/auth/resetPassword", AuthController.resetPassword)
 
 
 export default authRouter;

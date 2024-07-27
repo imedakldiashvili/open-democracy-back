@@ -77,6 +77,50 @@ class AuthContoller {
         }
     };
 
+    static resetPasswordOTP = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const {deviceUid, email} = req.body;  
+            const exEmail = email.toLowerCase();
+            const users = await userRepository.find({where: {email: exEmail}});
+            if (users.length != 1) { throwBadRequest("email_doesnot_exists") }
+            var user = users[0];
+            
+            const result = await addOTP(deviceUid, "email", user.email, user.id)    
+            const mailMsg = { from: settings.SENDGRID_FROM_EMAIL, to: result.value, subject: "Email Verification Code", html: "Email Verification Code: " + result.code }
+            
+            await sendMail(mailMsg)
+
+            return res.json( { status: result.status } );
+        
+        } catch (error) {
+            next(error)
+        }
+    };
+
+    static resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const {deviceUid, email, password, emailOtpCode} = req.body;  
+            
+            const newEmail = email.toLowerCase();
+            const users = await userRepository.find({where: {email: newEmail}});
+            if (users.length != 1) { throwBadRequest("email_already_exists") }
+            const user = users[0]
+            const  emailOtp = await checkOTP(deviceUid, "email", email,  1, emailOtpCode )
+          
+            user.updatedBy = user.id,
+            user.updatedOn = new Date();
+
+            const newUser = await userRepository.save(user)
+            const newPassword = await addPassword(newUser.id, password, user.id)
+            const result = await loginUserService(deviceUid, newEmail, password)
+
+            return res.json(result);
+        
+        } catch (error) {
+            next(error)
+        }
+    };
+
 }
 
 export default AuthContoller;

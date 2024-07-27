@@ -13,12 +13,11 @@ export class User {
 
     @Column()
     email: string
-
     @Column()
     emailVerificationOtpId: number
+
     @Column()
     mobileNumber: string
-
     @Column()
     mobileNumberVerificationOtpId: number
 
