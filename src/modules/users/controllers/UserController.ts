@@ -63,7 +63,7 @@ class UserController {
             const deviceUid = userSession.deviceUid
             
             const exPasswordText = req.body.exPassword
-            const newPasswordText = req.body.newPasswordText
+            const newPasswordText = req.body.newPassword
 
 
             await checkPassword(userSession.userId, exPasswordText)
