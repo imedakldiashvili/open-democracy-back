@@ -57,67 +57,79 @@ export const tbcAccountMovements = async () => {
     const tbcUsername = bankSettingTbcUserName.value
     const tbcActualPassword = await tbcGetActualPassword()
     const statDate = '2015-01-01T00:00:00.000'
-    const pageIndex = 0
     const pageSize = 700
-
-    const instance = getAxiosInstance();
-    const xmlReqBody = accountMovementsXmlReqBody(tbcUsername, tbcActualPassword, tbcDigipass, statDate, pageIndex.toString(), pageSize.toString())
-    const config = accountMovementsConfig()
-    const response = await instance
-      .post(
-        baseUrl,
-        xmlReqBody,
-        config);
-
-    const parser = new fastxml.XMLParser();
-    const parserResultObj = parser.parse(response.data, true);
-
-    const pageResult = parserResultObj["SOAP-ENV:Envelope"]["SOAP-ENV:Body"]["ns2:GetAccountMovementsResponseIo"]["ns2:result"]
-    const resultPageIndex = pageResult["ns2:pager"]["ns2:pageIndex"];
-    const resultPageSize = pageResult["ns2:pager"]["ns2:pageSize"];
-    const resultTotalNumber = pageResult["ns2:totalCount"];
-
-    const transactionsResult = parserResultObj["SOAP-ENV:Envelope"]["SOAP-ENV:Body"]["ns2:GetAccountMovementsResponseIo"]["ns2:accountMovement"]
+    
+    let pageIndex = 0
+    let totalNumber = pageSize
 
     const result = {
       paging: {
-        pageIndex: resultPageIndex,
-        pageSize: resultPageSize,
-        totalNumber: resultTotalNumber
+        pageIndex: pageIndex,
+        pageSize: pageSize,
+        totalNumber: totalNumber
       },
       transactions: []
     }
 
-    for (var t of transactionsResult) {
-      const debitCredit = t["ns2:debitCredit"]
-      if (!debitCredit) { continue }
+    const instance = getAxiosInstance();
 
-      const accountNumber = t["ns2:accountNumber"]
-      if (account != accountNumber) { continue }
+     
+    while (totalNumber >= pageIndex * pageSize)
+    {
+            
+      const xmlReqBody = accountMovementsXmlReqBody(tbcUsername, tbcActualPassword, tbcDigipass, statDate, pageIndex.toString(), pageSize.toString())
+      const config = accountMovementsConfig()
+      const response = await instance.post(baseUrl, xmlReqBody, config);
 
-      
-      const partnerAccountNumber = t["ns2:partnerAccountNumber"]
-      const currency = t["ns2:amount"]["ns2:currency"]
-      const externalPaymentId = t["ns2:externalPaymentId"]
-      const valueDate = t["ns2:valueDate"]
-      const partnerTaxCode = t["ns2:partnerTaxCode"]
-      const partnerName = t["ns2:partnerName"]
-      const description = t["ns2:description"]
-      const amount = t["ns2:amount"]["ns2:amount"]
+      const parser = new fastxml.XMLParser();
+      const parserResultObj = parser.parse(response.data, true);
 
-      const transaction = {
-        uid: externalPaymentId,
-        date: valueDate,
-        clientCode: partnerTaxCode,
-        clientName: partnerName,
-        accountNumber: partnerAccountNumber,
-        amount: amount,
-        currency: currency,
-        desctiption: description,
+      const pageResult = parserResultObj["SOAP-ENV:Envelope"]["SOAP-ENV:Body"]["ns2:GetAccountMovementsResponseIo"]["ns2:result"]
+      const resultTotalNumber = pageResult["ns2:totalCount"];
+
+      const transactionsResult = parserResultObj["SOAP-ENV:Envelope"]["SOAP-ENV:Body"]["ns2:GetAccountMovementsResponseIo"]["ns2:accountMovement"]
+
+      totalNumber = resultTotalNumber
+
+      for (var t of transactionsResult) {
+        const debitCredit = t["ns2:debitCredit"]
+        if (!debitCredit) { continue }
+
+        const accountNumber = t["ns2:accountNumber"]
+        if (account != accountNumber) { continue }
+        
+        const partnerAccountNumber = t["ns2:partnerAccountNumber"]
+        const currency = t["ns2:amount"]["ns2:currency"]
+        const externalPaymentId = t["ns2:externalPaymentId"]
+        const valueDate = t["ns2:valueDate"]
+        const partnerTaxCode = t["ns2:partnerTaxCode"]
+        const partnerName = t["ns2:partnerName"]
+        const description = t["ns2:description"]
+        const amount = t["ns2:amount"]["ns2:amount"]
+
+        const transaction = {
+          uid: externalPaymentId,
+          date: valueDate,
+          clientCode: partnerTaxCode,
+          clientName: partnerName,
+          accountNumber: partnerAccountNumber,
+          amount: amount,
+          currency: currency,
+          desctiption: description,
+        }
+
+        result.transactions.push(transaction)
       }
 
-      result.transactions.push(transaction)
+      pageIndex++
+
+      // console.log(totalNumber, pageIndex, pageSize, pageIndex * pageSize)
+
     }
+
+    result.paging.totalNumber = totalNumber
+
+    
 
     return result
   } catch (e) {
