@@ -13,8 +13,8 @@ import { Like, MoreThanOrEqual } from 'typeorm';
 import { sendMail } from '../../notifications/services';
 
 import settings from '../../../settings';
-import { getBOGTodaysActivities, getNewBOGToken } from '../api';
-import { serviceBankAccounts, serviceBOGTransactionProcesing } from '../services';
+import { getBOGTodaysActivities, getNewBOGToken, tbcAccountMovements } from '../api';
+import { serviceBankAccounts, servicebankSettings, serviceBOGTransactionProcesing, serviceTBCTransactionProcesing } from '../services';
 
 
 class BanksContoller {
@@ -42,7 +42,10 @@ class BanksContoller {
     static BOGTodaysActivities = async (req: Request, res: Response, next: NextFunction) => {
         try {
             
-            const account = req.params.account
+            const bankSettings = await servicebankSettings();
+            const bankSettingBogAccount = bankSettings.filter(e=> e.code == "BOG_ACCOUNT")[0]
+            const account = bankSettingBogAccount.value
+            console.log(account)
             const result = await getBOGTodaysActivities(account)
             return res.json(result);
         
@@ -53,15 +56,42 @@ class BanksContoller {
 
     static BOGTransactionProcesing = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            
-            const account = req.params.account
             const result = await serviceBOGTransactionProcesing()
+            return res.json(result);
+        } catch (error) {
+            next(error)
+        }
+    };
+
+    static TBCAccountMovements = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+
+
+            const result = await tbcAccountMovements()
             return res.json(result);
         
         } catch (error) {
             next(error)
         }
     };
+
+    static TBCTransactionProcesing = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const result = await serviceTBCTransactionProcesing()
+            return res.json(result);
+        } catch (error) {
+            next(error)
+        }
+    };
+
+    static TBCNewPassword = async (req: Request, res: Response, next: NextFunction) => {
+        try {            
+            const result = await getNewBOGToken()
+            return res.json(result);
+        } catch (error) {
+            next(error)
+        }
+    };  
 
 
 }

@@ -1,11 +1,10 @@
 import axios from "axios";
 import { stringify } from "querystring";
-import { bankBOGTokenRepository } from "../repositories";
-import { BankBOGToken } from "../entities/BankBOGToken";
-import { newGuid } from "../../../utils";
-import { addSecunds, dateNow } from "../../../utils/dates";
-import { token } from "morgan";
-import settings from "../../../settings";
+import { bankTokenRepository } from "../../repositories";
+import { newGuid } from "../../../../utils";
+import { addSecunds, dateNow } from "../../../../utils/dates";
+import settings from "../../../../settings";
+import { BankToken } from "../../entities/BankToken";
 
 export const getNewBOGToken = async () => {
   const url = "https://account.bog.ge/auth/realms/bog/protocol/openid-connect/token"
@@ -41,8 +40,10 @@ export const getNewBOGToken = async () => {
 export const getBOGTodaysActivities = async (account) => {
   const tokenData = await getBOGToken();
   const token = tokenData.token
+  const currency = "GEL"
+  const url = `https://api.businessonline.ge/api/documents/todayactivities/${account}/${currency}` 
   const response = await axios.get(
-    "https://api.businessonline.ge/api/documents/todayactivities/" + account + "/GEL",
+    url,
     {
       headers: {
         Authorization: token,
@@ -57,6 +58,7 @@ export const getBOGTodaysActivities = async (account) => {
       clientName: data?.PayerName,
       accountNumber: data?.Sender?.AccountNumber,      
       amount: data?.Amount,
+      currency: currency,
       desctiption: data?.EntryComment,
     };
   });
@@ -64,23 +66,26 @@ export const getBOGTodaysActivities = async (account) => {
 }
 
 export const getBOGToken = async () => {
+  const bank = "BG"
   var dateTimeNow = dateNow();
-  var allTockens = await bankBOGTokenRepository.find()
-  var activeTokens = allTockens.filter(e => e.expiredOn < dateTimeNow);
-  var token = new BankBOGToken()
+  var allTockens = await bankTokenRepository.find()
+  var bogTokens = allTockens.filter(e => e.bank == bank);
+  var activeTokens = bogTokens.filter(e => dateTimeNow < e.expiredOn );
+  var token = new BankToken()
   if (activeTokens.length) {
     token = activeTokens[0]
   }
   else {
-    await bankBOGTokenRepository.remove(allTockens)
+    await bankTokenRepository.remove(bogTokens)
     const result = await getNewBOGToken()
     token.id = newGuid()
+    token.bank = bank
     token.token = result.tokenType + " " + result.token
     token.tokenType = result.tokenType
     token.createdOn = dateTimeNow
     token.expireIn = result.expiresIn
     token.expiredOn = addSecunds(dateTimeNow, result.expiresIn)
-    await bankBOGTokenRepository.save(token)
+    await bankTokenRepository.save(token)
   }
   return token
 };

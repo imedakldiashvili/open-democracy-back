@@ -54,7 +54,7 @@ export const serviceAddVotingAction = async ({ sessionUid, votingCardId, electio
 
 
 export const serviceAddUserInivitaionAction = async ({ sessionUid, createdUserId, inivitaitaionId, personalId, fullName, uid }) => {    
-    const action = new Action ()
+        const action = new Action ()
 
         action.id = newGuid()
         action.actionTypeId = ActionTypeEnum.inivitation

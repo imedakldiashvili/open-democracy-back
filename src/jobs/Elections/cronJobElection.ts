@@ -9,9 +9,9 @@ import
 export const cronJobCreateElection = cron.schedule(
     "0 0 1 * *",
     async () => { 
-        console.log("createElection ...")
+        console.log(new Date().toISOString(), "createElection ...")
         var resut = await serviceCreateElection()
-        console.log("createElection ", resut)
+        console.log(new Date().toISOString(), "createElection ", resut)
         return resut
     }
 )
@@ -19,9 +19,9 @@ export const cronJobCreateElection = cron.schedule(
 export const cronJobElectionProcessing = cron.schedule(
     "*/1 * * * *",
     async () => { 
-        console.log("processElection ...")
+        console.log(new Date().toISOString(), "processElection ...")
         var resut = await serviceProcessElection()
-        console.log("processElection", resut)
+        console.log(new Date().toISOString(), "processElection", resut)
         return resut
     }
 )

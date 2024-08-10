@@ -6,13 +6,13 @@ import { cronJobCreateElection  } from "./Elections/cronJobElection";
 
 const cronJobsStart = () =>
 {
-    console.log("cron jobs elections starting ...")
+    console.log(new Date().toISOString(), "cron jobs elections starting ...")
     cronJobCreateElection.start();
-    console.log("cron jobs elections started successfuly")
+    console.log(new Date().toISOString(), "cron jobs elections started successfuly")
     
-    console.log("cron jobs BankTransction starting ...")
+    console.log(new Date().toISOString(), "cron jobs BankTransction starting ...")
     cronJobBankTrasactions.start();
-    console.log("cron jobs BankTransction started successfuly")
+    console.log(new Date().toISOString(), "cron jobs BankTransction started successfuly")
     
 }
 

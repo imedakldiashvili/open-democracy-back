@@ -1,7 +1,7 @@
 import { appDataSource } from "../../../datasources"
 
-import { BankBOGToken } from "../entities/BankBOGToken";
-import { BankSetting } from "../entities/BankSrtting";
+import { BankSetting } from "../entities/BankSetting";
+import { BankToken } from "../entities/BankToken";
 
-export const bankBOGTokenRepository = appDataSource.getRepository(BankBOGToken);
 export const bankSettingRepository = appDataSource.getRepository(BankSetting);
+export const bankTokenRepository = appDataSource.getRepository(BankToken);

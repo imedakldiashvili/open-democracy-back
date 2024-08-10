@@ -245,6 +245,9 @@ export const verification = async (deviceUid: string, personalId: string, fistNa
 }
 
 export const addUserInivitation = async (personalId: string, fullName: string, uid: string, createdBy: number, sessionUid: string) => {
+    
+    if (personalId.toString().length != 11) { return }
+
     var exUsersByCode = await userRepository.find({ where: { userDetail: { code: personalId } } })
     if (exUsersByCode.length) { return }
     

@@ -31,8 +31,7 @@ export const serviceCreateElection = async () => {
 
     for (var resultedElection of resultedElections)
     {
-        console.log(resultedElections);
-        
+       
         var newElectionStatusSchedule = resultedElection.statusSchedule.filter(e => (e.state == 0) && (e.status.id = ElectionStatusEnum.result))[0]
         resultedElection.actualStatusSchedule = newElectionStatusSchedule;
 

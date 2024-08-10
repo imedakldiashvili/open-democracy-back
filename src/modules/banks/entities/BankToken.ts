@@ -2,12 +2,15 @@ import { Entity, Column, PrimaryColumn } from "typeorm"
 
 
 
-@Entity('banks_bog_tokens')
-export class BankBOGToken {
+@Entity('banks_tokens')
+export class BankToken {
 
     @PrimaryColumn()
     id: string
     
+    @Column()
+    bank: string
+
     @Column()
     token: string
 
