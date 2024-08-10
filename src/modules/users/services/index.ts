@@ -8,6 +8,8 @@ import { UserDetail, UserInivitation, UserOTP, UserPassword, UserSession } from 
 import { userDetailRepository, userInivitationRepository, userOTPRepository, userPasswordRepository, userRepository, userSessionRepository } from "../../users/repositories";
 import { LessThan, MoreThan, MoreThanOrEqual } from "typeorm";
 import { serviceAddUserInivitaionAction } from "../../actions/services";
+import settings from "../../../settings";
+import { sendMail } from "../../notifications/services";
 
 
 export const getLoginUser = async (loginEmail: string) => {
@@ -306,9 +308,28 @@ export const addUserInivitation = async (personalId: string, fullName: string, u
         newUserInivitation.uid = uid
         newUserInivitation.expireOn = dateNowAddMinutes(2 * 24 * 60);
         newUserInivitation.statusId = 0
-    
         await userInivitationRepository.save(newUserInivitation);
     
+        const senderUser = await userRepository.findOne({where: {id: createdUserId}, relations: { userDetail: true}})
+
+        const emailTo = uid.toLowerCase();
+        const emailFrom = settings.SENDGRID_FROM_EMAIL
+        const emailSender = senderUser.email
+        const inivitationId = newUserInivitation.id.toString()
+        const url = `https://www.opendemocracy.ge`
+        const mailMsg = {    from: emailFrom, 
+                               to: emailTo, 
+                          subject: "Email Inivitation", 
+                             html: `<div>
+                                        <div> Hello ${fullName}</div> 
+                                        <div> Welcome to <a href= ${url} target="_blank"> www.OpenDemocracy.ge </a> </div>
+                                        <div> Inivitation sent by email: ${emailSender} </div>
+                                        <div> Inivitation code: ${inivitationId} </div>
+                                    </div>`}
+            
+        await sendMail(mailMsg)
+
+
         inivitaitaionId = newUserInivitation.id;
         await serviceAddUserInivitaionAction({ sessionUid, inivitaitaionId, createdUserId, personalId, fullName, uid })
 
