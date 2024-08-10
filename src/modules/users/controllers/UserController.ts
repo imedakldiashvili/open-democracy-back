@@ -58,15 +58,14 @@ class UserController {
 
             let userSession = req.body.userSession
 
-            const userId = userSession.userId
-            const email = userSession.email
+            const userId = userSession.user.id
+            const email = userSession.user.email
             const deviceUid = userSession.deviceUid
             
             const exPasswordText = req.body.exPassword
             const newPasswordText = req.body.newPassword
 
-
-            await checkPassword(userSession.userId, exPasswordText)
+            await checkPassword(userId, exPasswordText)
             
             const newPassword = await addPassword(userId, newPasswordText, userId)
 
