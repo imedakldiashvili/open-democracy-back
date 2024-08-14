@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
-import { sendMail } from '../services'
+import { sendMail, sendSms } from '../services'
 
 
 
@@ -13,7 +13,7 @@ class SendNotification {
 
     static sendSms = async (req: Request, res: Response, next: NextFunction) => {
         const smsMsg  = req.body;
-        var result = await sendMail(smsMsg);
+        var result = await sendSms(smsMsg);
 
         return res.json(result);
     }

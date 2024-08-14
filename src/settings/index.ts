@@ -12,6 +12,9 @@ export default {
 	SENDGRID_API_KEY:  key.SENDGRID_API_KEY,
 	SENDGRID_FROM_EMAIL: 'imeda.kldiashvili@gmail.com',
 
+	SMS_SENDER: "MoneyMarket",
+	SMS_OFFICE_KEY: "SMS_OFFICE_KEY",
+
 	OTP_CODE: '1111',
 	
 	DATABASE: {
