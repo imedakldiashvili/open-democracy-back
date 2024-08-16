@@ -374,13 +374,14 @@ export const setDelagate = async (deviceUid: string, userId: number) => {
 
 export const changeMobile = async (deviceUid: string, userId: number, mobileNumber: string, apptovalCode: number) => {
 
-    await checkOTP('changeMobile', deviceUid, "mobile", mobileNumber,  userId, apptovalCode)
+    const exOtp = await checkOTP('changeMobile', deviceUid, "mobile", mobileNumber,  userId, apptovalCode)
 
     var exUsers = await userRepository.find({where: {isActive: true, id: userId}})
     if (exUsers.length != 1) { throwBadRequest("user_not_found") }
 
     var exUser = exUsers[0]
     exUser.mobileNumber = mobileNumber
+    exUser.mobileNumberVerificationOtpId = exOtp.id
     exUser.updatedBy = userId
     exUser.updatedOn = dateNow()
     
