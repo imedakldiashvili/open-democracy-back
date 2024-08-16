@@ -7,6 +7,8 @@ import { User, UserPassword } from '../entities';
 import { userPasswordRepository, userRepository, userSessionRepository } from '../repositories';
 import { dateNow } from '../../../utils';
 import { addOTP, addPassword, changeMobile, checkOTP, checkPassword, loginUserService, refreshSessionService } from '../services';
+import settings from '../../../settings';
+import { sendSMS } from '../../notifications/smsApi';
 
 
 
@@ -71,15 +73,20 @@ class UserController {
             const userId = userSession.user.id
             const deviceUid = userSession.deviceUid
             const mobileNumber = userSession.user.mobileNumber
-
+            
+            const target = 'changePassword'
             const result = await addOTP('changePassword', deviceUid, "mobile", mobileNumber,  userId)
 
-            return res.json("result");
+            const smsText = `code: ${result.code} for ${target}`
+            await sendSMS(mobileNumber, smsText)
+
+            return res.json({message: "ok"});
 
         } catch (error) {
             next(error)
         }
     };
+
     static changePassword = async (req: Request, res: Response, next: NextFunction) => {
         try {
 
@@ -116,14 +123,18 @@ class UserController {
             let userSession = req.body.userSession
             const userId = userSession.user.id
             const deviceUid = userSession.deviceUid            
+            const target = 'changeMobile'
+            const result = await addOTP(target, deviceUid, "mobile", mobileNumber,  userId)
 
-            const result = await addOTP('changeMobile', deviceUid, "mobile", mobileNumber,  userId)
-            return res.json("result");
+            const smsText = `code: ${result.code} for ${target}`
+            await sendSMS(mobileNumber, smsText)
+            return res.json({message: "ok"});
 
         } catch (error) {
             next(error)
         }
     };
+    
     static changeMobile = async (req: Request, res: Response, next: NextFunction) => {
         try {
 
@@ -133,7 +144,7 @@ class UserController {
             const email = userSession.user.email
             const deviceUid = userSession.deviceUid
             await changeMobile(deviceUid, userId, mobileNumber, approvalCode)
-            return res.json("result");
+            return res.json({message: "ok"});
 
         } catch (error) {
             next(error)

@@ -372,7 +372,6 @@ export const setDelagate = async (deviceUid: string, userId: number) => {
     return newSession
 }
 
-
 export const changeMobile = async (deviceUid: string, userId: number, mobileNumber: string, apptovalCode: number) => {
 
     await checkOTP('changeMobile', deviceUid, "mobile", mobileNumber,  userId, apptovalCode)

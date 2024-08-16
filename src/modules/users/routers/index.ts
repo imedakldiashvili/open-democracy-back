@@ -12,8 +12,13 @@ userRouter.post("/otps/check", OtpController.checkOTP)
 
 
 userRouter.post("/Users/refreshsession", UserController.refreshSession)
+
 userRouter.post("/Users/changePassword", UserController.changePassword)
+userRouter.post("/Users/changePasswordOtp", UserController.changePasswordOtp)
+
 userRouter.post("/Users/changeMobile", UserController.changeMobile)
+userRouter.post("/Users/changeMobileOtp", UserController.changeMobileOtp)
+
 userRouter.post("/users/signOut", UserController.signOut)
 
 userRouter.post("/UsersInivitations/add", UserInivitationController.add)
