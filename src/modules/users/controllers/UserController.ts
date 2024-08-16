@@ -6,7 +6,7 @@ import { User, UserPassword } from '../entities';
 
 import { userPasswordRepository, userRepository, userSessionRepository } from '../repositories';
 import { dateNow } from '../../../utils';
-import { addPassword, changeMobile, checkOTP, checkPassword, loginUserService, refreshSessionService } from '../services';
+import { addOTP, addPassword, changeMobile, checkOTP, checkPassword, loginUserService, refreshSessionService } from '../services';
 
 
 
@@ -64,7 +64,23 @@ class UserController {
         }
     };
 
-    static changePassword= async (req: Request, res: Response, next: NextFunction) => {
+    static changePasswordOtp= async (req: Request, res: Response, next: NextFunction) => {
+        try {
+
+            let userSession = req.body.userSession
+            const userId = userSession.user.id
+            const deviceUid = userSession.deviceUid
+            const mobileNumber = userSession.user.mobileNumber
+
+            const result = await addOTP('changePassword', deviceUid, "mobile", mobileNumber,  userId)
+
+            return res.json("result");
+
+        } catch (error) {
+            next(error)
+        }
+    };
+    static changePassword = async (req: Request, res: Response, next: NextFunction) => {
         try {
 
             let userSession = req.body.userSession
@@ -93,7 +109,22 @@ class UserController {
         }
     };
 
-    static changeMobile= async (req: Request, res: Response, next: NextFunction) => {
+    static changeMobileOtp = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+
+            const { mobileNumber } = req.body
+            let userSession = req.body.userSession
+            const userId = userSession.user.id
+            const deviceUid = userSession.deviceUid            
+
+            const result = await addOTP('changeMobile', deviceUid, "mobile", mobileNumber,  userId)
+            return res.json("result");
+
+        } catch (error) {
+            next(error)
+        }
+    };
+    static changeMobile = async (req: Request, res: Response, next: NextFunction) => {
         try {
 
             const { mobileNumber, approvalCode } = req.body
