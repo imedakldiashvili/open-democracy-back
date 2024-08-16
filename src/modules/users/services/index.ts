@@ -166,7 +166,7 @@ export const refreshSessionService = async (loginUserId: number, deviceUid: stri
 
 }
 
-export const addOTP = async (deviceUid: string, type: string, value: string, createdBy: number) => {
+export const addOTP = async (target: string, deviceUid: string, type: string, value: string, createdBy: number) => {
 
     const exOtpCodes = await userOTPRepository.find({ where: { isActive: true, value: value, type: type } })
 
@@ -177,6 +177,7 @@ export const addOTP = async (deviceUid: string, type: string, value: string, cre
     }
 
     const otp = new UserOTP();
+    otp.target = target
     otp.deviceUid = deviceUid
     otp.value = value
     otp.type = type
@@ -191,16 +192,15 @@ export const addOTP = async (deviceUid: string, type: string, value: string, cre
     return result
 }
 
-export const checkOTP = async (deviceUid: string, type: string, value: string, createdBy: number, code: number) => {
+export const checkOTP = async (target: string, deviceUid: string, type: string, value: string, createdBy: number, code: number) => {
 
-    const userOTPs = await userOTPRepository.find({ where: { createdBy: createdBy, isActive: true, value: value, type: type } })
+    const userOTPs = await userOTPRepository.find({ where: { createdBy: createdBy, isActive: true, value: value, type: type, target: target } })
     if (userOTPs.length == 0) { throwBadRequest("active_otp_code_not_found") }
     if (userOTPs.length > 1) { throwBadRequest("active_otp_code_more_that_one") }
 
     const userOTP = userOTPs[0]
 
     if (userOTP.deviceUid != deviceUid) { throwBadRequest("invalid_otp_device_uid") }
-    if (userOTP.type != type) { throwBadRequest("invalid_otp_type") }
     if (userOTP.code != code) { throwBadRequest("invalid_otp_code") }
     if (userOTP.expirationDate < dateNow()) { throwBadRequest("otp_code_expired") }
     if (!userOTP.isActive) { throwBadRequest("otp_code_is_not_active") }
@@ -370,4 +370,22 @@ export const setDelagate = async (deviceUid: string, userId: number) => {
     var newSession = await refreshSessionService(userId, deviceUid);
 
     return newSession
+}
+
+
+export const changeMobile = async (deviceUid: string, userId: number, mobileNumber: string, apptovalCode: number) => {
+
+    await checkOTP('changeMobile', deviceUid, "mobile", mobileNumber,  userId, apptovalCode)
+
+    var exUsers = await userRepository.find({where: {isActive: true, id: userId}})
+    if (exUsers.length != 1) { throwBadRequest("user_not_found") }
+
+    var exUser = exUsers[0]
+    exUser.mobileNumber = mobileNumber
+    exUser.updatedBy = userId
+    exUser.updatedOn = dateNow()
+    
+    await userRepository.save(exUser)   
+    return exUser
+
 }

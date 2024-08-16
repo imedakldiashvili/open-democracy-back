@@ -33,5 +33,8 @@ export class UserOTP {
     @Column()
     updatedOn: Date
 
+    @Column()
+    target: string
+
 }
 

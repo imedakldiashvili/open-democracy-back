@@ -24,7 +24,7 @@ class AuthContoller {
             const users = await userRepository.find({where: {email: newEmail}});
             if (users.length > 0) { throwBadRequest("email_already_exists") }
 
-            const result = await addOTP(deviceUid, "email", email, 1)    
+            const result = await addOTP('signUp', deviceUid, "email", email, 1)    
             const mailMsg = { from: settings.SENDGRID_FROM_EMAIL, to: result.value, subject: "Email Verification Code", html: "Email Verification Code: " + result.code }
             
             await sendMail(mailMsg)
@@ -45,7 +45,7 @@ class AuthContoller {
 
             if (users.length > 0) { throwBadRequest("email_already_exists") }
 
-            const  emailOtp = await checkOTP(deviceUid, "email", email,  1, emailOtpCode )
+            const  emailOtp = await checkOTP('signUp', deviceUid, "email", email,  1, emailOtpCode )
           
             const user = new User();
             user.userName = newEmail,
@@ -85,7 +85,7 @@ class AuthContoller {
             if (users.length != 1) { throwBadRequest("email_doesnot_exists") }
             var user = users[0];
             
-            const result = await addOTP(deviceUid, "email", user.email, user.id)    
+            const result = await addOTP('resetPassword', deviceUid, "email", user.email, user.id)    
             const mailMsg = { from: settings.SENDGRID_FROM_EMAIL, to: result.value, subject: "Email Verification Code", html: "Email Verification Code: " + result.code }
             
             await sendMail(mailMsg)
@@ -105,7 +105,7 @@ class AuthContoller {
             const users = await userRepository.find({where: {email: newEmail}});
             if (users.length != 1) { throwBadRequest("email_already_exists") }
             const user = users[0]
-            const  emailOtp = await checkOTP(deviceUid, "email", email,  user.id, emailOtpCode )
+            const  emailOtp = await checkOTP('resetPassword', deviceUid, "email", email,  user.id, emailOtpCode )
           
             user.updatedBy = user.id,
             user.updatedOn = new Date();
