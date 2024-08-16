@@ -94,11 +94,12 @@ class UserController {
 
             const userId = userSession.user.id
             const email = userSession.user.email
+            const mobileNumber = userSession.user.mobileNumber
             const deviceUid = userSession.deviceUid
             
             const exPasswordText = req.body.exPassword
             const newPasswordText = req.body.newPassword
-            const mobileNumber = req.body.newPassword
+            
             const apptovalCode = req.body.apptovalCode
 
             await checkOTP('changePassword', deviceUid, "mobile", mobileNumber,  userId, apptovalCode)
