@@ -127,24 +127,29 @@ class UserController {
             const result = await addOTP(target, deviceUid, "mobile", mobileNumber,  userId)
 
             const smsText = `code: ${result.code} for ${target}`
-            await sendSMS(mobileNumber, smsText)
+            const sms = await sendSMS(mobileNumber, smsText)
             return res.json({message: "ok"});
 
         } catch (error) {
             next(error)
         }
     };
-    
+
     static changeMobile = async (req: Request, res: Response, next: NextFunction) => {
         try {
 
             const { mobileNumber, approvalCode } = req.body
+            
             let userSession = req.body.userSession
             const userId = userSession.user.id
             const email = userSession.user.email
             const deviceUid = userSession.deviceUid
+
             await changeMobile(deviceUid, userId, mobileNumber, approvalCode)
-            return res.json({message: "ok"});
+
+            const refreshSession = await refreshSessionService(userId, deviceUid)
+
+            return res.json(refreshSession);
 
         } catch (error) {
             next(error)
