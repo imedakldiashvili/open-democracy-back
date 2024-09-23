@@ -1,5 +1,5 @@
 import { appDataSource } from "../../../datasources"
-import { User, UserPassword, UserSession, UserOTP, UserInivitation, UserDetail } from "../entities";
+import { User, UserPassword, UserSession, UserOTP, UserInivitation, UserDetail, UserPersonalId } from "../entities";
 
 
 
@@ -10,3 +10,6 @@ export const userSessionRepository = appDataSource.getRepository(UserSession);
 export const userOTPRepository = appDataSource.getRepository( UserOTP );
 export const userInivitationRepository = appDataSource.getRepository(UserInivitation);
 export const userDetailRepository = appDataSource.getRepository(UserDetail);
+export const userPersonalIdRepository = appDataSource.getRepository(UserPersonalId);
+
+

@@ -3,7 +3,7 @@ import settings from "../../../settings";
 import { dateNow} from "../../../utils";
 import { BankTransaction } from "../../donations/entities";
 import { BankTransactionRepository } from "../../donations/repositories";
-import { addUserInivitation } from "../../users/services";
+import { addUserPersonalId } from "../../users/services";
 import { getBOGTodaysActivities, tbcAccountMovements } from "../api";
 import { bankSettingRepository } from "../repositories";
 
@@ -45,7 +45,7 @@ export const serviceBOGTransactionProcesing = async () => {
         }
 
         try {
-            await addUserInivitation(transaction.clientCode, transaction.clientName, transaction.uid, 1, 'bank')
+            await addUserPersonalId(transaction.clientCode, transaction.clientName, transaction.uid, 1, 'bank')
         } catch (error) {
             console.log(error)
         }
@@ -68,7 +68,7 @@ export const serviceTBCTransactionProcesing = async () => {
         }
 
         try {
-            await addUserInivitation(transaction.clientCode, transaction.clientName, transaction.uid, 1, 'bank')
+            await addUserPersonalId(transaction.clientCode, transaction.clientName, transaction.uid, 1, 'bank')
         } catch (error) {
             console.log(error)
         }

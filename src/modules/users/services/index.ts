@@ -4,8 +4,8 @@ import { generateHash, generateRefreshToken, generateToken } from "../../../midd
 
 import { dateNow, dateNowAddMinutes, newGuid, otpCode } from "../../../utils";
 
-import { UserDetail, UserInivitation, UserOTP, UserPassword, UserSession } from "../entities";
-import { userDetailRepository, userInivitationRepository, userOTPRepository, userPasswordRepository, userRepository, userSessionRepository } from "../../users/repositories";
+import { UserDetail, UserInivitation, UserOTP, UserPassword, UserPersonalId, UserSession } from "../entities";
+import { userDetailRepository, userInivitationRepository, userOTPRepository, userPasswordRepository, userPersonalIdRepository, userRepository, userSessionRepository } from "../../users/repositories";
 import { LessThan, MoreThan, MoreThanOrEqual } from "typeorm";
 import { serviceAddUserInivitaionAction } from "../../actions/services";
 import settings from "../../../settings";
@@ -215,11 +215,9 @@ export const checkOTP = async (target: string, deviceUid: string, type: string, 
 
 export const verification = async (deviceUid: string, personalId: string, fistName: string,  lastName: string, userId: number) => {
 
-    const inivitations = await userInivitationRepository.find({
+    const inivitations = await userPersonalIdRepository.find({
         where: {
             personalId: personalId
-            // , email: email
-            // , expireOn: MoreThan(dateNow())
             , statusId: 1
         }
     });
@@ -246,7 +244,33 @@ export const verification = async (deviceUid: string, personalId: string, fistNa
     return newSession
 }
 
-export const addUserInivitation = async (personalId: string, fullName: string, uid: string, createdBy: number, sessionUid: string) => {
+export const addUserInivitation = async (mobileNumber: string, fullName: string, email: string, createdBy: number, sessionUid: string) => {
+    
+
+    var exUsersByCode = await userRepository.find({ where: { email: email } })
+    if (exUsersByCode.length) { return }
+    
+    const createdUserId = createdBy
+
+    var exUserInivitations = await userInivitationRepository.find({where: {statusId: MoreThanOrEqual(0), createdUserId: createdBy,  email: email}});
+    
+    let inivitaitaionId = 0;
+
+    const newUserInivitation = new UserInivitation();
+    newUserInivitation.createdUserId = createdUserId
+    newUserInivitation.mobileNumber = mobileNumber,
+    newUserInivitation.fullName = fullName,
+    newUserInivitation.email = email
+    newUserInivitation.expireOn = dateNowAddMinutes(2 * 24 * 60);
+    newUserInivitation.statusId = 1                
+    await userInivitationRepository.save(newUserInivitation);
+    inivitaitaionId = newUserInivitation.id;
+    await serviceAddUserInivitaionAction({ sessionUid, inivitaitaionId, createdUserId, mobileNumber, fullName, email })
+    return newUserInivitation;
+    
+};
+
+export const addUserPersonalId = async (personalId: string, fullName: string, uid: string, createdBy: number, sessionUid: string) => {
     
     if (personalId.toString().length != 11) { return }
 
@@ -255,91 +279,20 @@ export const addUserInivitation = async (personalId: string, fullName: string, u
     
     const createdUserId = createdBy
 
-    var exUserInivitations = await userInivitationRepository.find({where: {statusId: MoreThanOrEqual(0), personalId: personalId }});
-    if (exUserInivitations.filter(e=> e.createdUserId == 1 && e.uid == uid).length) { return }
+    var exPersonalIds = await userPersonalIdRepository.find({where: {statusId: MoreThanOrEqual(0), personalId: personalId }});
+    if (exPersonalIds.filter(e=> e.createdUserId == 1 && e.uid == uid).length) { return }
 
-    let inivitaitaionId = 0;
+    let userPersonalId = 0;
 
-    if (createdUserId == 1)
-    {
-        var notBankInivitaions = exUserInivitations.filter(e=> e.statusId == 0 && e.createdUserId != 1)
-        if (notBankInivitaions.length == 1)
-        {
-            var notBankInivitaion = notBankInivitaions[0]
-            notBankInivitaion.uid = uid
-            notBankInivitaion.expireOn = dateNowAddMinutes(2 * 24 * 60);
-            notBankInivitaion.statusId = 1     
-            await userInivitationRepository.save(notBankInivitaion);
-            return notBankInivitaion;
-        }
-        else
-        {
-            for (var exUserInivitation of exUserInivitations) 
-            {
-                exUserInivitation.statusId = -1
-                await userInivitationRepository.save(exUserInivitation);
-            }    
-            
-            const newUserInivitation = new UserInivitation();
-            newUserInivitation.createdUserId = createdUserId
-            newUserInivitation.personalId = personalId,
-            newUserInivitation.fullName = fullName,
-            newUserInivitation.uid = uid
-            newUserInivitation.expireOn = dateNowAddMinutes(2 * 24 * 60);
-            newUserInivitation.statusId = 1                
-            await userInivitationRepository.save(newUserInivitation);
-            inivitaitaionId = newUserInivitation.id;
-            await serviceAddUserInivitaionAction({ sessionUid, inivitaitaionId, createdUserId, personalId, fullName, uid })
-            return newUserInivitation;
-        }
-    }
-    else
-    {
-        for (var exUserInivitation of exUserInivitations) 
-        {
-            exUserInivitation.statusId = -1
-            await userInivitationRepository.save(exUserInivitation);
-        }    
-        
-        const newUserInivitation = new UserInivitation();
-        newUserInivitation.createdUserId = createdUserId
-        newUserInivitation.personalId = personalId,
-        newUserInivitation.fullName = fullName,
-        newUserInivitation.uid = uid
-        newUserInivitation.expireOn = dateNowAddMinutes(2 * 24 * 60);
-        newUserInivitation.statusId = 0
-        await userInivitationRepository.save(newUserInivitation);
-    
-        const senderUser = await userRepository.findOne({where: {id: createdUserId}, relations: { userDetail: true}})
-
-        const emailTo = uid.toLowerCase();
-        const emailFrom = settings.SENDGRID_FROM_EMAIL
-        const emailSender = senderUser.email
-        const inivitationId = newUserInivitation.id.toString()
-        const url = `https://www.opendemocracy.ge`
-        const mailMsg = {    from: emailFrom, 
-                               to: emailTo, 
-                          subject: "Email Inivitation", 
-                             html: `<div>
-                                        <div> Hello ${fullName}</div> 
-                                        <div> Welcome to <a href= ${url} target="_blank"> www.OpenDemocracy.ge </a> </div>
-                                        <div> Inivitation sent by email: ${emailSender} </div>
-                                        <div> Inivitation code: ${inivitationId} </div>
-                                    </div>`}
-            
-        await sendMail(mailMsg)
-
-
-        inivitaitaionId = newUserInivitation.id;
-        await serviceAddUserInivitaionAction({ sessionUid, inivitaitaionId, createdUserId, personalId, fullName, uid })
-
-        return newUserInivitation;
-    }
-
-    
-
-    
-
+    const newUserPersonalId = new UserPersonalId();
+    newUserPersonalId.createdUserId = createdUserId
+    newUserPersonalId.personalId = personalId,
+    newUserPersonalId.fullName = fullName,
+    newUserPersonalId.uid = uid
+    newUserPersonalId.expireOn = dateNowAddMinutes(2 * 24 * 60);
+    newUserPersonalId.statusId = 1                
+    await userPersonalIdRepository.save(newUserPersonalId);
+    userPersonalId = newUserPersonalId.id;
     
 };
 

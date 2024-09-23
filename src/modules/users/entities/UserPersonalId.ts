@@ -1,19 +1,19 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany } from "typeorm"
 
-@Entity('users_inivitations')
-export class UserInivitation {
+@Entity('users_personals_ids')
+export class UserPersonalId {
 
     @PrimaryGeneratedColumn()
     id: number
 
     @Column()
-    mobileNumber: string
+    personalId: string
 
     @Column()
     fullName: string
 
     @Column()
-    email: string
+    uid: string
 
     @Column()
     expireOn: Date

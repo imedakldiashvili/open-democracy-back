@@ -41,12 +41,13 @@ class UserInivitationController {
     };
 
     static findActiveByEmailPersonalId = async (req: Request, res: Response, next: NextFunction) => {
+        const createdUserId = req.body.userSession.user.id
         try {
             const {personalId, email} = req.body; 
             var  userInivitations = await userInivitationRepository.find({where: {statusId: 1
                                                                                 , expireOn: MoreThan(dateNow()) 
-                                                                                , uid: email
-                                                                                , personalId: personalId}});
+                                                                                , email: email
+                                                                                , createdUserId: createdUserId}});
             if (userInivitations.length == 1)
             {
                 var userInivitation = userInivitations[0]
