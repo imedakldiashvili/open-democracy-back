@@ -30,10 +30,11 @@ class UserInivitationController {
     static add = async (req: Request, res: Response, next: NextFunction) => {
         try {
 
-            const {personalId, fullName, mobile, email} = req.body; 
+            const {fullName, mobileNumber, email} = req.body; 
             const createdUserId = req.body.userSession.user.id
             const sessionUid = req.body.userSession.id
-            const result = await addUserInivitation( personalId, fullName, email, createdUserId, sessionUid );
+            const result = await addUserInivitation( mobileNumber, fullName, email, createdUserId, sessionUid );
+            console.log(result)
             return res.json(result);
         } catch (error) {
             next(error)

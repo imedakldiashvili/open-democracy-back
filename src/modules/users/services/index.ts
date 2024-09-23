@@ -247,8 +247,8 @@ export const verification = async (deviceUid: string, personalId: string, fistNa
 export const addUserInivitation = async (mobileNumber: string, fullName: string, email: string, createdBy: number, sessionUid: string) => {
     
 
-    var exUsersByCode = await userRepository.find({ where: { email: email } })
-    if (exUsersByCode.length) { return }
+    var exUsersByEail = await userRepository.find({ where: { email: email } })
+    if (exUsersByEail.length) { { throwBadRequest("user_with_this_email_already_exists") } }
     
     const createdUserId = createdBy
 
