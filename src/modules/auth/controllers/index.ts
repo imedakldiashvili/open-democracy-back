@@ -16,6 +16,50 @@ import settings from '../../../settings';
 
 class AuthContoller {
     
+
+    static signEmail = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const {deviceUid, email} = req.body;  
+
+            const newEmail = email.toLowerCase();
+            const users = await userRepository.find({where: {email: newEmail}});
+            
+            if (users.length > 1) { 
+                throwBadRequest("double_user_emails") 
+            }
+           
+            const userEmail = { userId: 0, email: null, withPassword: 0 }
+
+            if (users.length == 0) { 
+                return res.json( userEmail ); 
+            }
+
+            const exUser = users[0];
+            userEmail.userId = exUser.id;
+            userEmail.email = newEmail;
+
+            const usersPasswords = await userPasswordRepository.find({where: {userId: userEmail.userId}});
+            
+            if (usersPasswords.length > 0) { 
+                userEmail.withPassword = 1;
+            }
+            
+            return res.json( userEmail );
+
+
+            // // const result = await addOTP('signUp', deviceUid, "email", email, 1)    
+            // const mailMsg = { from: settings.SENDGRID_FROM_EMAIL, to: result.value, subject: "Email Verification Code", html: "Email Verification Code: " + result.code }
+            
+            // await sendMail(mailMsg)
+
+           
+        
+        } catch (error) {
+            next(error)
+        }
+    };
+
+
     static signUpOTP = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const {deviceUid, email} = req.body;  

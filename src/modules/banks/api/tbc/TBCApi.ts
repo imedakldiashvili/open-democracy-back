@@ -10,16 +10,17 @@ import { bankTokenRepository } from "../../repositories";
 import { dateNow } from "../../../../utils";
 
 import { throwBadRequest } from "../../../../middlewares/error";
+import keys from "../../../../../keys";
 
 
 const baseUrl = "https://secdbi.tbconline.ge/dbi/dbiService"
 
 const getAxiosInstance = () => {
+
+  const certPath = path.join(__dirname, '../../../../../keys/cert/DIGITAL PARTNER LTD.pfx');
   const httpsAgent = new https.Agent({
-    pfx: fs.readFileSync(
-      path.join(__dirname, "..", "..", "..", "/banks/api/tbc/cert/DIGITAL PARTNER LTD.pfx")
-    ),
-    passphrase: "1RaYf--5",
+    pfx: fs.readFileSync(certPath),
+    passphrase: keys.TBC_CERT_PASSWORD,
     host: "secdbi.tbconline.ge",
   });
   return axios.create({ httpsAgent });

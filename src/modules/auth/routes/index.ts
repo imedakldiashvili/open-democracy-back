@@ -7,6 +7,7 @@ import { Router } from "express";
 
 const authRouter = Router();
 
+authRouter.post("/auth/signEmail", AuthController.signEmail)
 authRouter.post("/auth/signUpOTP", AuthController.signUpOTP)
 authRouter.post("/auth/signUp", AuthController.signUp)
 
