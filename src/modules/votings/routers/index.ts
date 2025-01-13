@@ -8,6 +8,9 @@ const voterRouter = express.Router();
 
 
 voterRouter.post("/votingCards/findDetail", VotingCardController.findDetail)
+voterRouter.post("/votingCards/findUserActiveVotingCards", VotingCardController.findUserActiveVotingCards)
+voterRouter.post("/votingCards/findUserAllVotingCards", VotingCardController.findUserAllVotingCards)
+
 
 
 voterRouter.post("/votings/findUserSessionVotingCards", VoterController.findUserSessionVotingCards)

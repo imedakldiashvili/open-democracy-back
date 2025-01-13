@@ -107,6 +107,7 @@ export const createSession = async (loginUser: any, deviceUid: string, passwordI
 
     return ({
         session: {
+            userId: loginSesion.user.id,
             deviceUid: loginSesion.deviceUid,
             sessionUid: newSession.sessionUid,
             passwordIsTemporary: passwordIsTemporary,

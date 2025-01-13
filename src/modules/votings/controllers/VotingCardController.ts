@@ -20,6 +20,39 @@ class VotingCardController {
         }
     };
 
+    static findUserActiveVotingCards = async (req: Request, res: Response, next: NextFunction) => {
+        
+        const userSession = req.body.userSession;
+        const voterId = userSession.user.id;
+        try {
+            var votingCards = await votingCardRepository.find({
+                                                                    where: {voterId: voterId, statusId: 1},
+                                                                    relations: {district: true, election: true, voter: true},
+                                                                    order: {id: -1}
+                                                                });
+            return res.json(votingCards);
+            
+        } catch (error) {
+            next(error)
+        }
+    };
+
+    static findUserAllVotingCards = async (req: Request, res: Response, next: NextFunction) => {
+        
+        const userSession = req.body.userSession;
+        const voterId = userSession.user.id;
+        try {
+            var votingCards = await votingCardRepository.find({
+                                                                    where: {voterId: voterId},
+                                                                    relations: {district: true, election: true, voter: true},
+                                                                    order: {id: -1}
+                                                                });
+            return res.json(votingCards);
+            
+        } catch (error) {
+            next(error)
+        }
+    };
 
 }
 
