@@ -225,16 +225,16 @@ export const verification = async (deviceUid: string, personalId: string, fistNa
 
     if (userPersonalIds.length != 1) { throwBadRequest("user_personal_id_not_found") }
 
-    var inivitation = userPersonalIds[0]
-    inivitation.statusId = 2
-    await userPersonalIdRepository.save(inivitation)
+    var userPersonalId = userPersonalIds[0]
+    userPersonalId.statusId = 2
+    await userPersonalIdRepository.save(userPersonalId)
 
     var newUserDetail = new UserDetail()
     newUserDetail.id = userId
     newUserDetail.code = personalId;
     newUserDetail.firstName = fistName
     newUserDetail.lastName = lastName
-    newUserDetail.fullName = inivitation.fullName
+    newUserDetail.fullName = userPersonalId.fullName
     newUserDetail.districtId = 0
     newUserDetail.isActive = true
     newUserDetail.isDelegate = false
