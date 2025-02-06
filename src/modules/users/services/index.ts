@@ -216,18 +216,18 @@ export const checkOTP = async (target: string, deviceUid: string, type: string, 
 
 export const verification = async (deviceUid: string, personalId: string, fistName: string,  lastName: string, userId: number) => {
 
-    const inivitations = await userPersonalIdRepository.find({
+    const userPersonalIds = await userPersonalIdRepository.find({
         where: {
             personalId: personalId
             , statusId: 1
         }
     });
 
-    if (inivitations.length != 1) { throwBadRequest("inivitation_not_found") }
+    if (userPersonalIds.length != 1) { throwBadRequest("user_personal_id_not_found") }
 
-    var inivitation = inivitations[0]
+    var inivitation = userPersonalIds[0]
     inivitation.statusId = 2
-    await userInivitationRepository.save(inivitation)
+    await userPersonalIdRepository.save(inivitation)
 
     var newUserDetail = new UserDetail()
     newUserDetail.id = userId
