@@ -21,7 +21,7 @@ export class Action {
     actionName: string
 
     @Column()
-    actionDesctiption: string
+    actionDescription: string
 
     @Column()
     actionTitle: string

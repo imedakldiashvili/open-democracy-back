@@ -65,7 +65,7 @@ export const serviceAddUserInivitaionAction = async ({ sessionUid, createdUserId
         action.actionId = inivitaitaionId
         action.actionName = fullName
         action.actionTitle = mobileNumber 
-        action.actionDesctiption = email
+        action.actionDescription= email
         action.hasAmount = false
         
         action.createdBy = createdUserId,
