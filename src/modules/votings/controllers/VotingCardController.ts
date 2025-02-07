@@ -10,45 +10,49 @@ class VotingCardController {
 
             const { id } = req.body;
             var votingCard = await votingCardRepository.findOne({
-                                                                    where: {id: id},
-                                                                    relations: {district: true, election: true, voter: true}
-                                                                });
+                where: { id: id },
+                relations: { district: true, election: true, voter: true }
+            });
             return res.json(votingCard);
-            
+
         } catch (error) {
             next(error)
         }
     };
 
     static findUserActiveVotingCards = async (req: Request, res: Response, next: NextFunction) => {
-        
+
         const userSession = req.body.userSession;
         const voterId = userSession.user.id;
         try {
             var votingCards = await votingCardRepository.find({
-                                                                where: {voterId: voterId, statusId: 1},
-                                                                relations: {district: true, election: true, voter: true, votingCardBallots: {ballot: {ballotType: true, ballotItems: true}}},
-                                                                order: {id: -1}
-                                                              });
+                where: { voterId: voterId, statusId: 1 },
+                relations: {
+                    district: true, 
+                    election: true, 
+                    voter: true, 
+                    votingCardBallots: { ballot: { ballotType: true, ballotItems: {ballotItemSubjects: true, ballotItemValues: true} } } },
+                order: { id: -1 }
+            });
             return res.json(votingCards);
-            
+
         } catch (error) {
             next(error)
         }
     };
 
     static findUserAllVotingCards = async (req: Request, res: Response, next: NextFunction) => {
-        
+
         const userSession = req.body.userSession;
         const voterId = userSession.user.id;
         try {
             var votingCards = await votingCardRepository.find({
-                                                                    where: {voterId: voterId},
-                                                                    relations: {district: true, election: true, voter: true},
-                                                                    order: {id: -1}
-                                                                });
+                where: { voterId: voterId },
+                relations: { district: true, election: true, voter: true },
+                order: { id: -1 }
+            });
             return res.json(votingCards);
-            
+
         } catch (error) {
             next(error)
         }
