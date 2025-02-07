@@ -27,7 +27,7 @@ class VotingCardController {
         try {
             var votingCards = await votingCardRepository.find({
                                                                 where: {voterId: voterId, statusId: 1},
-                                                                relations: {district: true, election: true, voter: true, votingCardBallots: true},
+                                                                relations: {district: true, election: true, voter: true, votingCardBallots: {ballot: {ballotType: true, ballotItems: true}}},
                                                                 order: {id: -1}
                                                               });
             return res.json(votingCards);
