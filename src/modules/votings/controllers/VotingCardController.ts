@@ -26,10 +26,10 @@ class VotingCardController {
         const voterId = userSession.user.id;
         try {
             var votingCards = await votingCardRepository.find({
-                                                                    where: {voterId: voterId, statusId: 1},
-                                                                    relations: {district: true, election: true, voter: true},
-                                                                    order: {id: -1}
-                                                                });
+                                                                where: {voterId: voterId, statusId: 1},
+                                                                relations: {district: true, election: true, voter: true, votingCardBallots: true},
+                                                                order: {id: -1}
+                                                              });
             return res.json(votingCards);
             
         } catch (error) {
