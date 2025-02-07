@@ -21,6 +21,12 @@ export class Action {
     actionName: string
 
     @Column()
+    actionDesctiption: string
+
+    @Column()
+    actionTitle: string
+
+    @Column()
     hasAmount: boolean
 
     @Column()

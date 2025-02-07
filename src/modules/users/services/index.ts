@@ -248,8 +248,8 @@ export const verification = async (deviceUid: string, personalId: string, fistNa
 export const addUserInivitation = async (mobileNumber: string, fullName: string, email: string, createdBy: number, sessionUid: string) => {
     
 
-    var exUsersByEail = await userRepository.find({ where: { email: email } })
-    if (exUsersByEail.length) { { throwBadRequest("user_with_this_email_already_exists") } }
+    var exUsersByEmail = await userRepository.find({ where: { email: email } })
+    if (exUsersByEmail.length) { { throwBadRequest("user_with_this_email_already_exists") } }
     
     const createdUserId = createdBy
 
@@ -266,6 +266,7 @@ export const addUserInivitation = async (mobileNumber: string, fullName: string,
     newUserInivitation.statusId = 1                
     await userInivitationRepository.save(newUserInivitation);
     inivitaitaionId = newUserInivitation.id;
+    
     await serviceAddUserInivitaionAction({ sessionUid, inivitaitaionId, createdUserId, mobileNumber, fullName, email })
     return newUserInivitation;
     

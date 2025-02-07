@@ -63,8 +63,9 @@ export const serviceAddUserInivitaionAction = async ({ sessionUid, createdUserId
         action.sessionUid = sessionUid
 
         action.actionId = inivitaitaionId
-        action.actionName = mobileNumber + ' ' + email
-        
+        action.actionName = fullName
+        action.actionTitle = mobileNumber 
+        action.actionDesctiption = email
         action.hasAmount = false
         
         action.createdBy = createdUserId,
@@ -77,20 +78,15 @@ export const serviceAddUserInivitaionAction = async ({ sessionUid, createdUserId
 export const serviceGetActionDetail = async ({ id, actionId, userId }) => {    
     
     const  action = await actionRepository.findOne({where:{id: id, actionId: actionId, createdBy: userId}});
-    
-    console.log(action)
-
 
     if (action.actionTypeId == ActionTypeEnum.inivitation)
     {
-        console.log("inivitation")
         var inivitation = await userInivitationRepository.findOne({where: {id: action.actionId}});
         return inivitation;
     }
     
     if (action.actionTypeId == ActionTypeEnum.voting)
     {
-        console.log("voting")
         var votingCard = await votingCardRepository.findOne({
                                                                 where: {id: action.actionId}, 
                                                                 relations: {district: true, election: true, voter: true}
@@ -100,7 +96,6 @@ export const serviceGetActionDetail = async ({ id, actionId, userId }) => {
 
     if (action.actionTypeId == ActionTypeEnum.donation)
     {
-        console.log("bankTransaction")
         var bankTransaction = await BankTransactionRepository.findOne({where: {transactionClientCode: userId}});
         return bankTransaction;
     }
