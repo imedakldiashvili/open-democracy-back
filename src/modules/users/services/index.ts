@@ -10,6 +10,7 @@ import { LessThan, MoreThan, MoreThanOrEqual } from "typeorm";
 import { serviceAddUserInivitaionAction } from "../../actions/services";
 import settings from "../../../settings";
 import { sendMail } from "../../notifications/services";
+import { sendSMS } from "../../notifications/smsApi";
 
 
 export const getLoginUser = async (loginEmail: string) => {
@@ -296,6 +297,9 @@ export const addUserPersonalId = async (personalId: string, fullName: string, ui
     newUserPersonalId.mobileNumber = mobileNumber;             
     await userPersonalIdRepository.save(newUserPersonalId);
     userPersonalId = newUserPersonalId.id;
+
+    const smsText = "donation primaries.ge: " + personalId + mobileNumber ? " - " + mobileNumber : "";            
+    if (mobileNumber) { await sendSMS(mobileNumber, smsText) } 
     
 };
 
