@@ -298,7 +298,7 @@ export const addUserPersonalId = async (personalId: string, fullName: string, ui
     await userPersonalIdRepository.save(newUserPersonalId);
     userPersonalId = newUserPersonalId.id;
 
-    const smsText = "donation primaries.ge: " + personalId + mobileNumber ? " - " + mobileNumber : "";            
+    const smsText = "welcome to primaries.ge: " + personalId + mobileNumber ? " - " + mobileNumber : "";            
     if (mobileNumber) { await sendSMS(mobileNumber, smsText) } 
     
 };
