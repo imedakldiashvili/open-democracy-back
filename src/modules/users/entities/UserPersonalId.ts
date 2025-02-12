@@ -24,5 +24,8 @@ export class UserPersonalId {
     @Column()
     createdUserId: number
 
+    @Column()
+    mobileNumber: string
+
 }
 

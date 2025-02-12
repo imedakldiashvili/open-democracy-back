@@ -272,7 +272,7 @@ export const addUserInivitation = async (mobileNumber: string, fullName: string,
     
 };
 
-export const addUserPersonalId = async (personalId: string, fullName: string, uid: string, createdBy: number, sessionUid: string) => {
+export const addUserPersonalId = async (personalId: string, fullName: string, uid: string, createdBy: number, sessionUid: string, mobileNumber: string) => {
     
     if (personalId.toString().length != 11) { return }
 
@@ -292,7 +292,8 @@ export const addUserPersonalId = async (personalId: string, fullName: string, ui
     newUserPersonalId.fullName = fullName,
     newUserPersonalId.uid = uid
     newUserPersonalId.expireOn = dateNowAddMinutes(2 * 24 * 60);
-    newUserPersonalId.statusId = 1                
+    newUserPersonalId.statusId = 1   
+    newUserPersonalId.mobileNumber = mobileNumber;             
     await userPersonalIdRepository.save(newUserPersonalId);
     userPersonalId = newUserPersonalId.id;
     
