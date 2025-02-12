@@ -6,6 +6,7 @@ import { BankTransactionRepository } from "../../donations/repositories";
 import { addUserPersonalId } from "../../users/services";
 import { getBOGTodaysActivities, tbcAccountMovements } from "../api";
 import { bankSettingRepository } from "../repositories";
+import { sendSMS } from "../../notifications/smsApi";
 
 
 
@@ -52,9 +53,17 @@ export const serviceBOGTransactionProcesing = async () => {
             const descLength = transaction.description.indexOf("\n"); 
             const matches = transaction.description.substring(0, descLength).match(/\d+/g);
             var mobileNumber = null
-            if (matches.length == 1) { mobileNumber = matches[0] }
+            if (matches.length == 1) { 
+                if (matches[0].length == 9)
+                {
+                    mobileNumber = matches[0] 
+                }
+            }
             
             await addUserPersonalId(transaction.clientCode, transaction.clientName, transaction.uid, 1, 'bank', mobileNumber)
+            const smsText = "welcome to primaries.ge: " + transaction.clientCode + " - " + mobileNumber;            
+            if (mobileNumber) { await sendSMS(mobileNumber, smsText) } 
+            
         } catch (error) {
             console.log(error)
         }
@@ -77,8 +86,17 @@ export const serviceTBCTransactionProcesing = async () => {
         }
 
         try {
-            const mobileNumber = transaction.description.match(/\d+/g);
+            const matches = transaction.description.match(/\d+/g);
+            var mobileNumber = null
+            if (matches.length == 1) { 
+                if (matches[0].length == 9)
+                {
+                    mobileNumber = matches[0] 
+                }
+            }
             await addUserPersonalId(transaction.clientCode, transaction.clientName, transaction.uid, 1, 'bank', mobileNumber)
+            const smsText = "welcome to primaries.ge: " + transaction.clientCode + " - " + mobileNumber;            
+            if (mobileNumber) { await sendSMS(mobileNumber, smsText) } 
         } catch (error) {
             console.log(error)
         }
