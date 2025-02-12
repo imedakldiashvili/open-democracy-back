@@ -49,7 +49,7 @@ export const serviceBOGTransactionProcesing = async () => {
         }
 
         try {
-            const mobileNumber = transaction.desctiption.match(/\d+/g);
+            const mobileNumber = transaction.description.match(/\d+/g);
             await addUserPersonalId(transaction.clientCode, transaction.clientName, transaction.uid, 1, 'bank', mobileNumber)
         } catch (error) {
             console.log(error)
