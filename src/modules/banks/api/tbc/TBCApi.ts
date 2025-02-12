@@ -148,12 +148,12 @@ const getTransaction = (xmlTransaction, account) => {
           const transaction = {
             uid: externalPaymentId,
             date: valueDate,
-            clientCode: partnerTaxCode,
-            clientName: partnerName,
-            accountNumber: partnerAccountNumber,
+            clientCode: partnerTaxCode.toString(),
+            clientName: partnerName.toString(),
+            accountNumber: partnerAccountNumber.toString(),
             amount: amount,
             currency: currency,
-            description: description,
+            description: description.toString(),
           }
           return transaction
 
