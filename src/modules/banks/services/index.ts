@@ -23,7 +23,7 @@ const addBankTransaction = async (transaction) => {
     newBankTransaction.transactionAccount = transaction.accountNumber
     newBankTransaction.transactionAccountMask = transaction.accountNumber.substring(0, 6) + '***' + transaction.accountNumber.substring(20).substring(0, 2) 
     newBankTransaction.transactionAmount = transaction.amount
-    newBankTransaction.transactionDescription = transaction.desctiption
+    newBankTransaction.transactionDescription = transaction.description
     newBankTransaction.transactionDate = transaction.date
     newBankTransaction.createdBy = 1
     newBankTransaction.createdOn = dateNow()
@@ -46,7 +46,7 @@ export const serviceBOGTransactionProcesing = async () => {
         }
 
         try {
-            const mobileNumber = transaction.description.match(/\d+/g);
+            const mobileNumber = transaction.desctiption.match(/\d+/g);
             await addUserPersonalId(transaction.clientCode, transaction.clientName, transaction.uid, 1, 'bank', mobileNumber)
         } catch (error) {
             console.log(error)
