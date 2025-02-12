@@ -133,16 +133,16 @@ const getTransaction = (xmlTransaction, account) => {
           const debitCredit = t["ns2:debitCredit"]
           if (!debitCredit) { return null }
 
-          const accountNumber = t["ns2:accountNumber"]
+          const accountNumber = t["ns2:accountNumber"].toString()
           if (account != accountNumber) { return null }
 
-          const partnerAccountNumber = t["ns2:partnerAccountNumber"]
+          const partnerAccountNumber = t["ns2:partnerAccountNumber"].toString()
           const currency = t["ns2:amount"]["ns2:currency"]
-          const externalPaymentId = t["ns2:externalPaymentId"]
+          const externalPaymentId = t["ns2:externalPaymentId"].toString()
           const valueDate = t["ns2:valueDate"]
-          const partnerTaxCode = t["ns2:partnerTaxCode"]
-          const partnerName = t["ns2:partnerName"]
-          const description = t["ns2:description"]
+          const partnerTaxCode = t["ns2:partnerTaxCode"].toString()
+          const partnerName = t["ns2:partnerName"].toString()
+          const description = t["ns2:description"].toString()
           const amount = t["ns2:amount"]["ns2:amount"]
 
           const transaction = {
