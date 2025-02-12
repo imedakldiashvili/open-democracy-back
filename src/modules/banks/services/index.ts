@@ -49,7 +49,7 @@ export const serviceBOGTransactionProcesing = async () => {
             const descLength = transaction.description.indexOf("\n"); 
             const matches = transaction.description.substring(0, descLength).match(/\d+/g);
             var mobileNumber = null
-            if (!matches && matches.length == 1) { 
+            if ((!matches) && (matches.length == 1)) { 
                 if (matches[0].length == 9)
                 {
                     mobileNumber = matches[0] 
@@ -82,7 +82,7 @@ export const serviceTBCTransactionProcesing = async () => {
         try {
             const matches = transaction.description.match(/\d+/g);
             var mobileNumber = null
-            if (!matches && matches.length == 1) { 
+            if ((!matches) && (matches.length == 1)) { 
                 if (matches[0].length == 9)
                 {
                     mobileNumber = matches[0] 
