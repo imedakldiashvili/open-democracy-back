@@ -49,13 +49,15 @@ export const serviceBOGTransactionProcesing = async () => {
             const descLength = transaction.description.indexOf("\n"); 
             const matches = transaction.description.substring(0, descLength).match(/\d+/g);
             var mobileNumber = null
-            if ((!matches) && (matches.length == 1)) { 
-                if (matches[0].length == 9)
-                {
-                    mobileNumber = matches[0] 
+            if (matches)
+            {
+                if ((matches.length == 1)) { 
+                    if (matches[0].length == 9)
+                    {
+                        mobileNumber = matches[0] 
+                    }
                 }
-            }
-            
+            }            
             await addUserPersonalId(transaction.clientCode, transaction.clientName, transaction.uid, 1, 'bank', mobileNumber)
             
         } catch (error) {
@@ -83,12 +85,16 @@ export const serviceTBCTransactionProcesing = async () => {
             const matches = transaction.description.match(/\d+/g);
             console.log(transaction.description, matches)
             var mobileNumber = null
-            if ((!matches) && (matches.length == 1)) { 
-                if (matches[0].length == 9)
-                {
-                    mobileNumber = matches[0] 
+            if (matches)
+            {
+                if ((matches.length == 1)) { 
+                    if (matches[0].length == 9)
+                    {
+                        mobileNumber = matches[0] 
+                    }
                 }
             }
+            
             await addUserPersonalId(transaction.clientCode, transaction.clientName, transaction.uid, 1, 'bank', mobileNumber)
         } catch (error) {
             console.log(error)
