@@ -34,7 +34,7 @@ class UserInivitationController {
             const createdUserId = req.body.userSession.user.id
             const sessionUid = req.body.userSession.id
             const result = await addUserInivitation( mobileNumber, fullName, email, createdUserId, sessionUid );
-            console.log(result)
+
             return res.json(result);
         } catch (error) {
             next(error)

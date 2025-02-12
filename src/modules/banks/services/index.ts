@@ -83,7 +83,6 @@ export const serviceTBCTransactionProcesing = async () => {
 
         try {
             const matches = transaction.description.match(/\d+/g);
-            console.log(transaction.description, matches)
             var mobileNumber = null
             if (matches)
             {

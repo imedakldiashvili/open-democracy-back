@@ -39,8 +39,6 @@ export const tbcChangePassword = async ({ tbcUsername, tbcActualPassword, tbcDig
       config
     );
 
-
-    console.log(response);
   } catch (e) {
     console.log(e);
   }
@@ -80,7 +78,15 @@ export const tbcAccountMovements = async () => {
       const config = accountMovementsConfig()
       const response = await instance.post(baseUrl, xmlReqBody, config);
 
-      const parser = new fastxml.XMLParser();
+      const options = {
+        numberParseOptions: {
+            "hex": false,
+            leadingZeros: false
+        }
+      };
+
+
+      const parser = new fastxml.XMLParser(options);
       const parserResultObj = parser.parse(response.data, true);
 
       const pageResult = parserResultObj["SOAP-ENV:Envelope"]["SOAP-ENV:Body"]["ns2:GetAccountMovementsResponseIo"]["ns2:result"]
