@@ -153,7 +153,7 @@ const getTransaction = (xmlTransaction, account) => {
             accountNumber: partnerAccountNumber,
             amount: amount,
             currency: currency,
-            desctiption: description,
+            descsiption: description,
           }
           return transaction
 

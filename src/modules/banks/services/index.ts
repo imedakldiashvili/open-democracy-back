@@ -16,9 +16,6 @@ const addBankTransaction = async (transaction) => {
 
     if (exBankTransactions.length) { return }
 
-
-    console.log(transaction)
-
     newBankTransaction.channelCode = channelCode
     newBankTransaction.transactionUid = transaction.uid
     newBankTransaction.transactionClientCode = transaction.clientCode

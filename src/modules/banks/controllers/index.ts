@@ -45,7 +45,6 @@ class BanksContoller {
             const bankSettings = await servicebankSettings();
             const bankSettingBogAccount = bankSettings.filter(e=> e.code == "BOG_ACCOUNT")[0]
             const account = bankSettingBogAccount.value
-            console.log(account)
             const result = await getBOGTodaysActivities(account)
             return res.json(result);
         
