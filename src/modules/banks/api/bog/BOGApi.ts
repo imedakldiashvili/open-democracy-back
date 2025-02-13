@@ -59,7 +59,7 @@ export const getBOGTodaysActivities = async (account) => {
       accountNumber: data?.Sender?.AccountNumber,      
       amount: data?.Amount,
       currency: currency,
-      description: data?.EntryComment.toString(),
+      description: data?.EntryComment?.toString(),
     };
   });
   return newArray;
