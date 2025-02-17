@@ -131,14 +131,21 @@ class PublicControler {
             const skip = getSkip(pagination)
             const take = getTake(pagination)
 
-            const pageList = await userDetailRepository.find({
-                where: { isDelegate: true },
-                relations: { district: { region: true } },
+            const pageList = await delegateRepository.find({
+                where: { isActive: true },
+                relations: { 
+                            user: {userDetail: {district: { region: true } }},
+                            delegateGroup: true },
                 order: { id: -1 },
                 skip: skip,
                 take: take,
 
-                select: { district: { id: true, name: true, region: { id: true, name: true } }, id: true, fullName: true, firstName: true, lastName: true }
+                select: { 
+                    user: {id: true, userDetail: {id: true, fullName: true, firstName: true, lastName: true,  
+                                     district: { id: true, name: true, 
+                                                 region: { id: true, name: true } } }},
+                    delegateGroup: {code: true, color: true, name: true, imageUrl: true, number: true}
+                }
             });
             const count = await userDetailRepository.count({ where: { isDelegate: true } })
 
