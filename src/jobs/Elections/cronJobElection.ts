@@ -10,7 +10,7 @@ export const cronJobCreateElection = cron.schedule(
     "0 0 1 * *",
     async () => { 
         console.log(new Date().toISOString(), "createElection ...")
-        var resut = await serviceCreateElection()
+        var resut = await serviceCreateElection(1000)
         console.log(new Date().toISOString(), "createElection ", resut)
         return resut
     }

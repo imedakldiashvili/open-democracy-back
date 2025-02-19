@@ -65,5 +65,8 @@ export class Election {
     @Column()
     createdAt: Date
 
+    @Column()
+    templateId: number
+
    
 }

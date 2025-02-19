@@ -11,7 +11,8 @@ import { ElectionStatusEnum } from '../../enums';
 class ElectionControler {
 
     static createElection = async (req: Request, res: Response, next: NextFunction) =>{
-        var result = await serviceCreateElection()
+        var templateId = req.body.templateId
+        var result = await serviceCreateElection(templateId)
         return res.json(result);
     }
 

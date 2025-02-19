@@ -18,7 +18,207 @@ import { BallotItemSubject } from "../../ballots/entities/BallotItemSubject"
 
 
 
-export const serviceCreateElection = async () => {
+export const serviceCreateElection = async (templateId: number) => {
+    
+    var exElections =  await electionRepository.find({where: {templateId: templateId, actualStatusSchedule: { status: {jobProcessingFlag: true}}}})
+    if (exElections.length > 0) { return {status: 0,  message: "not_complete_elections_exists"};}
+    
+    var resultedElections =  await electionRepository.find({
+        where:  {templateId: templateId, statusSchedule: true, actualStatusSchedule: { status: {id: ElectionStatusEnum.finished }}}
+    })
+    
+
+
+    for (var resultedElection of resultedElections)
+    {       
+        var newElectionStatusSchedule = resultedElection.statusSchedule.filter(e => (e.state == 0) && (e.status.id = ElectionStatusEnum.result))[0]
+        resultedElection.actualStatusSchedule = newElectionStatusSchedule;
+
+        newElectionStatusSchedule.state = 2;
+        await electionStatusScheduleRepository.save(newElectionStatusSchedule)
+    
+        resultedElection.actualStatusSchedule = newElectionStatusSchedule
+        resultedElection.uid = newGuid()
+        await electionRepository.save(resultedElection)
+    }
+
+    var dateValue = dateNowMinute();
+
+    var template = await templateRepository.findOne({ 
+        where: { isActive: true },
+        relations: { templateBallots: {ballotType: true, templateBallotItems: {templateBallotItemValues: true, templateBallotItemSubjects: true}  }, statusSchedule: true},
+        order: {templateBallots: {index: +1, templateBallotItems: {index: +1, templateBallotItemValues: {index: +1}} }, statusSchedule: {id: +1} }
+    })
+
+    if (!template) { return {status: 0,  message: "active_template_not_found"};}
+
+
+    await appDataSource.manager.transaction(async (transactionalEntityManager) => {
+
+        var electon = new Election()
+        electon.templateId = template.id
+        electon.uid = newGuid()
+        electon.code = template.code
+        electon.name = template.name
+        electon.registeredVoters = 0
+        electon.participantVoters = 0
+        electon.createdAt = dateValue,
+
+        await electionRepository.save(electon);
+
+        // electon.code = template.code + ' / ' + electon.id
+        // electon.name = template.name + ' / ' + electon.id
+        // await electionRepository.save(electon);
+
+
+        var templateStatusSchedule = await templateStatusScheduleRepository.find({
+            where: {template: {id: templateId}},
+            relations: {status: true}
+        });
+
+
+        for (var itemTempalteStatusSchedule of templateStatusSchedule)
+        {
+            var elemplateStatusSchedule = new ElectionStatusSchedule();
+            elemplateStatusSchedule.election = electon;
+            elemplateStatusSchedule.state = itemTempalteStatusSchedule.state,
+            elemplateStatusSchedule.status = itemTempalteStatusSchedule.status,
+            elemplateStatusSchedule.hasValueDate = itemTempalteStatusSchedule.hasValueMin,
+            elemplateStatusSchedule.valueDateFrom = addMinutes(dateValue,  itemTempalteStatusSchedule.valueMinFrom),
+            elemplateStatusSchedule.valueDateTo = addMinutes(dateValue,  itemTempalteStatusSchedule.valueMinTo)
+
+            await electionStatusScheduleRepository.save(elemplateStatusSchedule)
+            if (itemTempalteStatusSchedule.status.id == ElectionStatusEnum.new)
+            {
+                electon.actualStatusSchedule = elemplateStatusSchedule
+                await electionRepository.save(electon);
+            }
+
+            if (itemTempalteStatusSchedule.status.id == ElectionStatusEnum.In_Progress_10)
+            {
+                electon.valueDateFrom = addMinutes(dateValue,  itemTempalteStatusSchedule.valueMinFrom)
+                await electionRepository.save(electon);
+            }
+
+            if (itemTempalteStatusSchedule.status.id == ElectionStatusEnum.In_Progress_20)
+            {
+                electon.valueDateTo = addMinutes(dateValue,  itemTempalteStatusSchedule.valueMinTo)
+                await electionRepository.save(electon);
+            }
+
+        }
+
+
+        for (var tempateBallot of template.templateBallots)
+        {
+            var ballot = new Ballot()
+
+            ballot.election = electon;
+            ballot.index = tempateBallot.index,
+            ballot.ballotTypeId = tempateBallot.ballotTypeId,
+            ballot.code = tempateBallot.ballotType.code,
+            ballot.name = tempateBallot.ballotType.name,
+            
+            await ballotRepository.save(ballot);
+            
+            if (tempateBallot.isDelegateGroup)
+            {
+                var delegatesGroups = await delegateGroupRepository.find({
+                    relations: {delegates: {user: true}},
+                    order: {number: +1}
+                });
+        
+                var itemIndex = 0;
+                for (var delegateGroup of delegatesGroups)
+                {
+                    itemIndex++;
+                    var ballotItem = new BallotItem()
+                    
+                    ballotItem.ballot = ballot
+                    ballotItem.index = itemIndex;
+                    ballotItem.code = delegateGroup.code;
+                    ballotItem.name = delegateGroup.name;
+                    ballotItem.hasItemValue = (delegateGroup.delegates.length > 0)
+                    ballotItem.numberOfItemValue = delegateGroup.delegates.length > 10 ? 10 : delegateGroup.delegates.length;
+                    await ballotItemRepository.save(ballotItem);
+        
+                    var itemValueindex = 0;
+                    for (var delegate of delegateGroup.delegates)
+                    {
+                        itemValueindex ++;
+                        var ballotItemValue = new BallotItemValue()
+                        ballotItemValue.ballotItem = ballotItem;
+                        ballotItemValue.code = delegate.user.userName
+                        ballotItemValue.name = delegate.user.userName
+                        ballotItemValue.title = delegateGroup.name
+                        ballotItemValue.index = itemValueindex 
+                        ballotItemValue.imageUrl = delegateGroup.code
+
+                        await ballotItemValueRepository.save(ballotItemValue);
+        
+                    }
+        
+                }
+            }
+            else
+            {
+                var itemIndex = 0;
+                for (var templateBallotItem of tempateBallot.templateBallotItems)
+                {
+                    itemIndex++;
+                    var ballotItem = new BallotItem()
+                    
+                    ballotItem.ballot = ballot
+                    ballotItem.index = itemIndex;
+                    ballotItem.index = templateBallotItem.index, 
+                    ballotItem.code = templateBallotItem.code;
+                    ballotItem.name = templateBallotItem.name;
+                    ballotItem.imageUrl = templateBallotItem.imageUrl;
+                    ballotItem.hasItemValue = templateBallotItem.hasItemValue
+                    ballotItem.numberOfItemValue = templateBallotItem.numberOfItemValue;
+                    
+                    await ballotItemRepository.save(ballotItem);
+        
+                    for (var templateBallotItemValue of templateBallotItem.templateBallotItemValues)
+                    {
+                        var ballotItemValue = new BallotItemValue()
+                        ballotItemValue.ballotItem = ballotItem;
+                        ballotItemValue.index = templateBallotItemValue.index
+                        ballotItemValue.code = templateBallotItemValue.code
+                        ballotItemValue.name = templateBallotItemValue.name
+                        ballotItemValue.title = templateBallotItemValue.title
+                        ballotItemValue.imageUrl = templateBallotItemValue.imageUrl
+                        ballotItemValue.votedValue = 0
+        
+                        await ballotItemValueRepository.save(ballotItemValue);
+        
+                    }
+
+                    for (var templateBallotItemSubject of templateBallotItem.templateBallotItemSubjects)
+                        {
+                            var newBallotItemSubject = new BallotItemSubject()
+                            newBallotItemSubject.ballotItem = ballotItem;
+                            newBallotItemSubject.index = templateBallotItemSubject.index
+                            newBallotItemSubject.code = templateBallotItemSubject.code
+                            newBallotItemSubject.name = templateBallotItemSubject.name
+                            newBallotItemSubject.imageUrl = templateBallotItemSubject.imageUrl
+            
+                            await ballotItemSubjectRepository.save(newBallotItemSubject);
+            
+                        }
+        
+                }
+
+            }
+
+            
+        }
+    })
+
+    return {status: 1,  message: "election_created_successfuly" };
+}
+
+export const serviceCreateRaiting = async () => {
     
     var exElections =  await electionRepository.find({where:  {actualStatusSchedule: { status: {jobProcessingFlag: true}}}})
     if (exElections.length > 0) { return {status: 0,  message: "not_complete_elections_exists"};}
