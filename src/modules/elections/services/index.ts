@@ -45,7 +45,7 @@ export const serviceCreateElection = async (templateId: number) => {
     var dateValue = dateNowMinute();
 
     var template = await templateRepository.findOne({ 
-        where: { isActive: true },
+        where: {id: templateId, isActive: true },
         relations: { templateBallots: {ballotType: true, templateBallotItems: {templateBallotItemValues: true, templateBallotItemSubjects: true}  }, statusSchedule: true},
         order: {templateBallots: {index: +1, templateBallotItems: {index: +1, templateBallotItemValues: {index: +1}} }, statusSchedule: {id: +1} }
     })
@@ -140,6 +140,8 @@ export const serviceCreateElection = async (templateId: number) => {
                     ballotItem.name = delegateGroup.name;
                     ballotItem.hasItemValue = (delegateGroup.delegates.length > 0)
                     ballotItem.numberOfItemValue = delegateGroup.delegates.length > 10 ? 10 : delegateGroup.delegates.length;
+
+
                     await ballotItemRepository.save(ballotItem);
         
                     var itemValueindex = 0;
@@ -153,6 +155,7 @@ export const serviceCreateElection = async (templateId: number) => {
                         ballotItemValue.title = delegateGroup.name
                         ballotItemValue.index = itemValueindex 
                         ballotItemValue.imageUrl = delegateGroup.code
+                        ballotItemValue.votedValue = 0
 
                         await ballotItemValueRepository.save(ballotItemValue);
         
