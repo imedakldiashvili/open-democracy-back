@@ -17,7 +17,8 @@ export const getLoginUser = async (loginEmail: string) => {
 
     const email = loginEmail.toLocaleLowerCase();
     const loginUser = await userRepository.findOne({
-        where: { email: email }
+        where: { email: email },
+        relations: {userDetail: true}
     })
 
     if (loginUser === null) {
@@ -101,6 +102,7 @@ export const createSession = async (loginUser: any, deviceUid: string, passwordI
     newSession.sessionUid = sessionUid
     newSession.user = loginUser
     newSession.passwordIsTemporary = passwordIsTemporary
+    
     const loginSesion = await userSessionRepository.save(newSession)
 
     const token = generateToken(loginSesion)
