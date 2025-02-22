@@ -471,8 +471,7 @@ export const servicePublishElection = async (electionId: number) => {
 
     var newVotingCardsBallots = await votingCardRepository.createQueryBuilder()
         .select(['VotingCard.id "votingCardId"', 'bl.id "ballotId"', 'bl.index index'])
-        .innerJoin('ballots', 'bl', 'bl.election_id = VotingCard.election_id')
-        .innerJoin('ballots_districts', 'bl_ds', 'bl_ds.ballot_id = bl.id and VotingCard.district_id = bl_ds.district_id ')
+        .innerJoin('ballots', 'bl', 'bl.election_id = VotingCard.election_id and (VotingCard.district_id = bl.district_id or bl.district_id = 0)')
         .where('"VotingCard".election_id = :election_id', { election_id: electionId })
         .getRawMany()
 
