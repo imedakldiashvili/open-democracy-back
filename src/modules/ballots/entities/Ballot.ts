@@ -19,37 +19,26 @@ export class Ballot {
     @Column()
     name: string
 
+    @Column()
+    districtId: number
 
-    @ManyToMany(() => District)
-    @JoinTable(
-        {
-            name: 'ballots_districts', // table name for the junction table of this relation
-            joinColumn: {
-                name: 'ballot_id',
-                referencedColumnName: 'id'
-
-            },
-            inverseJoinColumn: {
-                name: 'district_id',
-                referencedColumnName: 'id'
-            }
-        }
-    )
-    districts: District[]
-
+    @OneToOne(() => District)
+    @JoinColumn()
+    district: District
+    
+    @Column()
+    electionId: number
 
     @OneToOne(() => Election)
     @JoinColumn()
     election: Election
-
+    
     @Column()
     ballotTypeId: number
 
     @OneToOne(() => BallotType)
     @JoinColumn()
     ballotType: BallotType
-
-
 
     @OneToMany(() => BallotItem, (ballotItem) => ballotItem.ballot)
     ballotItems: BallotItem[]

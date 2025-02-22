@@ -107,14 +107,6 @@ export const createSession = async (loginUser: any, deviceUid: string, passwordI
     const refershToken = null // generateRefreshToken(loginSesion)
 
     return ({
-        session: {
-            userId: loginSesion.user.id,
-            deviceUid: loginSesion.deviceUid,
-            sessionUid: newSession.sessionUid,
-            passwordIsTemporary: passwordIsTemporary,
-            voter: voter,
-            user: loginUser
-        },
         token: token,
         refershToken: refershToken
     });

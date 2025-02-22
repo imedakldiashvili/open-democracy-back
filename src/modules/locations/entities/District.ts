@@ -3,6 +3,7 @@ import { Ballot } from "../../ballots/entities"
 import { Region } from "./Region"
 import { Election } from "../../elections/entities"
 import { UserDetail } from "../../users/entities"
+import { TemplateBallotDistrict } from "../../templates/entities/TemplateBallotDistrict"
 
 @Entity('districts')
 export class District {
@@ -58,5 +59,11 @@ export class District {
 
     @OneToMany(() => UserDetail, (userDetail) => userDetail.district)
     userDetails: UserDetail[]
+
+
+    @OneToMany(() => TemplateBallotDistrict, (templateBallotDistrict) => templateBallotDistrict.district)
+    templateBallotDistricts: TemplateBallotDistrict[]
+
+    
 
 }

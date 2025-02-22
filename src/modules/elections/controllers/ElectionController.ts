@@ -47,7 +47,7 @@ class ElectionControler {
             const {electionId} = req.body;
             const Elections = await electionRepository.findOne({
                 where: {id: electionId, statusSchedule: {state: MoreThan(ElectionStatusEnum.new)} },
-                relations: {actualStatusSchedule: {status: true} , statusSchedule: true, ballots: {ballotType: true, districts: true}}
+                relations: {actualStatusSchedule: {status: true} , statusSchedule: true, ballots: {ballotType: true}}
             });
             return res.json(Elections);
         } catch (error) {

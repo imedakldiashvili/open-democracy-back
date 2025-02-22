@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn, OneToOne
 import { Template } from "./Template"
 import { BallotType } from "../../ballots/entities"
 import { TemplateBallotItem } from "./TemplateBallotItem"
+import { TemplateBallotDistrict } from "./TemplateBallotDistrict"
 
 
 
@@ -29,17 +30,14 @@ export class TemplateBallot {
     @JoinColumn()
     ballotType: BallotType
 
-    @Column()
-    isLocal: boolean
-
-        
-    @Column()
-    isDelegateGroup: Boolean
-    
-    @Column()
-    districtId: number
 
     @OneToMany(() => TemplateBallotItem, (templateBallotItem) => templateBallotItem.templateBallot)
     templateBallotItems: TemplateBallotItem[] 
+
+    @OneToMany(() => TemplateBallotDistrict, (templateBallotDistrict) => templateBallotDistrict.templateBallot)
+    templateBallotDistricts: TemplateBallotDistrict[] 
+
+
+    
    
 }

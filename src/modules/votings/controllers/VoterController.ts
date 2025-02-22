@@ -69,62 +69,6 @@ class VoterController {
     };
 
 
-    static getNewVotingCard = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const { electionId, voterId } = req.body;
-            
-            const election = await electionRepository.findOneOrFail({
-                where: { id: electionId, actualStatusSchedule: { status: {id:1 }}, }
-            });
-
-            const ballots = await ballotRepository.find({
-                relations: {ballotType: true, ballotItems: {ballotItemValues: true} },
-                where: { election: { id: electionId }, districts: { userDetails: { id: voterId } } },
-                order: { index: "ASC", ballotItems: { code: "ASC" } }
-            });
-
-            const voter = await userDetailRepository.findOneOrFail({
-                relations: { district: true },
-                where: { id: voterId }
-            })
-
-            const votingCard = { voter, election, ballots }
-
-            return res.json(votingCard);
-        } catch (error) {
-            next(error)
-        }
-    };
-
-
-    static newVotingCard = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const { electionId, voterId } = req.body;
-
-            const election = await electionRepository.findOneOrFail({
-                where: { id: electionId, actualStatusSchedule:{status: {id: 1 }} }
-            });
-
-            const ballots = await ballotRepository.find({
-                relations: {ballotType: true, ballotItems: {ballotItemValues: true} },
-                where: { election: { id: electionId }, districts: { userDetails: { id: voterId } } },
-                order: { index: "ASC", ballotItems: { code: "ASC" } }
-            });
-
-            const voter = await userDetailRepository.findOneOrFail({
-                relations: { district: true },
-                where: { id: voterId }
-            })
-
-            const votingCard = { voter, election, ballots }
-
-            return res.json(votingCard);
-        } catch (error) {
-            next(error)
-        }
-    };
-
-
     static findVoter = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const Voters = await userDetailRepository.find();
