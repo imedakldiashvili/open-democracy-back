@@ -212,7 +212,7 @@ export const serviceCreateElection = async (templateId: number) => {
                     }
                 }
 
-                if (tempateBallot.ballotType.ballotSourceId == 2) {
+                if (tempateBallot.ballotType.ballotSourceId == 3) {
                     var delegates = await delegateRepository.find({
                         where: {isActive: true },
                         relations: {  user: {userDetail: true}  },
