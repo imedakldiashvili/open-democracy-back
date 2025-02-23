@@ -22,7 +22,7 @@ export class BallotType {
     
 
     @Column()
-    byDelegateGroup: boolean    
+    ballotSourceId: number 
 
     @Column()
     isActive: boolean
