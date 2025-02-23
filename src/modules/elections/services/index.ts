@@ -132,6 +132,7 @@ export const serviceCreateElection = async (templateId: number) => {
                         where: {isActive: true},
                         order: { number: +1 }
                     });
+
                     for (var delegatesGroup of delegatesGroups) {
                         itemIndex++;
                         var ballotItem = new BallotItem()
@@ -145,8 +146,6 @@ export const serviceCreateElection = async (templateId: number) => {
                         ballotItem.numberOfItemValue = delegatesGroup.delegates.length ;
     
                         await ballotItemRepository.save(ballotItem);
-    
-                        if (!templateBallotItem.hasItemValue) { continue; }
 
                         for (var delegate of delegatesGroup.delegates) {
                             var ballotItemValue = new BallotItemValue()
