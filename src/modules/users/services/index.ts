@@ -18,7 +18,7 @@ export const getLoginUser = async (loginEmail: string) => {
     const email = loginEmail.toLocaleLowerCase();
     const loginUser = await userRepository.findOne({
         where: { email: email },
-        relations: {userDetail: true}
+        relations: {userDetail: {district: true}}
     })
 
     if (loginUser === null) {
