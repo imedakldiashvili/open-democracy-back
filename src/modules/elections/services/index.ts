@@ -185,7 +185,7 @@ export const serviceCreateElection = async (templateId: number) => {
     
                         ballotItem.ballot = ballot
                         ballotItem.index = itemIndex,
-                        ballotItem.code = delegatesGroup.number.toString();
+                        ballotItem.code = delegatesGroup.color;
                         ballotItem.name = delegatesGroup.name;
                         ballotItem.imageUrl = delegatesGroup.imageUrl;
                         ballotItem.hasItemValue = delegatesGroup.delegates.length > 0
