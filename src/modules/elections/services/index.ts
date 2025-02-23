@@ -235,7 +235,7 @@ export const serviceCreateElection = async (templateId: number) => {
                     if (delegates.length == 0)
                     {
                         await ballotRepository.remove(ballot);
-                        break;
+                        continue;
                     }
 
                     var itemIndex = 0;
