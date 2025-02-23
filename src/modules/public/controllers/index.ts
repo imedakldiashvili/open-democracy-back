@@ -27,7 +27,7 @@ class PublicControler {
         try {
             const Elections = await electionRepository.findOne({
                 where: { id: electionId, statusSchedule: { status: { stage: { isActual: true } } } },
-                relations: { actualStatusSchedule: { status: { stage: true } }, statusSchedule: { status: true }, ballots: { ballotItems: { ballotItemValues: true, ballotItemSubjects: true } } },
+                relations: { actualStatusSchedule: { status: { stage: true } }, statusSchedule: { status: true }, ballots: { district: true, ballotItems: { ballotItemValues: true, ballotItemSubjects: true } } },
                 order: { statusSchedule: { status: { id: -1 } }, ballots: { index: +1, ballotItems: { index: +1, ballotItemSubjects: { index: +1 }, ballotItemValues: {votedValue: -1, index: +1} } } }
             });
             return res.json(Elections);
