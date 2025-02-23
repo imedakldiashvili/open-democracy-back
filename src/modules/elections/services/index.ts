@@ -160,6 +160,7 @@ export const serviceCreateElection = async (templateId: number) => {
                             await ballotItemValueRepository.save(ballotItemValue);
     
                         }
+
                         var newBallotItemSubject = new BallotItemSubject()
                         newBallotItemSubject.ballotItem = ballotItem;
                         newBallotItemSubject.index = delegatesGroup.number
@@ -229,6 +230,12 @@ export const serviceCreateElection = async (templateId: number) => {
                     if (templateBallotDistrict.districtId != 0)
                     {
                         delegates = delegates.filter(d=> d.user.userDetail.districtId == templateBallotDistrict.districtId)
+                    }
+
+                    if (delegates.length == 0)
+                    {
+                        await ballotRepository.remove(ballot);
+                        break;
                     }
 
                     var itemIndex = 0;
