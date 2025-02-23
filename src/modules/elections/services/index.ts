@@ -138,7 +138,7 @@ export const serviceCreateElection = async (templateId: number) => {
                         var ballotItem = new BallotItem()
     
                         ballotItem.ballot = ballot
-                        ballotItem.index = itemIndex,
+                        ballotItem.index = delegatesGroup.number,
                         ballotItem.code = delegatesGroup.color;
                         ballotItem.name = delegatesGroup.name;
                         ballotItem.imageUrl = delegatesGroup.imageUrl;
