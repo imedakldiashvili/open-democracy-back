@@ -25,7 +25,10 @@ export class BallotItem {
 
     @Column()
     hasItemValue: boolean
-        
+
+    @Column()
+    isItemValueReadonly: boolean
+
     @Column()
     numberOfItemValue: number
 

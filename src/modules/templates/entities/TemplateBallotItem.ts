@@ -38,9 +38,11 @@ export class TemplateBallotItem {
     @JoinColumn()
     templateBallot: TemplateBallot
 
-
     @Column()
     hasItemValue: boolean
+
+    @Column()
+    isItemValueReadonly: boolean
 
     @Column()
     numberOfItemValue: number
