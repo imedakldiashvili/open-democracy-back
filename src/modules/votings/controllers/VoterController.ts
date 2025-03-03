@@ -133,8 +133,8 @@ class VoterController {
                     for (const value of votedBallot.ballotItem.ballotItemSelectedValues) {
                         const voteBallotItemValue = new VoteBallotItemValue()
                         voteBallotItemValue.voteBallotItemId = voteBallotItem.id
-                        voteBallotItemValue.ballotItemValueNumber = value.index
-                        voteBallotItemValue.ballotItemValue = await ballotItemValueRepository.findOneByOrFail({ id: value.id })
+                        voteBallotItemValue.ballotItemValueId = value.id
+                        voteBallotItemValue.ballotItemValueNumber = value.votedValue
                         await transactionalEntityManager.save(voteBallotItemValue)
                     }
                 }
