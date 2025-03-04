@@ -267,11 +267,11 @@ export const addUserInivitation = async (mobileNumber: string, fullName: string,
     
     await serviceAddUserInivitaionAction({ sessionUid, inivitaitaionId, createdUserId, mobileNumber, fullName, email })
 
-    const smsText = "welcome to primaries.ge\n" 
-                    + fullName 
-                    + "\n" + email 
-                    + "\n" 
-                    + "message sent by " + senderUser.userDetail.fullName;            
+    const smsText =   "Hello " + fullName +'\n'
+                    + "welcome to primaries.ge\n" 
+                    + "email:" + email + "\n" 
+                    + "message sent by" + "\n" 
+                    + senderUser.userDetail.fullName;            
     if (mobileNumber) { await sendSMS(mobileNumber, smsText) } 
 
 
