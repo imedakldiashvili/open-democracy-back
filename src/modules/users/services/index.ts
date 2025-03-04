@@ -248,6 +248,9 @@ export const addUserInivitation = async (mobileNumber: string, fullName: string,
     
     const createdUserId = createdBy
 
+
+    var senderUser = await userRepository.findOne({ where: { id:createdUserId }, relations: {userDetail: true} })
+
     var exUserInivitations = await userInivitationRepository.find({where: {statusId: MoreThanOrEqual(0), createdUserId: createdBy,  email: email}});
     
     let inivitaitaionId = 0;
@@ -263,6 +266,11 @@ export const addUserInivitation = async (mobileNumber: string, fullName: string,
     inivitaitaionId = newUserInivitation.id;
     
     await serviceAddUserInivitaionAction({ sessionUid, inivitaitaionId, createdUserId, mobileNumber, fullName, email })
+
+    const smsText = "welcome to primaries.ge: " + fullName + " message sent by " + senderUser.userDetail.fullName;            
+    if (mobileNumber) { await sendSMS(mobileNumber, smsText) } 
+
+
     return newUserInivitation;
     
 };
