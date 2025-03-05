@@ -140,7 +140,7 @@ class PublicControler {
                 skip: skip,
                 take: take,
 
-                select: { 
+                select: { id: true, imageUrl: true,
                     user: {id: true, userDetail: {id: true, fullName: true, firstName: true, lastName: true,  
                                      district: { id: true, name: true, 
                                                  region: { id: true, name: true } } }},

@@ -30,5 +30,8 @@ export class Delegate {
     @OneToOne(() => User)
     @JoinColumn()
     user: User
+
+    @Column()
+    imageUrl: string
    
 }
