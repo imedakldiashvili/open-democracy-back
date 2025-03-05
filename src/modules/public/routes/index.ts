@@ -17,5 +17,8 @@ publicRouter.post("/public/supporters", PublicControler.finSupporters)
 publicRouter.post("/public/delegates", PublicControler.findDelegates)
 publicRouter.post("/public/delegatesgroups", PublicControler.findDelegatesGroups)
 
+publicRouter.post("/public/createElection", PublicControler.createElection)
+
+
 
 export default publicRouter;

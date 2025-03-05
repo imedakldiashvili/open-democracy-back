@@ -7,6 +7,7 @@ import { votingCardRepository } from '../../votings/repositories';
 import { delegateGroupRepository, delegateRepository } from '../../delegates/repositories';
 import { getTake, getSkip } from '../../../utils/pagination';
 import { serviceBankAccounts } from '../../banks/services';
+import { serviceCreateElection } from '../../elections/services';
 
 class PublicControler {
 
@@ -163,6 +164,17 @@ class PublicControler {
                 relations: { delegates: { user: { userDetail: true } } },
             });
             return res.json(data);
+        } catch (error) {
+            next(error)
+        }
+
+    };
+
+
+    static createElection = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            var resut = await serviceCreateElection(1000)
+            return res.json(resut.message);
         } catch (error) {
             next(error)
         }
