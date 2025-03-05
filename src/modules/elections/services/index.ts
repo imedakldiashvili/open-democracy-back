@@ -156,7 +156,7 @@ export const serviceCreateElection = async (templateId: number) => {
                             ballotItemValue.code = delegate.user.userDetail.code
                             ballotItemValue.name = delegate.user.userDetail.fullName
                             ballotItemValue.title = delegatesGroup.name
-                            ballotItemValue.imageUrl = delegate.user.userDetail.code
+                            ballotItemValue.imageUrl = delegate.imageUrl
                             ballotItemValue.votedValue = 0
     
                             await ballotItemValueRepository.save(ballotItemValue);
