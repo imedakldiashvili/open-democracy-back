@@ -7,7 +7,10 @@ class DistrictControler {
     
     static findAll = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const Districts = await districtRepository.find({relations: {region: true}});
+            const Districts = await districtRepository.find({
+                relations: {region: true},
+                order: {regionId: 'ASC', name: 'ASC'}
+            });
             return res.json(Districts);
         } catch (error) {
             next(error)
