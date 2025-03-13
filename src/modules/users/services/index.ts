@@ -211,18 +211,13 @@ export const checkOTP = async (target: string, deviceUid: string, type: string, 
 
 export const verification = async (deviceUid: string, personalId: string, fistName: string,  lastName: string, userId: number) => {
 
-    const userPersonalIds = await userPersonalIdRepository.find({
-        where: {
-            personalId: personalId
-            , statusId: 1
-        }
-    });
+    const userPersonalIds = await userPersonalIdRepository.find({where: { personalId: personalId, statusId: 1}});
 
     if (userPersonalIds.length != 1) { throwBadRequest("user_personal_id_not_found") }
 
     const exUserDetails = await userDetailRepository.find({where: {code: personalId}})
 
-    if (exUserDetails.length >= 0) { throwBadRequest("user_personal_id_already_exsits") }
+    if (exUserDetails.length > 0) { throwBadRequest("user_personal_id_already_exsits") }
 
     var userPersonalId = userPersonalIds[0]
     userPersonalId.statusId = 2
