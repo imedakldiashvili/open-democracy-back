@@ -220,6 +220,10 @@ export const verification = async (deviceUid: string, personalId: string, fistNa
 
     if (userPersonalIds.length != 1) { throwBadRequest("user_personal_id_not_found") }
 
+    const exUserDetails = await userDetailRepository.find({where: {code: personalId}})
+
+    if (exUserDetails.length != 1) { throwBadRequest("user_personal_id_already_exsits") }
+
     var userPersonalId = userPersonalIds[0]
     userPersonalId.statusId = 2
     await userPersonalIdRepository.save(userPersonalId)
