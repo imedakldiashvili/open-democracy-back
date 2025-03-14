@@ -209,7 +209,7 @@ export const checkOTP = async (target: string, deviceUid: string, type: string, 
     return result
 }
 
-export const verification = async (deviceUid: string, personalId: string, fistName: string,  lastName: string, userId: number) => {
+export const verification = async (deviceUid: string, personalId: string, fistName: string,  lastName: string, userId: number, mobileNumber: string, mobileNumberVerificationOtpId: number ) => {
 
     const userPersonalIds = await userPersonalIdRepository.find({where: { personalId: personalId, statusId: 1}});
     if (userPersonalIds.length != 1) { throwBadRequest("user_personal_id_not_found") }
@@ -218,6 +218,12 @@ export const verification = async (deviceUid: string, personalId: string, fistNa
     const exUserDetails = await userDetailRepository.find({where: {code: personalId}})
     if (exUserDetails.length > 0) { throwBadRequest("user_personal_id_already_exsits") }
 
+    var exUser = await userRepository.findOneByOrFail({id: userId})
+
+    exUser.mobileNumber = mobileNumber;
+    exUser.mobileNumberVerificationOtpId = mobileNumberVerificationOtpId;
+    await userRepository.save(exUser)
+    
     var newUserDetail = new UserDetail()
     newUserDetail.id = userId
     newUserDetail.code = personalId;
@@ -228,6 +234,7 @@ export const verification = async (deviceUid: string, personalId: string, fistNa
     newUserDetail.isActive = true
     newUserDetail.isDelegate = false
     await userDetailRepository.save(newUserDetail)
+
 
     userPersonalId.statusId = 2
     await userPersonalIdRepository.save(userPersonalId)
