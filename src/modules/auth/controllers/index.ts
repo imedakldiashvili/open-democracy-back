@@ -21,7 +21,7 @@ class AuthContoller {
         try {
             const {deviceUid, email} = req.body;  
 
-            const newEmail = email.toLowerCase();
+            const newEmail = email.toLowerCase().trim();
             const users = await userRepository.find({where: {email: newEmail}});
             
             if (users.length > 1) { 
@@ -59,12 +59,11 @@ class AuthContoller {
         }
     };
 
-
     static signUpOTP = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const {deviceUid, email} = req.body;  
 
-            const newEmail = email.toLowerCase();
+            const newEmail = email.toLowerCase().trim();
             const users = await userRepository.find({where: {email: newEmail}});
             if (users.length > 0) { throwBadRequest("email_already_exists") }
 
@@ -84,7 +83,7 @@ class AuthContoller {
         try {
             const {deviceUid, email, password, emailOtpCode} = req.body;  
             
-            const newEmail = email.toLowerCase();
+            const newEmail = email.toLowerCase().trim();
             const users = await userRepository.find({where: {email: newEmail}});
 
             if (users.length > 0) { throwBadRequest("email_already_exists") }
@@ -113,7 +112,7 @@ class AuthContoller {
     static signIn = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const {deviceUid, email, password}  = req.body
-            var result = await loginUserService(deviceUid, email.toLowerCase(), password)
+            var result = await loginUserService(deviceUid, email.toLowerCase().trim(), password)
             return res.json(result);
 
         } catch (error) {
@@ -124,7 +123,7 @@ class AuthContoller {
     static resetPasswordOTP = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const {deviceUid, email} = req.body;  
-            const exEmail = email.toLowerCase();
+            const exEmail = email.toLowerCase().trim();
             const users = await userRepository.find({where: {email: exEmail}});
             if (users.length != 1) { throwBadRequest("email_doesnot_exists") }
             var user = users[0];
@@ -145,7 +144,7 @@ class AuthContoller {
         try {
             const {deviceUid, email, password, emailOtpCode} = req.body;  
 
-            const newEmail = email.toLowerCase();
+            const newEmail = email.toLowerCase().trim();
             const users = await userRepository.find({where: {email: newEmail}});
             if (users.length != 1) { throwBadRequest("email_already_exists") }
             const user = users[0]
