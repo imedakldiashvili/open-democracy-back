@@ -19,6 +19,7 @@ userRouter.post("/Users/changePassword", UserController.changePassword)
 userRouter.post("/Users/changeMobileOtp", UserController.changeMobileOtp)
 userRouter.post("/Users/changeMobile", UserController.changeMobile)
 
+userRouter.post("/Users/verificationCheck", UserVerificationController.verificationCheck)
 userRouter.post("/Users/verificationOTP", UserVerificationController.verificationOTP)
 userRouter.post("/Users/verification", UserVerificationController.verification)
 

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 
-import { addOTP, checkOTP, setLocation, verification } from '../services';
+import { addOTP, checkOTP, setLocation, verification, verificationCheck } from '../services';
 import { sendSMS } from '../../notifications/smsApi';
 
 
@@ -29,6 +29,18 @@ class UserVerificationController {
         }
     };
 
+    static verificationCheck = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+
+            const {personalId} = req.body;
+            const deviceUid = req.body.userSession.deviceUid
+            const result = await verificationCheck(personalId)
+            
+            return res.json(result);
+        } catch (error) {
+            next(error)
+        }
+    };
 
 
     static verification = async (req: Request, res: Response, next: NextFunction) => {
