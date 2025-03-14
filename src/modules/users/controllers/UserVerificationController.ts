@@ -34,11 +34,11 @@ class UserVerificationController {
     static verification = async (req: Request, res: Response, next: NextFunction) => {
         try {
 
-            const {personalId, firstName, lastName, mobileNumber, apptovalCode } = req.body;
+            const {personalId, firstName, lastName, mobileNumber, approvalCode} = req.body;
             const userId = req.body.userSession.user.id
             const deviceUid = req.body.userSession.deviceUid
 
-            const resultOtp = await checkOTP("verification", deviceUid, "mobile", mobileNumber, userId, apptovalCode)
+            const resultOtp = await checkOTP("verification", deviceUid, "mobile", mobileNumber, userId, approvalCode)
 
             const result = await verification(deviceUid
                                             , personalId
