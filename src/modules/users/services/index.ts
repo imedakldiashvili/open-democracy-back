@@ -106,7 +106,7 @@ export const createSession = async (loginUser: any, deviceUid: string, passwordI
     const loginSesion = await userSessionRepository.save(newSession)
 
     const token = generateToken(loginSesion)
-    const refershToken = null // generateRefreshToken(loginSesion)
+    const refershToken = generateRefreshToken(loginSesion) // generateRefreshToken(loginSesion)
 
     return ({
         token: token,
