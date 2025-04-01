@@ -17,6 +17,8 @@ export class VoteBallotItemValue {
     @Column()
     ballotItemValueId: number 
 
+    @Column()
+    ballotItemId: number 
 
     @OneToOne(() => BallotItemValue)
     @JoinColumn()

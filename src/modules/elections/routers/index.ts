@@ -13,5 +13,6 @@ electionRouter.post("/elections/findActiveByVoter", ElectionControler.findActive
 electionRouter.post("/elections/create", ElectionControler.createElection)
 electionRouter.post("/elections/publish", ElectionControler.publicElection)
 electionRouter.post("/elections/process", ElectionControler.processElection)
+electionRouter.post("/elections/complete", ElectionControler.completeElection)
 
 export default electionRouter;

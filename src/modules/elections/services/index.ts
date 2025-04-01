@@ -320,7 +320,7 @@ export const serviceProcessElection = async () => {
     }
 
     if (newElectionStatusSchedule.status.id == ElectionStatusEnum.finished) {
-        await serviceCompleteElectionVotingCards(election.id)
+        await serviceCompleteElection(election.id)
         election = await electionRepository.findOne({ where: { id: election.id } })
     }
 
@@ -367,7 +367,7 @@ export const servicePublishElection = async (electionId: number) => {
     return { status: 1, message: "election_published_successfuly" };
 }
 
-export const serviceCompleteElectionVotingCards = async (electionId: number) => {
+export const serviceCompleteElection = async (electionId: number) => {
     var election = await electionRepository.findOne({
         where: { id: electionId },
         relations: { statusSchedule: { status: true } }
@@ -389,6 +389,8 @@ export const serviceCompleteElectionVotingCards = async (electionId: number) => 
         relations: { ballot: true }
     })
 
+    
+
     for (var ballotItem of ballotItems) {
         var numberOfParticipants = await voteBallotItemRepository.count({ where: { ballotId: ballotItem.ballot.id } })
         var numberOfVotes = await voteBallotItemRepository.count({ where: { ballotItemId: ballotItem.id } })
@@ -397,6 +399,51 @@ export const serviceCompleteElectionVotingCards = async (electionId: number) => 
         ballotItem.numberOfVotes = numberOfVotes
         ballotItem.valuePercent = numberOfParticipants ? Math.round((numberOfVotes / numberOfParticipants) * 100) : 0
 
+
+        if(ballotItem.numberOfItemValue > 0)
+        {
+            var itemNumber = 0
+            // console.log("numberOfItemValue", ballotItem.code, ballotItem.numberOfItemValue )
+            while(itemNumber < ballotItem.numberOfItemValue) 
+            {
+                itemNumber++
+                const result = await votegBallotItemValueRepository
+                .createQueryBuilder("item")
+                .where("item.ballot_item_value_number <= :itemNumber and item.ballot_item_value_id not in (select id from public.ballots_items_values where  (voted_value = 0) and (ballot_item_value_id = :ballotItemId))", {itemNumber: itemNumber, ballotItemId: ballotItem.id})
+                .select("item.ballot_item_value_id", "ballotItemValueId") // Select the ballot_item_value_id column
+                .addSelect("item.ballot_item_value_number", "ballotItemValueNumber")  // Select the ballot_item_value_number column
+                .addSelect("COUNT(*)", "count") // Count ballot_item_value_number in each ballot_item_value_id
+                .groupBy("item.ballotItemValueNumber") // Group by ballot_item_value_number
+                .addGroupBy("item.ballot_item_value_id") // Group by ballot_item_value_id
+                .orderBy("item.ballot_item_value_number")
+                .addOrderBy("count")
+                .getRawMany(); // Get raw result (since aggregation returns custom columns)
+    
+                // console.log("result", itemNumber )
+
+                if (result.length > 0)
+                {
+                    for(var itemValue of result.filter(e=> e.ballotItemValueNumber == itemNumber))
+                    {
+                        var ballotItemValue =  await ballotItemValueRepository.findOneOrFail( { where: {id: itemValue.ballotItemValueId}})
+                        ballotItemValue.votedValue = itemValue.ballotItemValueNumber;
+                        await ballotItemValueRepository.save(ballotItemValue)
+                    }
+                }                
+            }
+        }
+
+
+
+        var votegBallotItemValuesPositionsGroup = votegBallotItemValueRepository.createQueryBuilder()
+                                                                                .groupBy("votes_ballots_items_values.id")
+                                                                                .addGroupBy("votes_ballots_items_values.ballot_item_value_number")
+                                                                                .select( )
+
+
+
+
+        var votegBallotItemValues = await votegBallotItemValueRepository.find({where: {ballotItemValueId:  ballotItem.id}})
         // if (!ballotItem.ballotItemValues)
         // {
         //     for(var ballotItemValue of ballotItem.ballotItemValues  )
