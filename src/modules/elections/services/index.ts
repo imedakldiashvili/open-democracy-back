@@ -433,27 +433,6 @@ export const serviceCompleteElection = async (electionId: number) => {
             }
         }
 
-
-
-        var votegBallotItemValuesPositionsGroup = votegBallotItemValueRepository.createQueryBuilder()
-                                                                                .groupBy("votes_ballots_items_values.id")
-                                                                                .addGroupBy("votes_ballots_items_values.ballot_item_value_number")
-                                                                                .select( )
-
-
-
-
-        var votegBallotItemValues = await votegBallotItemValueRepository.find({where: {ballotItemValueId:  ballotItem.id}})
-        // if (!ballotItem.ballotItemValues)
-        // {
-        //     for(var ballotItemValue of ballotItem.ballotItemValues  )
-        //     {
-        //         var nummberVotedBallotItemValue =  await votegBallotItemValueRepository.count({where: {ballotItemValue: {id: ballotItemValue.id}}});
-        //         ballotItemValue.votedValue = nummberVotedBallotItemValue;            
-        //     }
-        // }
-
-
         await ballotItemRepository.save(ballotItem)
     }
 
