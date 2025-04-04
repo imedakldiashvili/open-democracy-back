@@ -14,6 +14,9 @@ export class UserSession {
     @Column()
     deviceUid: string
 
+    @Column()
+    userId: number
+
     @OneToOne(() => User)
     @JoinColumn()
     user: User

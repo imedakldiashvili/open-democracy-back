@@ -18,7 +18,9 @@ import { userSessionRepository } from '../../modules/users/repositories';
 export const generateToken = (userSession: UserSession) => {
   const secret = keys.ACCESS_TOKEN_SECRET_KEY
   const token = jwt.sign({
-    userSession: userSession
+    userId: userSession.userId,
+    userEmail: userSession.user.email,
+    sessionId: userSession.id
   },
     secret,
     {
@@ -31,7 +33,9 @@ export const generateToken = (userSession: UserSession) => {
 export const generateRefreshToken = (userSession: UserSession) => {
   const secret = keys.REFRESH_TOKEN_SECRET_KEY
   const token = jwt.sign({
-    userSession: userSession
+    userId: userSession.userId,
+    userEmail: userSession.user.email,
+    sessionId: userSession.id
   },
     secret,
     {
@@ -63,8 +67,11 @@ export const validateToken = async (req: Request, res: Response, next: NextFunct
     } 
     
     if (typeof decodedToken !== "string") {
-      const userSession = decodedToken.userSession;
-      const activeSessions = await userSessionRepository.find({ where: { id: userSession.id, sessionUid: userSession.sessionUid,deviceUid: userSession.deviceUid, isActive: true  }, relations: { user: true } });
+      const { userId, userEmail, sessionId } = decodedToken;
+      const activeSessions = await userSessionRepository.find({ 
+        where: { userId: userId, id: sessionId, isActive: true  }, 
+        relations: { user: true } 
+      });
       if (activeSessions.length != 1) {
         throw AppError.unauthorized("session not found");
       }
