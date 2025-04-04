@@ -1,13 +1,10 @@
 import { NextFunction, Request, Response } from 'express'
 
-import { AppError } from '../../../middlewares/error';
+import { throwBadRequest } from '../../../middlewares/error';
 
-import { User, UserPassword } from '../entities';
-
-import { userPasswordRepository, userRepository, userSessionRepository } from '../repositories';
+import { userRepository, userSessionRepository } from '../repositories';
 import { dateNow } from '../../../utils';
 import { addOTP, addPassword, changeMobile, checkOTP, checkPassword, loginUserService, refreshSessionService } from '../services';
-import settings from '../../../settings';
 import { sendSMS } from '../../notifications/smsApi';
 
 
@@ -15,6 +12,37 @@ import { sendSMS } from '../../notifications/smsApi';
 
 
 class UserController {
+    
+
+    static session= async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const userId = req.body.userSession.userId
+            const sessionUid = req.body.userSession.sessionUid
+            const deviceUid = req.body.userSession.deviceUid
+            const userSessions = await userSessionRepository.find({
+                where: {userId: userId, sessionUid: sessionUid, isActive: true},
+                relations: {user: {userDetail: true}}
+            });
+            if (userSessions.length != 1) { throwBadRequest("user_sessions_not_found") }
+            const userSession = userSessions[0]
+            return res.json(userSession);
+
+        } catch (error) {
+            next(error)
+        }
+    };
+    
+    static refreshSession= async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const userId = req.body.userSession.user.id
+            const deviceUid = req.body.userSession.deviceUid
+            const userSession = await refreshSessionService(userId, deviceUid)
+            return res.json(userSession);
+
+        } catch (error) {
+            next(error)
+        }
+    };    
     
     static find = async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -54,17 +82,6 @@ class UserController {
         }
     };
 
-    static refreshSession= async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const userId = req.body.userSession.user.id
-            const deviceUid = req.body.userSession.deviceUid
-            const userSession = await refreshSessionService(userId, deviceUid)
-            return res.json(userSession);
-
-        } catch (error) {
-            next(error)
-        }
-    };
 
     static changePasswordOtp= async (req: Request, res: Response, next: NextFunction) => {
         try {

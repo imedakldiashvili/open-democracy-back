@@ -67,9 +67,9 @@ export const validateToken = async (req: Request, res: Response, next: NextFunct
     } 
     
     if (typeof decodedToken !== "string") {
-      const { userId, userEmail, sessionUId } = decodedToken;
+      const { userId, userEmail, sessionUid } = decodedToken;
       const activeSessions = await userSessionRepository.find({ 
-        where: { userId: userId, sessionUid: sessionUId, isActive: true  }, 
+        where: { userId: userId, sessionUid: sessionUid, isActive: true  }, 
         relations: { user: true } 
       });
       if (activeSessions.length != 1) {
