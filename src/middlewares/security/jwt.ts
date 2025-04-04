@@ -20,7 +20,7 @@ export const generateToken = (userSession: UserSession) => {
   const token = jwt.sign({
     userId: userSession.userId,
     userEmail: userSession.user.email,
-    sessionId: userSession.id
+    sessionUid: userSession.sessionUid
   },
     secret,
     {
@@ -35,7 +35,7 @@ export const generateRefreshToken = (userSession: UserSession) => {
   const token = jwt.sign({
     userId: userSession.userId,
     userEmail: userSession.user.email,
-    sessionId: userSession.id
+    sessioUid: userSession.sessionUid
   },
     secret,
     {
@@ -67,9 +67,9 @@ export const validateToken = async (req: Request, res: Response, next: NextFunct
     } 
     
     if (typeof decodedToken !== "string") {
-      const { userId, userEmail, sessionId } = decodedToken;
+      const { userId, userEmail, sessionUId } = decodedToken;
       const activeSessions = await userSessionRepository.find({ 
-        where: { userId: userId, id: sessionId, isActive: true  }, 
+        where: { userId: userId, sessionUid: sessionUId, isActive: true  }, 
         relations: { user: true } 
       });
       if (activeSessions.length != 1) {
