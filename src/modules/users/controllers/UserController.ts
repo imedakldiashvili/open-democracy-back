@@ -21,7 +21,7 @@ class UserController {
             const deviceUid = req.body.userSession.deviceUid
             const userSessions = await userSessionRepository.find({
                 where: {userId: userId, sessionUid: sessionUid, isActive: true},
-                relations: {user: {userDetail: true}}
+                relations: {user: {userDetail: {district: true}}}
             });
             if (userSessions.length != 1) { throwBadRequest("user_sessions_not_found") }
             const userSession = userSessions[0]
