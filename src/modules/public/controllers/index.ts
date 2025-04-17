@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from 'express'
 import { electionRepository } from '../../elections/repositories';
 import { BankTransactionRepository } from '../../donations/repositories';
 import { userDetailRepository } from '../../users/repositories';
-import { votingCardRepository } from '../../votings/repositories';
+import { votegBallotItemValueRepository, votingCardRepository } from '../../votings/repositories';
 import { delegateGroupRepository, delegateRepository } from '../../delegates/repositories';
 import { getTake, getSkip } from '../../../utils/pagination';
 import { serviceBankAccounts } from '../../banks/services';
@@ -55,6 +55,36 @@ class PublicControler {
             });
             const count = await electionRepository.count()
             return res.json({ pageList, count });
+        } catch (error) {
+            next(error)
+        }
+
+    };
+
+    
+    static findVotedBallotItemList = async (req: Request, res: Response, next: NextFunction) => {
+        
+        var ballotItemId = parseInt(req.body.ballotItemId)
+
+
+        try {
+            const result = await votegBallotItemValueRepository
+                                .createQueryBuilder("value")
+                                .innerJoin("value.ballotItemValue", "ballotItemValue")
+                                .innerJoin("value.ballotItem", "ballotItem")
+                                .select("value.ballot_item_value_id", "ballotItemValueId")
+                                .addSelect("value.ballot_item_value_number", "ballotItemValueNumber")
+                                .addSelect("ballotItemValue.voted_value", "ballotitemVotedValue")
+                                .addSelect("COUNT(value.id)", "count")
+                                .where("value.ballotItemId = :ballotItemId", {ballotItemId: ballotItemId})
+                                .groupBy("value.ballot_item_value_number")
+                                .addGroupBy("value.ballot_item_value_id")
+                                .addGroupBy("ballotItemValue.voted_value")
+                                .orderBy("ballotItemValue.voted_value")
+                                .addOrderBy("value.ballot_item_value_id")
+                                .getRawMany();
+
+            return res.json(result);
         } catch (error) {
             next(error)
         }

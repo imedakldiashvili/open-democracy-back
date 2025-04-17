@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany
 import { Ballot } from "./Ballot"
 import { BallotItemValue } from "./BallotItemValue"
 import { BallotItemSubject } from "./BallotItemSubject"
+import { VoteBallotItemValue } from "../../votings/entities"
 
 
 @Entity('ballots_items')
@@ -50,6 +51,9 @@ export class BallotItem {
 
     @OneToMany(() => BallotItemSubject, (ballotItemSubject) => ballotItemSubject.ballotItem)
     ballotItemSubjects: BallotItemSubject[]
+
+    @OneToMany(() => VoteBallotItemValue, (voteBallotItemValue) => voteBallotItemValue.ballotItem)
+    voteBallotItemValue: VoteBallotItemValue[]
 
     
     

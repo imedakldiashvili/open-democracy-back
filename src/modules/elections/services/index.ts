@@ -1,4 +1,4 @@
-import { Between, LessThan, LessThanOrEqual, MoreThan, MoreThanOrEqual, Not } from "typeorm"
+import { Between, Equal, LessThan, LessThanOrEqual, MoreThan, MoreThanOrEqual, Not } from "typeorm"
 import { voteBallotItemRepository, votegBallotItemValueRepository, votingCardBallotRepository, votingCardRepository } from "../../votings/repositories"
 import { electionRepository, electionStatusRepository, electionStatusScheduleRepository } from "../repositories"
 import { templateRepository, templateStatusScheduleRepository } from "../../templates/repositories"
@@ -6,7 +6,7 @@ import { delegateGroupRepository, delegateRepository } from "../../delegates/rep
 import { Ballot, BallotItem, BallotItemValue } from "../../ballots/entities"
 import { addMinutes, dateNowMilliseconds, dateNowMinute } from "../../../utils/dates"
 import { Election } from "../entities"
-import { ballotItemRepository, ballotItemSubjectRepository, ballotItemValueRepository, ballotRepository } from "../../ballots/repositories"
+import { ballotItemRepository, ballotItemSubjectRepository, ballotItemValueRepository, ballotItemValueVoteRepository, ballotRepository } from "../../ballots/repositories"
 import { ElectionStatusSchedule } from "../entities/ElectionStatusSchedule"
 import { userDetailRepository } from "../../users/repositories"
 import { ElectionStatusEnum } from "../../enums"
@@ -15,6 +15,7 @@ import { VotingCard } from "../../votings/entities"
 import { appDataSource } from "../../../datasources"
 import { TemplateBallotItemSubject } from "../../templates/entities/TemplateBallotItemSubject"
 import { BallotItemSubject } from "../../ballots/entities/BallotItemSubject"
+import { BallotItemValueVote } from "../../ballots/entities/BallotItemValueVote"
 
 
 export const serviceCreateElection = async (templateId: number) => {
@@ -392,38 +393,57 @@ export const serviceCompleteElection = async (electionId: number) => {
     
 
     for (var ballotItem of ballotItems) {
+        const ballotItemId = ballotItem.id
+
         var numberOfParticipants = await voteBallotItemRepository.count({ where: { ballotId: ballotItem.ballot.id } })
-        var numberOfVotes = await voteBallotItemRepository.count({ where: { ballotItemId: ballotItem.id } })
+        var numberOfVotes = await voteBallotItemRepository.count({ where: { ballotItemId: ballotItemId } })
 
         ballotItem.numberOfParticipants = numberOfParticipants
         ballotItem.numberOfVotes = numberOfVotes
         ballotItem.valuePercent = numberOfParticipants ? Math.round((numberOfVotes / numberOfParticipants) * 100) : 0
 
 
+        const votesResult = await votegBallotItemValueRepository
+                .createQueryBuilder("item")
+                .where("item.ballot_item_id = :ballotItemId", {ballotItemId: ballotItemId})
+                .select("item.ballot_item_value_id", "ballotItemValueId") // Select the ballot_item_value_id column
+                .addSelect("item.voted_value", "votedValue")  // Select the ballot_item_value_number column
+                .addSelect("COUNT(*)", "count") // Count ballot_item_value_number in each ballot_item_value_id
+                .groupBy("item.voted_value") // Group by ballot_item_value_number
+                .addGroupBy("item.ballot_item_value_id") // Group by ballot_item_value_id
+                .orderBy("item.voted_value")
+                .addOrderBy("count")
+                .getRawMany(); // Get raw result (since aggregation returns custom columns)
+
+        for(var itemVote of votesResult)
+        {
+            const ballotItemValueVote = new BallotItemValueVote();
+            ballotItemValueVote.ballotItemValueId = itemVote.ballotItemValueId
+            ballotItemValueVote.votedValue =  itemVote.votedValue
+            ballotItemValueVote.numberOfVotes = itemVote.count
+            await ballotItemValueVoteRepository.save(ballotItemValueVote)
+        }
+
         if(ballotItem.numberOfItemValue > 0)
         {
-            var itemNumber = 0
-            // console.log("numberOfItemValue", ballotItem.code, ballotItem.numberOfItemValue )
-            while(itemNumber < ballotItem.numberOfItemValue) 
+            var votedValue = 0
+            while(votedValue < ballotItem.numberOfItemValue) 
             {
-                itemNumber++
+                votedValue++
+
                 const result = await votegBallotItemValueRepository
                 .createQueryBuilder("item")
-                .where("item.ballot_item_value_number <= :itemNumber and item.ballot_item_value_id not in (select id from public.ballots_items_values where  (voted_value = 0) and (ballot_item_value_id = :ballotItemId))", {itemNumber: itemNumber, ballotItemId: ballotItem.id})
+                .innerJoin("item.ballotItemValue", "ballotItemValue")
+                .where("item.voted_value <= :votedValue and ballotItemValue.ballot_item_id = :ballotItemId and ballotItemValue.voted_value = 0", {votedValue: votedValue, ballotItemId: ballotItem.id})
                 .select("item.ballot_item_value_id", "ballotItemValueId") // Select the ballot_item_value_id column
-                .addSelect("item.ballot_item_value_number", "ballotItemValueNumber")  // Select the ballot_item_value_number column
                 .addSelect("COUNT(*)", "count") // Count ballot_item_value_number in each ballot_item_value_id
-                .groupBy("item.ballotItemValueNumber") // Group by ballot_item_value_number
-                .addGroupBy("item.ballot_item_value_id") // Group by ballot_item_value_id
-                .orderBy("item.ballot_item_value_number")
+                .groupBy("item.ballot_item_value_id") // Group by ballot_item_value_number
                 .addOrderBy("count")
                 .getRawMany(); // Get raw result (since aggregation returns custom columns)
     
-                // console.log("result", itemNumber )
-
                 if (result.length > 0)
                 {
-                    for(var itemValue of result.filter(e=> e.ballotItemValueNumber == itemNumber))
+                    for(var itemValue of result.filter(e=> e.ballotItemValueNumber == votedValue))
                     {
                         var ballotItemValue =  await ballotItemValueRepository.findOneOrFail( { where: {id: itemValue.ballotItemValueId}})
                         ballotItemValue.votedValue = itemValue.ballotItemValueNumber;

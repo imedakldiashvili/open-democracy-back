@@ -7,11 +7,14 @@ import UserDelegateController from "../controllers/UserDelegateController";
 
 const userRouter = Router();
 
+
+userRouter.post("/Users/session", UserController.session)
+userRouter.post("/Users/refreshsession", UserController.refreshSession)
+
+
 userRouter.post("/otps/add", OtpController.addOTP)
 userRouter.post("/otps/check", OtpController.checkOTP)
 
-userRouter.post("/Users/refreshsession", UserController.refreshSession)
-userRouter.post("/Users/session", UserController.session)
 
 userRouter.post("/users/signOut", UserController.signOut)
 

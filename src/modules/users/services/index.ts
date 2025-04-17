@@ -11,6 +11,7 @@ import { serviceAddUserInivitaionAction } from "../../actions/services";
 import settings from "../../../settings";
 import { sendMail } from "../../notifications/services";
 import { sendSMS } from "../../notifications/smsApi";
+import e = require("express");
 
 
 export const getLoginUser = async (loginEmail: string) => {
@@ -138,7 +139,16 @@ export const refreshSessionService = async (loginUserId: number, deviceUid: stri
         relations: { district: true }
     })
 
-    const voter = voters.length == 1 ? voters[0] : null
+    const exUserSessions = await userSessionRepository.find({
+        where: {userId: loginUserId, isActive: true},
+    });
+
+    for(var exUserSession of exUserSessions)
+    {
+        exUserSession.isActive = false,
+        exUserSession.updatedAt = dateNow()
+        await userSessionRepository.save(exUserSession)
+    }
 
     const newSession = new UserSession()
     newSession.deviceUid = deviceUid
@@ -147,18 +157,17 @@ export const refreshSessionService = async (loginUserId: number, deviceUid: stri
     newSession.sessionUid = sessionUid
     newSession.user = loginUser
     newSession.passwordIsTemporary = false
-    const loginSesion = await userSessionRepository.save(newSession)
+    await userSessionRepository.save(newSession)
 
 
-    return ({
-        session: {
-            deviceUid: loginSesion.deviceUid,
-            sessionUid: newSession.sessionUid,
-            passwordIsTemporary: passwordIsTemporary,
-            voter: voter,
-            user: loginUser
-        }
+    const userSessions = await userSessionRepository.find({
+        where: {userId: newSession.userId, sessionUid: newSession.sessionUid, isActive: true},
+        relations: {user: {userDetail: {district: true}}}
     });
+
+    if (userSessions.length != 1) { throwBadRequest("user_sessions_not_found") }
+    const userSession = userSessions[0]
+    return (userSession);
 
 }
 

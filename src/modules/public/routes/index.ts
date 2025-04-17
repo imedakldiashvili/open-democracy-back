@@ -8,6 +8,9 @@ const publicRouter = Router();
 publicRouter.post("/public/bankAccounts", PublicControler.findBankAccounts)
 
 publicRouter.post("/public/electionsdetail", PublicControler.findElectionsDetail)
+publicRouter.post("/public/findVotedBallotItemList", PublicControler.findVotedBallotItemList)
+
+
 
 publicRouter.post("/public/elections", PublicControler.findElections)
 publicRouter.post("/public/electionsvotingcards", PublicControler.findElectionsVingCards)
@@ -18,7 +21,6 @@ publicRouter.post("/public/delegates", PublicControler.findDelegates)
 publicRouter.post("/public/delegatesgroups", PublicControler.findDelegatesGroups)
 
 publicRouter.post("/public/createElection", PublicControler.createElection)
-
 
 
 export default publicRouter;
