@@ -428,7 +428,7 @@ export const serviceCompleteElection = async (electionId: number) => {
         while (votedValue < ballotItem.numberOfItemValue) {
             votedValue++
             const initialVotedValue = votedValue;
-            const result = await setBallotItemVoteValue(ballotItemId, initialVotedValue, votedValue, ballotItem.numberOfItemValue)
+            votedValue = await setBallotItemVoteValue(ballotItemId, initialVotedValue, votedValue, ballotItem.numberOfItemValue)
         }
 
     }
@@ -443,33 +443,44 @@ const setBallotItemVoteValue = async (ballotItemId: number, initialVotedValue: n
         .where("ballotItemValue.voted_value = 0 and item.voted_value <= :votedValue and ballotItemValue.ballot_item_id = :ballotItemId", { votedValue: votedValue, ballotItemId: ballotItemId })
         .select("item.ballot_item_value_id", "ballotItemValueId") // Select the ballot_item_value_id column
         .addSelect("MAX(item.voted_value)", "votedValue")
+        .addSelect("ballotItemValue.ballot_item_id", "ballotItemId")
         .addSelect("Count(*)", "count") // Count ballot_item_value_number in each ballot_item_value_id
         .groupBy("item.ballot_item_value_id") // Group by ballot_item_value_number
+        .addGroupBy("ballotItemValue.ballot_item_id")
         .addOrderBy("count", "DESC")
-        .getRawMany(); // Get raw result (since aggregation returns custom columns)
-
+        .getRawMany(); // Get raw result (since aggregation returns custom columns)    
 
     if (result.length > 0) {
 
         const firstValue = result[0]
         const topValues = result.filter(e => e.count == firstValue.count)
-        
+        console.log("----------------")
+        console.log("ballotItemId: ", ballotItemId )
+        console.log("topValues.length: ", topValues.length )
+        console.log("votedValue: ", votedValue )
+        console.log("initialVotedValue: ", initialVotedValue )
+
         if (topValues.length == 1) {
             const itemValue = topValues[0]
             var ballotItemValue = await ballotItemValueRepository.findOneOrFail({ where: { id: itemValue.ballotItemValueId } })
             ballotItemValue.votedValue = initialVotedValue;
             await ballotItemValueRepository.save(ballotItemValue)
-            return 0
+            
+            return initialVotedValue
         }
         else {
             if (votedValue < numberOfItemValue) {
-                await setBallotItemVoteValue(ballotItemId, initialVotedValue, votedValue++, numberOfItemValue)
+                const newVotedValue = votedValue + 1
+                console.log(newVotedValue, "setBallotItemVoteValue")
+                await setBallotItemVoteValue(ballotItemId, initialVotedValue, newVotedValue, numberOfItemValue)
             }
             else {
                 for (var itemValue of topValues) {
+                    console.log("var itemValue of topValues")
                     var ballotItemValue = await ballotItemValueRepository.findOneOrFail({ where: { id: itemValue.ballotItemValueId } })
                     ballotItemValue.votedValue = initialVotedValue;
                     await ballotItemValueRepository.save(ballotItemValue)
+                    return initialVotedValue
                 }
             }
         }
