@@ -441,6 +441,8 @@ export const serviceCompleteElection = async (electionId: number) => {
                 .addOrderBy("count")
                 .getRawMany(); // Get raw result (since aggregation returns custom columns)
     
+                console.log(votedValue, result.length)
+                
                 if (result.length > 0)
                 {
                     for(var itemValue of result.filter(e=> e.ballotItemValueNumber == votedValue))
