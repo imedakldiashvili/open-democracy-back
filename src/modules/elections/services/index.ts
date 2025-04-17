@@ -71,7 +71,7 @@ export const serviceCreateElection = async (templateId: number) => {
         electon.participantVoters = 0
         electon.createdAt = dateValue,
 
-        await electionRepository.save(electon);
+            await electionRepository.save(electon);
 
         // electon.code = template.code + ' / ' + electon.id
         // electon.name = template.name + ' / ' + electon.id
@@ -110,43 +110,43 @@ export const serviceCreateElection = async (templateId: number) => {
             }
 
         }
-        
+
         for (var tempateBallot of template.templateBallots) {
 
             for (var templateBallotDistrict of tempateBallot.templateBallotDistricts) {
-                
+
                 var ballot = new Ballot()
 
                 ballot.election = electon;
                 ballot.index = tempateBallot.index,
-                ballot.ballotTypeId = tempateBallot.ballotTypeId,
-                ballot.code = tempateBallot.ballotType.code,
-                ballot.name = tempateBallot.ballotType.name,
-                ballot.districtId = templateBallotDistrict.districtId ,
-    
-                await ballotRepository.save(ballot);
-    
+                    ballot.ballotTypeId = tempateBallot.ballotTypeId,
+                    ballot.code = tempateBallot.ballotType.code,
+                    ballot.name = tempateBallot.ballotType.name,
+                    ballot.districtId = templateBallotDistrict.districtId,
+
+                    await ballotRepository.save(ballot);
+
                 if (tempateBallot.ballotType.ballotSourceId == 20) {
                     var itemIndex = 0;
                     var delegatesGroups = await delegateGroupRepository.find({
-                        relations: { delegates: { user: {userDetail: true} } },
-                        where: {isActive: true},
+                        relations: { delegates: { user: { userDetail: true } } },
+                        where: { isActive: true },
                         order: { number: +1 }
                     });
 
                     for (var delegatesGroup of delegatesGroups) {
                         itemIndex++;
                         var ballotItem = new BallotItem()
-    
+
                         ballotItem.ballot = ballot
                         ballotItem.index = delegatesGroup.number,
-                        ballotItem.code = delegatesGroup.color;
+                            ballotItem.code = delegatesGroup.color;
                         ballotItem.name = delegatesGroup.name;
                         ballotItem.imageUrl = delegatesGroup.imageUrl;
                         ballotItem.hasItemValue = delegatesGroup.delegates.length > 0
                         ballotItem.isItemValueReadonly = true
-                        ballotItem.numberOfItemValue = delegatesGroup.delegates.length ;
-                        
+                        ballotItem.numberOfItemValue = delegatesGroup.delegates.length;
+
 
                         await ballotItemRepository.save(ballotItem);
 
@@ -159,9 +159,9 @@ export const serviceCreateElection = async (templateId: number) => {
                             ballotItemValue.title = delegatesGroup.name
                             ballotItemValue.imageUrl = delegate.imageUrl
                             ballotItemValue.votedValue = 0
-    
+
                             await ballotItemValueRepository.save(ballotItemValue);
-    
+
                         }
 
                         var newBallotItemSubject = new BallotItemSubject()
@@ -172,41 +172,41 @@ export const serviceCreateElection = async (templateId: number) => {
                         newBallotItemSubject.imageUrl = delegatesGroup.imageUrl
 
                         await ballotItemSubjectRepository.save(newBallotItemSubject);
-    
+
                     }
-    
+
                 }
-    
+
                 if (tempateBallot.ballotType.ballotSourceId == 21) {
                     var delegatesGroups = await delegateGroupRepository.find({
                         relations: { delegates: { user: true } },
                         order: { number: +1 }
                     });
-    
+
                     var itemIndex = 0;
                     for (var templateBallotItem of tempateBallot.templateBallotItems) {
                         itemIndex++;
                         var ballotItem = new BallotItem()
-    
+
                         ballotItem.ballot = ballot
                         ballotItem.index = itemIndex;
                         ballotItem.index = templateBallotItem.index,
-                        ballotItem.code = templateBallotItem.code;
+                            ballotItem.code = templateBallotItem.code;
                         ballotItem.name = templateBallotItem.name;
                         ballotItem.imageUrl = templateBallotItem.imageUrl;
                         ballotItem.hasItemValue = templateBallotItem.hasItemValue
                         ballotItem.isItemValueReadonly = templateBallotItem.isItemValueReadonly
                         ballotItem.numberOfItemValue = templateBallotItem.numberOfItemValue;
-                        
+
                         await ballotItemRepository.save(ballotItem);
-                        
+
                         if (!templateBallotItem.hasItemValue) { continue; }
 
                         var itemValueindex = 0;
                         for (var delegatesGroup of delegatesGroups) {
 
-                            
-                            
+
+
                             itemValueindex++;
                             var ballotItemValue = new BallotItemValue()
                             ballotItemValue.ballotItem = ballotItem;
@@ -216,28 +216,26 @@ export const serviceCreateElection = async (templateId: number) => {
                             ballotItemValue.index = delegatesGroup.number
                             ballotItemValue.imageUrl = delegatesGroup.imageUrl
                             ballotItemValue.votedValue = 0
-    
+
                             await ballotItemValueRepository.save(ballotItemValue);
-    
+
                         }
-    
+
                     }
                 }
 
                 if (tempateBallot.ballotType.ballotSourceId == 30) {
                     var delegates = await delegateRepository.find({
-                        where: {isActive: true },
-                        relations: { delegateGroup: true,  user: {userDetail: true}  },
+                        where: { isActive: true },
+                        relations: { delegateGroup: true, user: { userDetail: true } },
                         order: { numberOfSupporters: +1 }
                     });
 
-                    if (templateBallotDistrict.districtId != 0)
-                    {
-                        delegates = delegates.filter(d=> d.user.userDetail.districtId == templateBallotDistrict.districtId)
+                    if (templateBallotDistrict.districtId != 0) {
+                        delegates = delegates.filter(d => d.user.userDetail.districtId == templateBallotDistrict.districtId)
                     }
 
-                    if (delegates.length == 0)
-                    {
+                    if (delegates.length == 0) {
                         await ballotRepository.remove(ballot);
                         continue;
                     }
@@ -246,19 +244,19 @@ export const serviceCreateElection = async (templateId: number) => {
                     for (var templateBallotItem of tempateBallot.templateBallotItems) {
                         itemIndex++;
                         var ballotItem = new BallotItem()
-    
+
                         ballotItem.ballot = ballot
                         ballotItem.index = itemIndex;
                         ballotItem.index = templateBallotItem.index,
-                        ballotItem.code = templateBallotItem.code;
+                            ballotItem.code = templateBallotItem.code;
                         ballotItem.name = templateBallotItem.name;
                         ballotItem.imageUrl = templateBallotItem.imageUrl;
                         ballotItem.hasItemValue = templateBallotItem.hasItemValue
                         ballotItem.isItemValueReadonly = templateBallotItem.isItemValueReadonly
                         ballotItem.numberOfItemValue = templateBallotItem.numberOfItemValue;
-    
+
                         await ballotItemRepository.save(ballotItem);
-    
+
                         if (!templateBallotItem.hasItemValue) { continue; }
                         var itemValueindex = 0;
                         for (var delegate of delegates) {
@@ -269,13 +267,13 @@ export const serviceCreateElection = async (templateId: number) => {
                             ballotItemValue.name = delegate.user.userDetail.fullName
                             ballotItemValue.title = delegate.delegateGroup.name
                             ballotItemValue.index = itemValueindex,
-                            ballotItemValue.imageUrl = delegate.imageUrl
+                                ballotItemValue.imageUrl = delegate.imageUrl
                             ballotItemValue.votedValue = 0
-    
+
                             await ballotItemValueRepository.save(ballotItemValue);
-    
+
                         }
-    
+
                     }
                 }
 
@@ -284,7 +282,7 @@ export const serviceCreateElection = async (templateId: number) => {
 
 
 
-            
+
 
 
         }
@@ -390,7 +388,7 @@ export const serviceCompleteElection = async (electionId: number) => {
         relations: { ballot: true }
     })
 
-    
+
 
     for (var ballotItem of ballotItems) {
         const ballotItemId = ballotItem.id
@@ -402,55 +400,33 @@ export const serviceCompleteElection = async (electionId: number) => {
         ballotItem.numberOfVotes = numberOfVotes
         ballotItem.valuePercent = numberOfParticipants ? Math.round((numberOfVotes / numberOfParticipants) * 100) : 0
 
-
         const votesResult = await votegBallotItemValueRepository
-                .createQueryBuilder("item")
-                .where("item.ballot_item_id = :ballotItemId", {ballotItemId: ballotItemId})
-                .select("item.ballot_item_value_id", "ballotItemValueId") // Select the ballot_item_value_id column
-                .addSelect("item.voted_value", "votedValue")  // Select the ballot_item_value_number column
-                .addSelect("COUNT(*)", "count") // Count ballot_item_value_number in each ballot_item_value_id
-                .groupBy("item.voted_value") // Group by ballot_item_value_number
-                .addGroupBy("item.ballot_item_value_id") // Group by ballot_item_value_id
-                .orderBy("item.voted_value")
-                .addOrderBy("count")
-                .getRawMany(); // Get raw result (since aggregation returns custom columns)
+            .createQueryBuilder("item")
+            .where("item.ballot_item_id = :ballotItemId", { ballotItemId: ballotItemId })
+            .select("item.ballot_item_value_id", "ballotItemValueId") // Select the ballot_item_value_id column
+            .addSelect("item.voted_value", "votedValue")  // Select the ballot_item_value_number column
+            .addSelect("COUNT(*)", "count") // Count ballot_item_value_number in each ballot_item_value_id
+            .groupBy("item.voted_value") // Group by ballot_item_value_number
+            .addGroupBy("item.ballot_item_value_id") // Group by ballot_item_value_id
+            .orderBy("item.voted_value")
+            .addOrderBy("count")
+            .getRawMany(); // Get raw result (since aggregation returns custom columns)
 
-        for(var itemVote of votesResult)
-        {
+        for (var itemVote of votesResult) {
             const ballotItemValueVote = new BallotItemValueVote();
             ballotItemValueVote.ballotItemValueId = itemVote.ballotItemValueId
-            ballotItemValueVote.votedValue =  itemVote.votedValue
+            ballotItemValueVote.votedValue = itemVote.votedValue
             ballotItemValueVote.numberOfVotes = itemVote.count
             await ballotItemValueVoteRepository.save(ballotItemValueVote)
         }
 
-        if(ballotItem.numberOfItemValue > 0)
-        {
+        if (ballotItem.numberOfItemValue > 0) {
             var votedValue = 0
-            while(votedValue < ballotItem.numberOfItemValue) 
-            {
+            while (votedValue < ballotItem.numberOfItemValue) {
                 votedValue++
-
-                const result = await ballotItemValueVoteRepository
-                .createQueryBuilder("item")
-                .innerJoin("item.ballotItemValue", "ballotItemValue")
-                .where("ballotItemValue.voted_value = 0 and item.voted_value <= :votedValue and ballotItemValue.ballot_item_id = :ballotItemId", {votedValue: votedValue, ballotItemId: ballotItemId})
-                .select("item.ballot_item_value_id", "ballotItemValueId") // Select the ballot_item_value_id column
-                .addSelect("MAX(item.voted_value)",  "votedValue" )
-                .addSelect("Count(*)", "count") // Count ballot_item_value_number in each ballot_item_value_id
-                .groupBy("item.ballot_item_value_id") // Group by ballot_item_value_number
-                .addOrderBy("count")
-                .getRawMany(); // Get raw result (since aggregation returns custom columns)
-                
-                if (result.length > 0)
-                {
-                    for(var itemValue of result.filter(e=> e.votedValue == votedValue))
-                    {
-                        var ballotItemValue =  await ballotItemValueRepository.findOneOrFail( { where: {id: itemValue.ballotItemValueId}})
-                        ballotItemValue.votedValue = itemValue.votedValue;
-                        await ballotItemValueRepository.save(ballotItemValue)
-                    }
-                }                
+                const initialVotedValue = votedValue;
+                const result = await setBallotItemVoteValue(ballotItemId, initialVotedValue, votedValue, ballotItem.numberOfItemValue)
+                if (result == 0) { break }
             }
         }
 
@@ -458,5 +434,44 @@ export const serviceCompleteElection = async (electionId: number) => {
     }
 
     return { status: 1, message: "election__successfuly" };
+}
+
+const setBallotItemVoteValue = async (ballotItemId: number, initialVotedValue: number, votedValue: number, numberOfItemValue: number) => {
+    const result = await ballotItemValueVoteRepository
+        .createQueryBuilder("item")
+        .innerJoin("item.ballotItemValue", "ballotItemValue")
+        .where("ballotItemValue.voted_value = 0 and item.voted_value <= :votedValue and ballotItemValue.ballot_item_id = :ballotItemId", { votedValue: votedValue, ballotItemId: ballotItemId })
+        .select("item.ballot_item_value_id", "ballotItemValueId") // Select the ballot_item_value_id column
+        .addSelect("MAX(item.voted_value)", "votedValue")
+        .addSelect("Count(*)", "count") // Count ballot_item_value_number in each ballot_item_value_id
+        .groupBy("item.ballot_item_value_id") // Group by ballot_item_value_number
+        .addOrderBy("count", "DESC")
+        .getRawMany(); // Get raw result (since aggregation returns custom columns)
+
+
+    if (result.length > 0) {
+        const firstValue = result[0]
+        const topValues = result.filter(e => e.count == firstValue.count)
+        if (topValues.length == 1) {
+            const itemValue = topValues[0]
+            var ballotItemValue = await ballotItemValueRepository.findOneOrFail({ where: { id: itemValue.ballotItemValueId } })
+            ballotItemValue.votedValue = initialVotedValue;
+            await ballotItemValueRepository.save(ballotItemValue)
+            return 0
+        }
+        else {
+            if (votedValue < numberOfItemValue) {
+                await setBallotItemVoteValue(ballotItemId, initialVotedValue, votedValue++, numberOfItemValue)
+            }
+            else {
+                for (var itemValue of topValues) {
+                    var ballotItemValue = await ballotItemValueRepository.findOneOrFail({ where: { id: itemValue.ballotItemValueId } })
+                    ballotItemValue.votedValue = initialVotedValue;
+                    await ballotItemValueRepository.save(ballotItemValue)
+                }
+            }
+        }
+    }
+
 }
 
