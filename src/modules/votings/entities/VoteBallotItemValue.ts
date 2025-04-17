@@ -12,7 +12,7 @@ export class VoteBallotItemValue {
     voteBallotItemId: string
 
     @Column()
-    ballotItemValueNumber: number
+    votedValue: number
 
     @Column()
     ballotItemValueId: number 
