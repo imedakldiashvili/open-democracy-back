@@ -442,13 +442,13 @@ const setBallotItemVoteValue = async (ballotItemId: number, initialVotedValue: n
         .innerJoin("item.ballotItemValue", "ballotItemValue")
         .where("ballotItemValue.voted_value = 0 and item.voted_value <= :votedValue and ballotItemValue.ballot_item_id = :ballotItemId", { votedValue: votedValue, ballotItemId: ballotItemId })
         .select("item.ballot_item_value_id", "ballotItemValueId") // Select the ballot_item_value_id column
-        .addSelect("MAX(item.voted_value)", "votedValue")
         .addSelect("ballotItemValue.ballot_item_id", "ballotItemId")
+        .addSelect("MAX(item.voted_value)", "value")
         .addSelect("Count(*)", "count") // Count ballot_item_value_number in each ballot_item_value_id
         .groupBy("item.ballot_item_value_id") // Group by ballot_item_value_number
         .addGroupBy("ballotItemValue.ballot_item_id")
         .addOrderBy("count", "DESC")
-        .addOrderBy("votedValue", "ASC")
+        .addOrderBy("value", "ASC")
         .getRawMany(); // Get raw result (since aggregation returns custom columns)    
 
     if (result.length > 0) {
