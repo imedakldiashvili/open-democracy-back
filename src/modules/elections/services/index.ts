@@ -419,7 +419,7 @@ export const serviceCompleteElection = async (electionId: number) => {
         
         for (var itemballotItemValue of ballotItem.ballotItemValues) {
             var votedValueIndex = 0
-            while(votedValueIndex <= ballotItem.numberOfItemValue)
+            while(votedValueIndex < ballotItem.numberOfItemValue)
             {
                 votedValueIndex++
                 const ballotItemValueVote = new BallotItemValueVote();
