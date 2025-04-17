@@ -434,21 +434,20 @@ export const serviceCompleteElection = async (electionId: number) => {
                 const result = await ballotItemValueVoteRepository
                 .createQueryBuilder("item")
                 .innerJoin("item.ballotItemValue", "ballotItemValue")
-                .where("item.voted_value <= :votedValue and ballotItemValue.ballot_item_id = :ballotItemId and ballotItemValue.voted_value = 0", {votedValue: votedValue, ballotItemId: ballotItem.id})
+                .where("ballotItemValue.voted_value = 0 and item.voted_value <= :votedValue and ballotItemValue.ballot_item_id = :ballotItemId", {votedValue: votedValue, ballotItemId: ballotItemId})
                 .select("item.ballot_item_value_id", "ballotItemValueId") // Select the ballot_item_value_id column
-                .addSelect("COUNT(*)", "count") // Count ballot_item_value_number in each ballot_item_value_id
+                .addSelect("MAX(item.voted_value)",  "votedValue" )
+                .addSelect("Count(*)", "count") // Count ballot_item_value_number in each ballot_item_value_id
                 .groupBy("item.ballot_item_value_id") // Group by ballot_item_value_number
                 .addOrderBy("count")
                 .getRawMany(); // Get raw result (since aggregation returns custom columns)
-    
-                console.log(votedValue, result.length)
                 
                 if (result.length > 0)
                 {
-                    for(var itemValue of result.filter(e=> e.ballotItemValueNumber == votedValue))
+                    for(var itemValue of result.filter(e=> e.votedValue == votedValue))
                     {
                         var ballotItemValue =  await ballotItemValueRepository.findOneOrFail( { where: {id: itemValue.ballotItemValueId}})
-                        ballotItemValue.votedValue = itemValue.ballotItemValueNumber;
+                        ballotItemValue.votedValue = itemValue.votedValue;
                         await ballotItemValueRepository.save(ballotItemValue)
                     }
                 }                
