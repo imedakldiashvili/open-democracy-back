@@ -400,6 +400,10 @@ export const serviceCompleteElection = async (electionId: number) => {
         ballotItem.numberOfVotes = numberOfVotes
         ballotItem.valuePercent = numberOfParticipants ? Math.round((numberOfVotes / numberOfParticipants) * 100) : 0
 
+        await ballotItemRepository.save(ballotItem)
+
+        if (ballotItem.numberOfItemValue == 0) { continue; }
+
         const votesResult = await votegBallotItemValueRepository
             .createQueryBuilder("item")
             .where("item.ballot_item_id = :ballotItemId", { ballotItemId: ballotItemId })
@@ -420,20 +424,16 @@ export const serviceCompleteElection = async (electionId: number) => {
             await ballotItemValueVoteRepository.save(ballotItemValueVote)
         }
 
-        if (ballotItem.numberOfItemValue > 0) {
-            var votedValue = 0
-            while (votedValue < ballotItem.numberOfItemValue) {
-                votedValue++
-                const initialVotedValue = votedValue;
-                const result = await setBallotItemVoteValue(ballotItemId, initialVotedValue, votedValue, ballotItem.numberOfItemValue)
-                if (result == 0) { break }
-            }
+        var votedValue = 0
+        while (votedValue < ballotItem.numberOfItemValue) {
+            votedValue++
+            const initialVotedValue = votedValue;
+            const result = await setBallotItemVoteValue(ballotItemId, initialVotedValue, votedValue, ballotItem.numberOfItemValue)
         }
 
-        await ballotItemRepository.save(ballotItem)
     }
 
-    return { status: 1, message: "election__successfuly" };
+    return { status: 1, message: "election_complete_successfuly" };
 }
 
 const setBallotItemVoteValue = async (ballotItemId: number, initialVotedValue: number, votedValue: number, numberOfItemValue: number) => {
@@ -450,8 +450,10 @@ const setBallotItemVoteValue = async (ballotItemId: number, initialVotedValue: n
 
 
     if (result.length > 0) {
+
         const firstValue = result[0]
         const topValues = result.filter(e => e.count == firstValue.count)
+        
         if (topValues.length == 1) {
             const itemValue = topValues[0]
             var ballotItemValue = await ballotItemValueRepository.findOneOrFail({ where: { id: itemValue.ballotItemValueId } })
