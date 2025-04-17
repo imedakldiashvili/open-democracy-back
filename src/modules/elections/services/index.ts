@@ -385,7 +385,7 @@ export const serviceCompleteElection = async (electionId: number) => {
 
     var ballotItems = await ballotItemRepository.find({
         where: { ballot: { election: { id: electionId } } },
-        relations: { ballot: true }
+        relations: { ballot: true, ballotItemValues: true }
     })
 
 
@@ -416,12 +416,24 @@ export const serviceCompleteElection = async (electionId: number) => {
             .addOrderBy("count")
             .getRawMany(); // Get raw result (since aggregation returns custom columns)
 
-        for (var itemVote of votesResult) {
-            const ballotItemValueVote = new BallotItemValueVote();
-            ballotItemValueVote.ballotItemValueId = itemVote.ballotItemValueId
-            ballotItemValueVote.votedValue = itemVote.votedValue
-            ballotItemValueVote.numberOfVotes = itemVote.count
-            await ballotItemValueVoteRepository.save(ballotItemValueVote)
+        
+        for (var itemballotItemValue of ballotItem.ballotItemValues) {
+            var votedValueIndex = 0
+            while(votedValueIndex <= ballotItem.numberOfItemValue)
+            {
+                votedValueIndex++
+                const ballotItemValueVote = new BallotItemValueVote();
+                ballotItemValueVote.ballotItemValueId = itemballotItemValue.id
+                ballotItemValueVote.votedValue = votedValueIndex
+                ballotItemValueVote.numberOfVotes = 0
+
+                const votesResults = votesResult.filter(e=> e.ballotItemValueId == itemballotItemValue.id && e.votedValue == votedValueIndex);
+
+                if (votesResults.length == 1) {
+                    ballotItemValueVote.numberOfVotes = votesResults[0].count
+                }
+                await ballotItemValueVoteRepository.save(ballotItemValueVote)
+            }
         }
 
         var votedValue = 0
