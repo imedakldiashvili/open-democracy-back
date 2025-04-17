@@ -431,7 +431,7 @@ export const serviceCompleteElection = async (electionId: number) => {
             {
                 votedValue++
 
-                const result = await votegBallotItemValueRepository
+                const result = await ballotItemValueVoteRepository
                 .createQueryBuilder("item")
                 .innerJoin("item.ballotItemValue", "ballotItemValue")
                 .where("item.voted_value <= :votedValue and ballotItemValue.ballot_item_id = :ballotItemId and ballotItemValue.voted_value = 0", {votedValue: votedValue, ballotItemId: ballotItem.id})
