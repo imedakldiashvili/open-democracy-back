@@ -438,18 +438,13 @@ export const serviceCompleteElection = async (electionId: number) => {
                 ballotItemValueVote.votedValue = votedValueIndex
                 ballotItemValueVote.numberOfVotes = 0
 
-                const votesResults = itemVotesResult.filter(e=> e.votedValue <= votedValueIndex);
+                const votesResults = itemVotesResult.filter(e=> e.votedValue == votedValueIndex);
 
-                // console.log(itemballotItemValue.id, votedValueIndex, votesResults) 
+                console.log(itemballotItemValue.id, votedValueIndex, votesResults) 
 
-                var numberOfValueVotes = 0
-                for(var itemvotesResult of votesResults)
-                {
-                    numberOfValueVotes = numberOfValueVotes + itemvotesResult.count 
+                if (votesResults.length == 1) {
+                    ballotItemValueVote.numberOfVotes = votesResults[0].count
                 }
-
-                ballotItemValueVote.numberOfVotes = numberOfValueVotes
-
                 await ballotItemValueVoteRepository.save(ballotItemValueVote)
             }
         }
