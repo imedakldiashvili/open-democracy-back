@@ -449,12 +449,12 @@ export const serviceCompleteElection = async (electionId: number) => {
             }
         }
 
-        var votedValue = 0
-        while (votedValue < ballotItem.numberOfItemValue) {
-            votedValue++
-            const initialVotedValue = votedValue;
-            await setBallotItemVoteValue(ballotItemId, initialVotedValue, votedValue, ballotItem.numberOfItemValue)
-        }
+        // var votedValue = 0
+        // while (votedValue < ballotItem.numberOfItemValue) {
+        //     votedValue++
+        //     const initialVotedValue = votedValue;
+        //     await setBallotItemVoteValue(ballotItemId, initialVotedValue, votedValue, ballotItem.numberOfItemValue)
+        // }
 
     }
 
