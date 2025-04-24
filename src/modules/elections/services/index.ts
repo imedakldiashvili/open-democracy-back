@@ -484,7 +484,9 @@ const setBallotItemVoteValue = async (ballotItemValueIds: any[],  ballotItemId: 
 
     
     if (result.length > 0) {
-        const firstValue = result[0]
+        
+        const votedResul = result.filter(e => e.count > 0)
+        const firstValue = votedResul[0]
         const topValues = result.filter(e => e.count == firstValue.count)
 
         if (topValues.length == 1) {
