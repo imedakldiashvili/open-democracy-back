@@ -483,10 +483,10 @@ const setBallotItemVoteValue = async (ballotItemValueIds: any[],  ballotItemId: 
         .getRawMany(); // Get raw result (since aggregation returns custom columns)   
 
     
-    if (result.length > 0) {
+    const votedResult = result.filter(e => e.count > 0)    
+    if (votedResult.length > 0) {        
         
-        const votedResul = result.filter(e => e.count > 0)
-        const firstValue = votedResul[0]
+        const firstValue = votedResult[0]
         const topValues = result.filter(e => e.count == firstValue.count)
 
         if (topValues.length == 1) {
