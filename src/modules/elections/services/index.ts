@@ -482,14 +482,8 @@ const setBallotItemVoteValue = async (ballotItemValueIds: any[],  ballotItemId: 
         .addOrderBy("value", "ASC")
         .getRawMany(); // Get raw result (since aggregation returns custom columns)   
 
-    const newBallotItemValueIds = []
-    for(var item of result )
-    {
-        newBallotItemValueIds.push(item.ballotItemValueId)
-    }
-
+    
     if (result.length > 0) {
-
         const firstValue = result[0]
         const topValues = result.filter(e => e.count == firstValue.count)
 
@@ -503,6 +497,8 @@ const setBallotItemVoteValue = async (ballotItemValueIds: any[],  ballotItemId: 
         else {
             if (votedValue < numberOfItemValue) {
                 const newVotedValue = votedValue + 1
+                const newBallotItemValueIds = []
+                for(var item of topValues ) { newBallotItemValueIds.push(item.ballotItemValueId) }
                 await setBallotItemVoteValue(newBallotItemValueIds, ballotItemId, initialVotedValue, newVotedValue, numberOfItemValue)
             }
             else {
