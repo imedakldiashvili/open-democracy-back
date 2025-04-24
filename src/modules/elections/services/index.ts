@@ -412,26 +412,44 @@ export const serviceCompleteElection = async (electionId: number) => {
             .addSelect("COUNT(*)", "count") // Count ballot_item_value_number in each ballot_item_value_id
             .groupBy("item.voted_value") // Group by ballot_item_value_number
             .addGroupBy("item.ballot_item_value_id") // Group by ballot_item_value_id
-            .orderBy("item.voted_value")
-            .addOrderBy("count")
+            .orderBy("item.ballot_item_value_id")
+            .addOrderBy("item.voted_value")
+            .addOrderBy("count", 'DESC')
             .getRawMany(); // Get raw result (since aggregation returns custom columns)
 
-        
+        console.log("votesResult", votesResult)
+
         for (var itemballotItemValue of ballotItem.ballotItemValues) {
             var votedValueIndex = 0
+            
+            const itemVotesResult = votesResult.filter(e=> e.ballotItemValueId == itemballotItemValue.id);
+            const numberOfVotes = itemVotesResult.filter(e=> e.votedValue > 0).length;
+            
+            var ballotItemValue = await ballotItemValueRepository.findOneOrFail({ where: { id: itemballotItemValue.id } })
+            ballotItemValue.numberOfVotes = numberOfVotes;
+            await ballotItemValueRepository.save(ballotItemValue) 
+            
             while(votedValueIndex < ballotItem.numberOfItemValue)
             {
+                
                 votedValueIndex++
                 const ballotItemValueVote = new BallotItemValueVote();
                 ballotItemValueVote.ballotItemValueId = itemballotItemValue.id
                 ballotItemValueVote.votedValue = votedValueIndex
                 ballotItemValueVote.numberOfVotes = 0
 
-                const votesResults = votesResult.filter(e=> e.ballotItemValueId == itemballotItemValue.id && e.votedValue == votedValueIndex);
+                const votesResults = itemVotesResult.filter(e=> e.votedValue <= votedValueIndex);
 
-                if (votesResults.length == 1) {
-                    ballotItemValueVote.numberOfVotes = votesResults[0].count
+                // console.log(itemballotItemValue.id, votedValueIndex, votesResults) 
+
+                var numberOfValueVotes = 0
+                for(var itemvotesResult of votesResults)
+                {
+                    numberOfValueVotes = numberOfValueVotes + itemvotesResult.count 
                 }
+
+                ballotItemValueVote.numberOfVotes = numberOfValueVotes
+
                 await ballotItemValueVoteRepository.save(ballotItemValueVote)
             }
         }
