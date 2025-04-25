@@ -479,7 +479,6 @@ const setBallotItemVoteValue = async (ballotItemId: number,  ballotItemValueIds:
         .groupBy("item.ballot_item_value_id") // Group by ballot_item_value_number
         .addGroupBy("ballotItemValue.ballot_item_id")
         .addOrderBy("count", "DESC")
-        .addOrderBy("value", "ASC")
         .getRawMany(); // Get raw result (since aggregation returns custom columns)   
 
     
