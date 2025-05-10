@@ -9,20 +9,12 @@ export class DelegateGroupType {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column()
-    number: number
 
     @Column()
     code: string
 
     @Column()
     name: string
-
-    @Column()
-    imageUrl: string
-    
-    @Column()
-    color: string
 
     @Column()
     isActive: boolean
