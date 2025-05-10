@@ -164,16 +164,16 @@ class PublicControler {
                 where: { isActive: true },
                 relations: { 
                             user: {userDetail: {district: { region: true } }},
-                            delegateGroup: true },
+                            delegateGroup: {delegateGroupType: true} },
                 order: { id: -1 },
                 skip: skip,
                 take: take,
 
-                select: { id: true, imageUrl: true,
+                select: { id: true, imageUrl: true, delegateName: true, 
                     user: {id: true, userDetail: {id: true, fullName: true, firstName: true, lastName: true,  
                                      district: { id: true, name: true, 
                                                  region: { id: true, name: true } } }},
-                    delegateGroup: {code: true, color: true, name: true, imageUrl: true, number: true}
+                    delegateGroup: {code: true, color: true, name: true, imageUrl: true, number: true, delegateGroupType: {id: true, code: true, name: true} }
                 }
             });
             const count = await userDetailRepository.count({ where: { isDelegate: true } })
@@ -189,7 +189,7 @@ class PublicControler {
         try {
             const data = await delegateGroupRepository.find({
                 where: { isActive: true }, order: { number: +1 },
-                relations: { delegates: { user: { userDetail: true } } },
+                relations: { delegates: { user: { userDetail: true } }, delegateGroupType: true },
             });
             return res.json(data);
         } catch (error) {

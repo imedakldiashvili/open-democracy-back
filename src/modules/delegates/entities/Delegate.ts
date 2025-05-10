@@ -33,5 +33,8 @@ export class Delegate {
 
     @Column()
     imageUrl: string
+
+    @Column()
+    delegateName: string
    
 }

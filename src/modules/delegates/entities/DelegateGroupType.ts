@@ -1,10 +1,10 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn, OneToOne, ManyToMany, JoinTable } from "typeorm"
 import { Delegate } from "./Delegate"
-import { DelegateGroupType } from "./DelegateGroupType"
+import { DelegateGroup } from "./DelegateGroup"
 
 
-@Entity('delegates_groups')
-export class DelegateGroup {
+@Entity('delegates_groups_types')
+export class DelegateGroupType {
 
     @PrimaryGeneratedColumn()
     id: number
@@ -27,12 +27,8 @@ export class DelegateGroup {
     @Column()
     isActive: boolean
 
-    @OneToMany(() => Delegate, (delegate) => delegate.delegateGroup)
-    delegates: Delegate[]   
-
-    @OneToOne(() => DelegateGroupType)
-    @JoinColumn()
-    delegateGroupType: DelegateGroupType 
+    @OneToMany(() => DelegateGroup, (delegateGroup) => delegateGroup.delegateGroupType)
+    delegateGroups: DelegateGroup[]   
 
    
 }
