@@ -507,7 +507,8 @@ const setBallotItemVoteValue = async (ballotItemId: number,  ballotItemValueIds:
         .addOrderBy("number_of_votes", "DESC")
         .getRawMany(); // Get raw result (since aggregation returns custom columns)   
 
-    
+    console.log("result", result)
+
     const votedResult = result.filter(e => e.count > 0)    
     if (votedResult.length > 0) {        
         const firstValue = votedResult[0]
