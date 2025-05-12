@@ -496,7 +496,7 @@ const setBallotItemVoteValue = async (ballotItemId: number,  ballotItemValueIds:
     const result = await ballotItemValueVoteRepository
         .createQueryBuilder("item")
         .innerJoin("item.ballotItemValue", "ballotItemValue")
-        .where("item.number_of_votes > 0 and ballotItemValue.voted_value > 0 and ballotItemValue.id IN (:...ballotItemValueIds) and item.voted_value <= :votedValue and ballotItemValue.ballot_item_id = :ballotItemId", { votedValue: votedValue, ballotItemId: ballotItemId, ballotItemValueIds: ballotItemValueIds })
+        .where("item.number_of_votes > 0 and ballotItemValue.voted_value = 0 and ballotItemValue.id IN (:...ballotItemValueIds) and item.voted_value <= :votedValue and ballotItemValue.ballot_item_id = :ballotItemId", { votedValue: votedValue, ballotItemId: ballotItemId, ballotItemValueIds: ballotItemValueIds })
         .select("item.ballot_item_value_id", "ballotItemValueId") // Select the ballot_item_value_id column
         .addSelect("ballotItemValue.ballot_item_id", "ballotItemId")
         .addSelect("MAX(item.voted_value)", "value")
