@@ -489,7 +489,7 @@ export const serviceCalculateVotedValueElection = async (electionId: number) => 
 
     }
 
-    return { status: 1, message: "election_complete_successfuly" };
+    return { status: 1, message: "election_votes_calculated_successfuly" };
 }
 
 const setBallotItemVoteValue = async (ballotItemId: number,  ballotItemValueIds: any[],  initialVotedValue: number, votedValue: number, numberOfItemValue: number) => {
@@ -500,10 +500,11 @@ const setBallotItemVoteValue = async (ballotItemId: number,  ballotItemValueIds:
         .select("item.ballot_item_value_id", "ballotItemValueId") // Select the ballot_item_value_id column
         .addSelect("ballotItemValue.ballot_item_id", "ballotItemId")
         .addSelect("MAX(item.voted_value)", "value")
-        .addSelect("Count(*)", "count") // Count ballot_item_value_number in each ballot_item_value_id
+        .addSelect("SUM(number_of_votes)", "numberOfVotes") // Count ballot_item_value_number in each ballot_item_value_id
         .groupBy("item.ballot_item_value_id") // Group by ballot_item_value_number
         .addGroupBy("ballotItemValue.ballot_item_id")
-        .addOrderBy("count", "DESC")
+        .addOrderBy("value", "ASC")
+        .addOrderBy("numberOfVotes", "DESC")
         .getRawMany(); // Get raw result (since aggregation returns custom columns)   
 
     
