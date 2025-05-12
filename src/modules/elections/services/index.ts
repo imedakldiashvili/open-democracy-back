@@ -500,11 +500,11 @@ const setBallotItemVoteValue = async (ballotItemId: number,  ballotItemValueIds:
         .select("item.ballot_item_value_id", "ballotItemValueId") // Select the ballot_item_value_id column
         .addSelect("ballotItemValue.ballot_item_id", "ballotItemId")
         .addSelect("MAX(item.voted_value)", "value")
-        .addSelect("SUM(item.number_of_votes)", "numberOfVotes") // Count ballot_item_value_number in each ballot_item_value_id
+        .addSelect("SUM(item.number_of_votes)", "number_of_votes") // Count ballot_item_value_number in each ballot_item_value_id
         .groupBy("item.ballot_item_value_id") // Group by ballot_item_value_number
         .addGroupBy("ballotItemValue.ballot_item_id")
         .addOrderBy("value", "ASC")
-        .addOrderBy("numberOfVotes", "DESC")
+        .addOrderBy("number_of_votes", "DESC")
         .getRawMany(); // Get raw result (since aggregation returns custom columns)   
 
     
