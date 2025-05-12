@@ -463,6 +463,35 @@ export const serviceCompleteElection = async (electionId: number) => {
     return { status: 1, message: "election_complete_successfuly" };
 }
 
+
+export const serviceCalculateVotedValueElection = async (electionId: number) => {
+    
+    var ballotItems = await ballotItemRepository.find({
+        where: { ballot: { election: { id: electionId } } },
+        relations: { ballot: true, ballotItemValues: true }
+    })
+
+    for (var ballotItem of ballotItems) {
+        const ballotItemId = ballotItem.id   
+        var votedValue = 0
+        var ballotItemValueIds = []
+        
+        for (var itemballotItemValue of ballotItem.ballotItemValues) {        
+            const itemballotItemValueId = itemballotItemValue.id
+            ballotItemValueIds.push(itemballotItemValueId)
+        }
+        
+        while (votedValue < ballotItem.numberOfItemValue) {
+            votedValue++
+            const initialVotedValue = votedValue;
+            await setBallotItemVoteValue( ballotItemId, ballotItemValueIds, initialVotedValue, votedValue, ballotItem.numberOfItemValue)
+        }
+
+    }
+
+    return { status: 1, message: "election_complete_successfuly" };
+}
+
 const setBallotItemVoteValue = async (ballotItemId: number,  ballotItemValueIds: any[],  initialVotedValue: number, votedValue: number, numberOfItemValue: number) => {
     const result = await ballotItemValueVoteRepository
         .createQueryBuilder("item")
