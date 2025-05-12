@@ -522,6 +522,7 @@ const setBallotItemVoteValue = async (ballotItemId: number,  ballotItemValueIds:
             const itemValue = topValues[0]
             var ballotItemValue = await ballotItemValueRepository.findOneOrFail({ where: { id: itemValue.ballotItemValueId } })
             ballotItemValue.votedValue = initialVotedValue;
+            ballotItemValue.voted = 1;
             await ballotItemValueRepository.save(ballotItemValue)            
             return initialVotedValue
         }

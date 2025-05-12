@@ -28,6 +28,9 @@ export class BallotItemValue {
     votedValue: number
 
     @Column()
+    voted: number
+
+    @Column()
     numberOfVotes: number
 
     @OneToOne(() => BallotItem)
