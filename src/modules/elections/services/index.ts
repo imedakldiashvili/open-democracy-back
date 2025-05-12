@@ -500,19 +500,19 @@ const setBallotItemVoteValue = async (ballotItemId: number,  ballotItemValueIds:
         .select("item.ballot_item_value_id", "ballotItemValueId") // Select the ballot_item_value_id column
         .addSelect("ballotItemValue.ballot_item_id", "ballotItemId")
         .addSelect("MAX(item.voted_value)", "value")
-        .addSelect("SUM(item.number_of_votes)", "number_of_votes") // Count ballot_item_value_number in each ballot_item_value_id
+        .addSelect("SUM(item.number_of_votes)", "votes") // Count ballot_item_value_number in each ballot_item_value_id
         .groupBy("item.ballot_item_value_id") // Group by ballot_item_value_number
         .addGroupBy("ballotItemValue.ballot_item_id")
         .addOrderBy("value", "ASC")
-        .addOrderBy("number_of_votes", "DESC")
+        .addOrderBy("votes", "DESC")
         .getRawMany(); // Get raw result (since aggregation returns custom columns)   
 
     console.log("result", result)
 
-    const votedResult = result.filter(e => e.count > 0)    
+    const votedResult = result.filter(e => e.votes> 0)    
     if (votedResult.length > 0) {        
         const firstValue = votedResult[0]
-        const topValues = votedResult.filter(e => e.count == firstValue.count)
+        const topValues = votedResult.filter(e => e.votes == firstValue.votes)
 
         if (topValues.length == 1) {
 
