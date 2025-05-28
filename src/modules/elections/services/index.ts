@@ -1,5 +1,5 @@
 import { Between, Equal, LessThan, LessThanOrEqual, MoreThan, MoreThanOrEqual, Not } from "typeorm"
-import { voteBallotItemRepository, votegBallotItemValueRepository, votingCardBallotRepository, votingCardRepository } from "../../votings/repositories"
+import { voteBallotItemRepository, votedBallotItemValueRepository , votingCardBallotRepository, votingCardRepository } from "../../votings/repositories"
 import { electionRepository, electionStatusRepository, electionStatusScheduleRepository } from "../repositories"
 import { templateRepository, templateStatusScheduleRepository } from "../../templates/repositories"
 import { delegateGroupRepository, delegateRepository } from "../../delegates/repositories"
@@ -404,7 +404,7 @@ export const serviceCompleteElection = async (electionId: number) => {
 
         if (ballotItem.numberOfItemValue == 0) { continue; }
 
-        const votesResult = await votegBallotItemValueRepository
+        const votesResult = await votedBallotItemValueRepository 
             .createQueryBuilder("item")
             .where("item.ballot_item_id = :ballotItemId", { ballotItemId: ballotItemId })
             .select("item.ballot_item_value_id", "ballotItemValueId") // Select the ballot_item_value_id column

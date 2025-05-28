@@ -6,7 +6,7 @@ export const ballotBoxRepository = appDataSource.getRepository(BallotBox);
 
 export const voteRepository = appDataSource.getRepository(Vote);
 export const voteBallotItemRepository = appDataSource.getRepository(VoteBallotItem);
-export const votegBallotItemValueRepository = appDataSource.getRepository(VoteBallotItemValue);
+export const votedBallotItemValueRepository = appDataSource.getRepository(VoteBallotItemValue);
 export const votingCardRepository = appDataSource.getRepository(VotingCard);
 export const votingCardBallotRepository = appDataSource.getRepository(VotingCardBallot);
 
