@@ -454,15 +454,17 @@ export const serviceCompleteElection = async (electionId: number) => {
         }
 
         var ballotItemValues = await ballotItemValueRepository.find({
-                                                                        where: {ballotItem: {id: ballotItem.id}, voted: 1 },
+                                                                        where: {ballotItem: {id: ballotItem.id}},
                                                                         order: { votedValue: "DESC" }
                                                                     })
         var votedPosition = 0;                                                            
         for( ballotItemValue of ballotItemValues )
         {
-            votedPosition++
-            ballotItemValue.votedPosition = votedPosition
-            await ballotItemValueRepository.save(ballotItemValue)
+            if (ballotItemValue.voted) {
+                votedPosition++
+                ballotItemValue.votedPosition = votedPosition
+                await ballotItemValueRepository.save(ballotItemValue)
+            }
         }
         
         // while (votedValue < ballotItem.numberOfItemValue) {
