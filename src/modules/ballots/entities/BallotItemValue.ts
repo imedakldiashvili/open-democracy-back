@@ -28,6 +28,9 @@ export class BallotItemValue {
     votedValue: number
 
     @Column()
+    votedPosition: number
+
+    @Column()
     voted: number
 
     @Column()
