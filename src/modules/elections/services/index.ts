@@ -431,7 +431,7 @@ export const serviceCompleteElection = async (electionId: number) => {
             var ballotItemValue = await ballotItemValueRepository.findOneOrFail({ where: { id: itemballotItemValueId } })
             ballotItemValue.numberOfVotes = numberOfVotes;
             ballotItemValue.voted = numberOfVotes ? 1 : 0;
-            ballotItemValue.votedValue = itemVotesResult.reduce((sum, current) => sum + current.votedValue, 0);
+            ballotItemValue.votedValue = itemVotesResult.reduce((sum, current) => sum + (current.votedValue * current.numberOfVotes), 0);
             
             await ballotItemValueRepository.save(ballotItemValue) 
             
