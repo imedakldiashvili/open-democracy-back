@@ -454,7 +454,7 @@ export const serviceCompleteElection = async (electionId: number) => {
         }
 
         var ballotItemValues = await ballotItemValueRepository.find({
-                                                                        where: {ballotItem: {id: ballotItem.id}},
+                                                                        where: {ballotItem: {id: ballotItem.id}, voted: 1 },
                                                                         order: { votedValue: "DESC" }
                                                                     })
         var votedPosition = 0;                                                            
