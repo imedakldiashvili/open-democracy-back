@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from 'express'
 import { electionRepository } from '../../elections/repositories';
 import { BankTransactionRepository } from '../../donations/repositories';
 import { userDetailRepository } from '../../users/repositories';
-import { votegBallotItemValueRepository, votingCardRepository } from '../../votings/repositories';
+import { votedBallotItemValueRepository, votingCardRepository } from '../../votings/repositories';
 import { delegateGroupRepository, delegateRepository } from '../../delegates/repositories';
 import { getTake, getSkip } from '../../../utils/pagination';
 import { serviceBankAccounts } from '../../banks/services';
@@ -70,7 +70,7 @@ class PublicControler {
 
 
         try {
-            const result = await votegBallotItemValueRepository
+            const result = await votedBallotItemValueRepository
                                 .createQueryBuilder("value")
                                 .innerJoin("value.ballotItemValue", "ballotItemValue")
                                 .innerJoin("value.ballotItem", "ballotItem")
