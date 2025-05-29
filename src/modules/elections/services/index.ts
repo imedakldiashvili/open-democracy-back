@@ -426,7 +426,7 @@ export const serviceCompleteElection = async (electionId: number) => {
             ballotItemValueIds.push(itemballotItemValueId)
 
             const itemVotesResult = votesResult.filter(e=> e.ballotItemValueId == itemballotItemValueId);
-            const numberOfVotes = itemVotesResult.filter(e=> e.votedValue > 0).length;
+            const numberOfVotes = itemVotesResult.filter(e=> e.votedValue > 0).reduce((sum, current) => sum + (1 * current.count), 0);
             
             var ballotItemValue = await ballotItemValueRepository.findOneOrFail({ where: { id: itemballotItemValueId } })
             ballotItemValue.numberOfVotes = numberOfVotes;
