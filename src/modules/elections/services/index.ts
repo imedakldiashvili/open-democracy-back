@@ -462,9 +462,9 @@ export const serviceCompleteElection = async (electionId: number) => {
         for( ballotItemValue of ballotItemValues )
         {
             if (ballotItemValue.voted) {
-                if ( ballotItemValue.votedValue > votedValue) { 
-                    votedPosition++ 
-                }
+                
+                if (votedPosition == 0)  votedPosition++ 
+                else if (ballotItemValue.votedValue < votedValue)  votedPosition++ 
                 votedValue = ballotItemValue.votedValue
                 ballotItemValue.votedPosition = votedPosition
                 await ballotItemValueRepository.save(ballotItemValue)
