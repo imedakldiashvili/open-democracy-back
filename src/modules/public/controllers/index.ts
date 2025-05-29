@@ -33,7 +33,7 @@ class PublicControler {
                           ballots: { district: {region: +1}, districtId:+1, index: +1, 
                                      ballotItems: { index: +1, ballotItemSubjects: { index: +1 }, 
                                      ballotItemValues: {votedValue: 'DESC', index: 'DESC', 
-                                                        ballotItemValueVote: {votedValue: +1}} } } }
+                                                        ballotItemValueVote: {votedValue: 'DESC'}} } } }
             });
             return res.json(Elections);
         } catch (error) {
