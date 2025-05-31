@@ -32,7 +32,7 @@ class PublicControler {
                 order: { statusSchedule: { status: { id: -1 } }, 
                           ballots: { district: {region: +1}, districtId:+1, index: +1, 
                                      ballotItems: { valuePercent: 'DESC', index: +1, ballotItemSubjects: { index: +1 }, 
-                                     ballotItemValues: {votedValue: 'DESC', votedPosition: 'ASC', index: 'DESC', 
+                                     ballotItemValues: {votedPosition: 'ASC', index: 'DESC', 
                                                         ballotItemValueVote: {votedValue: 'DESC'}} } } }
             });
             return res.json(Elections);
