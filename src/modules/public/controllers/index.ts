@@ -31,7 +31,7 @@ class PublicControler {
                 relations: { actualStatusSchedule: { status: { stage: true } }, statusSchedule: { status: true }, ballots: { district: true, ballotItems: { ballotItemValues: {ballotItemValueVote: true}, ballotItemSubjects: true } } },
                 order: { statusSchedule: { status: { id: -1 } }, 
                           ballots: { district: {region: +1}, districtId:+1, index: +1, 
-                                     ballotItems: { index: +1, ballotItemSubjects: { index: +1 }, 
+                                     ballotItems: { valuePercent: 'DESC', index: +1, ballotItemSubjects: { index: +1 }, 
                                      ballotItemValues: {votedValue: 'DESC', votedPosition: 'ASC', index: 'DESC', 
                                                         ballotItemValueVote: {votedValue: 'DESC'}} } } }
             });
