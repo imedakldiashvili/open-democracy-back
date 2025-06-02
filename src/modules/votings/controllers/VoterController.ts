@@ -135,7 +135,7 @@ class VoterController {
                         voteBallotItemValue.voteBallotItemId = voteBallotItem.id
                         voteBallotItemValue.ballotItemId = votedBallot.ballotItem.id 
                         voteBallotItemValue.ballotItemValueId = value.id
-                        voteBallotItemValue.votedValue = (votedBallot.ballotItem.numberOfItemValue - value.votedValue)                       
+                        voteBallotItemValue.votedValue = ((votedBallot.ballotItem.numberOfItemValue - value.votedValue) + 1)                    
                         await transactionalEntityManager.save(voteBallotItemValue)
                     }
                 }
