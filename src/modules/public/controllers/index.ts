@@ -8,6 +8,7 @@ import { delegateGroupRepository, delegateRepository } from '../../delegates/rep
 import { getTake, getSkip } from '../../../utils/pagination';
 import { serviceBankAccounts } from '../../banks/services';
 import { serviceCreateElection } from '../../elections/services';
+import { appDownloadUrlRepository } from '../../app-downloads/repositoreis';
 
 class PublicControler {
 
@@ -214,6 +215,14 @@ class PublicControler {
     };
 
     
+    static findAppDownloadUrls = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const BallotTypes = await appDownloadUrlRepository.find();
+            return res.json(BallotTypes);
+        } catch (error) {
+            next(error)
+        }
+    };
 
 }
 

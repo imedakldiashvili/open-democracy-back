@@ -5,6 +5,10 @@ import PublicControler from "../controllers";
 const publicRouter = Router();
 
 
+publicRouter.post("/public/appDownloadUrls", PublicControler.findAppDownloadUrls)
+
+publicRouter.post("/public/bankAccounts", PublicControler.findBankAccounts)
+
 publicRouter.post("/public/bankAccounts", PublicControler.findBankAccounts)
 
 publicRouter.post("/public/electionsdetail", PublicControler.findElectionsDetail)
