@@ -122,7 +122,7 @@ class PublicControler {
         try {
             const pagination = req.query
             const skip = getSkip(pagination)
-            const take = getSkip(pagination)
+            const take = getTake(pagination)
 
             const pageList = await BankTransactionRepository.find({
                 order: { id: -1 },
