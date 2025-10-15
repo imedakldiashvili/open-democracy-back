@@ -125,7 +125,7 @@ class PublicControler {
             const take = getTake(pagination)
 
             const pageList = await BankTransactionRepository.find({
-                order: { id: -1 },
+                order: { transactionDate: -1, id: -1 },
                 skip: skip,
                 take: take,
                 select: { channelCode: true, transactionAccountMask: true, transactionAmount: true, transactionDate: true }
