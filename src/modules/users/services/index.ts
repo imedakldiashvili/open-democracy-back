@@ -291,11 +291,9 @@ export const addUserInivitation = async (mobileNumber: string, fullName: string,
     
     await serviceAddUserInivitaionAction({ sessionUid, inivitaitaionId, createdUserId, mobileNumber, fullName, email })
 
-    const smsText =   "welcome to primaries.ge\n" 
-                    + "n: " + fullName +'\n'
-                    + "e: " + email + "\n" 
-                    + "sent by: " + "\n" 
-                    + senderUser.userDetail.fullName;            
+    const smsText =   "welcome " + fullName +'\n'
+                    + "http://opendemocracy.ge/refer.html?ref=" + inivitaitaionId.toString() + "\n"
+                    + "sent by: " + senderUser.userDetail.fullName;
     if (mobileNumber) { await sendSMS(mobileNumber, smsText) } 
 
 
