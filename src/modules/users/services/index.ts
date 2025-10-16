@@ -260,7 +260,7 @@ export const verification = async (deviceUid: string, personalId: string, fistNa
     for(var itemUserPersonalId of userPersonalIds)
     {
         itemUserPersonalId.statusId = 2,
-        await userPersonalIdRepository.save(userPersonalId)
+        await userPersonalIdRepository.save(itemUserPersonalId)
     }
     
     var newSession = await refreshSessionService(userId, deviceUid);
