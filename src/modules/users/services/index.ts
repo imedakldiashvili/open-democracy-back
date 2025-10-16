@@ -232,8 +232,8 @@ export const verificationCheck = async (personalId: string) => {
 
 export const verification = async (deviceUid: string, personalId: string, fistName: string,  lastName: string, userId: number, mobileNumber: string, mobileNumberVerificationOtpId: number ) => {
 
-    const userPersonalIds = await userPersonalIdRepository.find({where: { personalId: personalId, statusId: 1}});
-    if (userPersonalIds.length != 1) { throwBadRequest("user_personal_id_not_found") }
+    const userPersonalIds = await userPersonalIdRepository.find({where: { personalId: personalId, statusId: 1}, order: {id: -1}});
+    if (userPersonalIds.length == 0) { throwBadRequest("user_personal_id_not_found") }
     var userPersonalId = userPersonalIds[0]
 
     const exUserDetails = await userDetailRepository.find({where: {code: personalId}})
@@ -257,10 +257,13 @@ export const verification = async (deviceUid: string, personalId: string, fistNa
     await userDetailRepository.save(newUserDetail)
 
 
-    userPersonalId.statusId = 2
-    await userPersonalIdRepository.save(userPersonalId)
+    for(var itemUserPersonalId of userPersonalIds)
+    {
+        itemUserPersonalId.statusId = 2,
+        await userPersonalIdRepository.save(userPersonalId)
+    }
+    
     var newSession = await refreshSessionService(userId, deviceUid);
-
     return newSession
 }
 
