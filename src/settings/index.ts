@@ -19,7 +19,7 @@ export default {
 	SMS_SENDER: "MoneyMarket",
 	SMS_OFFICE_KEY: "SMS_OFFICE_KEY",
 
-	OTP_CODE: '1111',
+	OTP_CODE: key.OTP_CODE,
 	
 	DATABASE: {
 		POSTGRE: {
