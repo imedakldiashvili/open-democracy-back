@@ -117,32 +117,20 @@ export const createSession = async (loginUser: any, deviceUid: string, passwordI
 }
 
 export const refreshSessionService = async (loginUserId: number, deviceUid: string) => {
-
-    const sessionUid = newGuid()
-
     const loginUser = await userRepository.findOne({ where: { id: loginUserId } })
-
     const userPasswords = await userPasswordRepository.find({
         where: { userId: loginUserId },
         order: { id: -1 }
     })
-
     if (userPasswords.length === 0) {
         throw AppError.notFound(`password_not_Found`);
     }
     const userPassword = userPasswords[0]
-
     const passwordIsTemporary = userPassword.isTemporary
-
-    const voters = await userDetailRepository.find({
-        where: { id: loginUserId },
-        relations: { district: true }
-    })
 
     const exUserSessions = await userSessionRepository.find({
         where: {userId: loginUserId, isActive: true},
     });
-
     for(var exUserSession of exUserSessions)
     {
         exUserSession.isActive = false,
@@ -150,25 +138,8 @@ export const refreshSessionService = async (loginUserId: number, deviceUid: stri
         await userSessionRepository.save(exUserSession)
     }
 
-    const newSession = new UserSession()
-    newSession.deviceUid = deviceUid
-    newSession.isActive = true
-    newSession.createdAt = dateNow()
-    newSession.sessionUid = sessionUid
-    newSession.user = loginUser
-    newSession.passwordIsTemporary = false
-    await userSessionRepository.save(newSession)
-
-
-    const userSessions = await userSessionRepository.find({
-        where: {userId: newSession.userId, sessionUid: newSession.sessionUid, isActive: true},
-        relations: {user: {userDetail: {district: true}}}
-    });
-
-    if (userSessions.length != 1) { throwBadRequest("user_sessions_not_found") }
-    const userSession = userSessions[0]
+    const userSession = createSession(loginUser, deviceUid, passwordIsTemporary)
     return (userSession);
-
 }
 
 export const addOTP = async (target: string, deviceUid: string, type: string, value: string, createdBy: number) => {
