@@ -87,6 +87,22 @@ export const loginUserService = async (deviceUid: string, email: string, passwor
     return result
 }
 
+export const refreshSessionService = async (loginUserId: number, deviceUid: string) => {
+    const loginUser = await userRepository.findOne({ where: { id: loginUserId } })
+    const userPasswords = await userPasswordRepository.find({
+        where: { userId: loginUserId },
+        order: { id: -1 }
+    })
+    if (userPasswords.length === 0) {
+        throw AppError.notFound(`password_not_Found`);
+    }
+    const userPassword = userPasswords[0]
+    const passwordIsTemporary = userPassword.isTemporary
+
+    const userSession = createSession(loginUser, deviceUid, passwordIsTemporary)
+    return (userSession);
+}
+
 export const createSession = async (loginUser: any, deviceUid: string, passwordIsTemporary: boolean) => {
 
     const exUserSessions = await userSessionRepository.find({
@@ -120,22 +136,6 @@ export const createSession = async (loginUser: any, deviceUid: string, passwordI
         refreshToken: refreshToken
     });
 
-}
-
-export const refreshSessionService = async (loginUserId: number, deviceUid: string) => {
-    const loginUser = await userRepository.findOne({ where: { id: loginUserId } })
-    const userPasswords = await userPasswordRepository.find({
-        where: { userId: loginUserId },
-        order: { id: -1 }
-    })
-    if (userPasswords.length === 0) {
-        throw AppError.notFound(`password_not_Found`);
-    }
-    const userPassword = userPasswords[0]
-    const passwordIsTemporary = userPassword.isTemporary
-
-    const userSession = createSession(loginUser, deviceUid, passwordIsTemporary)
-    return (userSession);
 }
 
 export const addOTP = async (target: string, deviceUid: string, type: string, value: string, createdBy: number) => {
