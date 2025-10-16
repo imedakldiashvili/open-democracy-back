@@ -73,7 +73,7 @@ export const validateToken = async (req: Request, res: Response, next: NextFunct
         relations: { user: true } 
       });
       if (activeSessions.length != 1) {
-        throw AppError.unauthorized("session not found");
+        throw AppError.unauthorized("session not found" + activeSessions.length);
       }
       req.body.userSession = activeSessions[0]
     }

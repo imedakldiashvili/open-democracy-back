@@ -89,19 +89,25 @@ export const loginUserService = async (deviceUid: string, email: string, passwor
 
 export const createSession = async (loginUser: any, deviceUid: string, passwordIsTemporary: boolean) => {
 
+    const exUserSessions = await userSessionRepository.find({
+        where: {userId: loginUser.id, isActive: true},
+    });
+
+    for(var exUserSession of exUserSessions)
+    {
+        exUserSession.isActive = false,
+        exUserSession.updatedAt = dateNow()
+        await userSessionRepository.save(exUserSession)
+    }
+    
     const sessionUid = newGuid()
 
-    const voters = await userDetailRepository.find({
-        where: { id: loginUser.id },
-        relations: { district: true }
-    })
-    const voter = voters.length == 1 ? voters[0] : null
     const newSession = new UserSession()
     newSession.deviceUid = deviceUid
     newSession.isActive = true
     newSession.createdAt = dateNow()
     newSession.sessionUid = sessionUid
-    newSession.user = loginUser
+    newSession.userId = loginUser.id
     newSession.passwordIsTemporary = passwordIsTemporary
     
     const loginSesion = await userSessionRepository.save(newSession)
@@ -127,16 +133,6 @@ export const refreshSessionService = async (loginUserId: number, deviceUid: stri
     }
     const userPassword = userPasswords[0]
     const passwordIsTemporary = userPassword.isTemporary
-
-    const exUserSessions = await userSessionRepository.find({
-        where: {userId: loginUserId, isActive: true},
-    });
-    for(var exUserSession of exUserSessions)
-    {
-        exUserSession.isActive = false,
-        exUserSession.updatedAt = dateNow()
-        await userSessionRepository.save(exUserSession)
-    }
 
     const userSession = createSession(loginUser, deviceUid, passwordIsTemporary)
     return (userSession);
