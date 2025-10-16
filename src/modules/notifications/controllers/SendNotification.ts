@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
-import { sendMail, sendSms } from '../services'
+import { sendMail, sendSms, emailSender } from '../services'
 
 
 
