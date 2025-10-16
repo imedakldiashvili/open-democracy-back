@@ -78,7 +78,6 @@ export const loginUserService = async (deviceUid: string, email: string, passwor
 
     const loginEmail = email.toLocaleLowerCase();
     const loginUser = await getLoginUser(loginEmail)
-
     const userPassword = await checkPassword(loginUser.id, password)
     const passwordIsTemporary = userPassword.isTemporary
 
@@ -104,7 +103,6 @@ export const refreshSessionService = async (loginUserId: number, deviceUid: stri
 }
 
 export const createSession = async (loginUser: any, deviceUid: string, passwordIsTemporary: boolean) => {
-
     const exUserSessions = await userSessionRepository.find({
         where: {userId: loginUser.id, isActive: true},
     });
@@ -115,7 +113,6 @@ export const createSession = async (loginUser: any, deviceUid: string, passwordI
         exUserSession.updatedAt = dateNow()
         await userSessionRepository.save(exUserSession)
     }
-    
     const sessionUid = newGuid()
 
     const newSession = new UserSession()
@@ -126,11 +123,12 @@ export const createSession = async (loginUser: any, deviceUid: string, passwordI
     newSession.userId = loginUser.id
     newSession.passwordIsTemporary = passwordIsTemporary
     
-    const loginSesion = await userSessionRepository.save(newSession)
-
+    await userSessionRepository.save(newSession)
+    const loginSesion = await userSessionRepository.findOne({where: {id: newSession.id}, relations: {user: true} })
+    
     const token = generateToken(loginSesion)
     const refreshToken = generateRefreshToken(loginSesion) // generateRefreshToken(loginSesion)
-
+    console.log("4")
     return ({
         token: token,
         refreshToken: refreshToken
