@@ -33,7 +33,7 @@ export const emailSender = async (mailMsg: MailMsg) => {
 
     // 2️⃣ ელ.ფოსტის პარამეტრები
     const mailOptions = {
-      from: `"TypeScript Mailer" <${mailMsg.from}>`,
+      from: `"Open Democracy" <${mailMsg.from}>`,
       to: mailMsg.to,
       subject: mailMsg.subject,
       text: "mail",
