@@ -125,7 +125,7 @@ export const createSession = async (loginUser: any, deviceUid: string, passwordI
     
     await userSessionRepository.save(newSession)
     const loginSesion = await userSessionRepository.findOne({where: {id: newSession.id}, relations: {user: true} })
-    
+
     const token = generateToken(loginSesion)
     const refreshToken = generateRefreshToken(loginSesion) // generateRefreshToken(loginSesion)
     console.log("4")
@@ -228,8 +228,8 @@ export const verification = async (deviceUid: string, personalId: string, fistNa
         await userPersonalIdRepository.save(itemUserPersonalId)
     }
     
-    var newSession = await refreshSessionService(userId, deviceUid);
-    return newSession
+    // var newSession = await refreshSessionService(userId, deviceUid);
+    return exUser
 }
 
 export const addUserInivitation = async (mobileNumber: string, fullName: string, email: string, createdBy: number, sessionUid: string) => {
