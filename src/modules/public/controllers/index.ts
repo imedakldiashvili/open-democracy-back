@@ -2,7 +2,7 @@
 import { NextFunction, Request, Response } from 'express'
 import { electionRepository } from '../../elections/repositories';
 import { BankTransactionRepository } from '../../donations/repositories';
-import { userDetailRepository } from '../../users/repositories';
+import { userDetailRepository, userPersonalIdRepository } from '../../users/repositories';
 import { votedBallotItemValueRepository, votingCardRepository } from '../../votings/repositories';
 import { delegateGroupRepository, delegateRepository } from '../../delegates/repositories';
 import { getTake, getSkip } from '../../../utils/pagination';
@@ -219,6 +219,21 @@ class PublicControler {
         try {
             const BallotTypes = await appDownloadUrlRepository.find();
             return res.json(BallotTypes);
+        } catch (error) {
+            next(error)
+        }
+    };
+
+    static findNumberDonationPerson = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const result = await userPersonalIdRepository
+                .createQueryBuilder("p")
+                .select("COUNT(DISTINCT p.personal_id)", "count")
+                .getRawOne();
+            
+                const count = Number(result.count);
+
+            return res.json({NumbetOfDonationPerson: count });
         } catch (error) {
             next(error)
         }

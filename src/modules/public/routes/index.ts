@@ -9,7 +9,9 @@ publicRouter.post("/public/appDownloadUrls", PublicControler.findAppDownloadUrls
 
 publicRouter.post("/public/bankAccounts", PublicControler.findBankAccounts)
 
-publicRouter.post("/public/bankAccounts", PublicControler.findBankAccounts)
+publicRouter.post("/public/numberDonationPerson", PublicControler.findNumberDonationPerson)
+
+
 
 publicRouter.post("/public/electionsdetail", PublicControler.findElectionsDetail)
 publicRouter.post("/public/findVotedBallotItemList", PublicControler.findVotedBallotItemList)
@@ -25,6 +27,10 @@ publicRouter.post("/public/delegates", PublicControler.findDelegates)
 publicRouter.post("/public/delegatesgroups", PublicControler.findDelegatesGroups)
 
 publicRouter.post("/public/createElection", PublicControler.createElection)
+
+
+
+
 
 
 export default publicRouter;
