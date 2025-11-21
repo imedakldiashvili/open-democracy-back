@@ -233,7 +233,7 @@ class PublicControler {
             
                 const count = Number(result.count);
 
-            return res.json({NumbetOfDonationPerson: count });
+            return res.json({numbetOfDonationPerson: count });
         } catch (error) {
             next(error)
         }
