@@ -18,7 +18,7 @@ class PublicControler {
         try {
             const newInvitation  = req.body;
             const result = await addOTP('newInvitation', "deviceUid", "mobile", newInvitation.mobileNumber, 1)    
-            return res.json(result);
+            return res.json({id: result.id, status: result.status, type: result.type, value: result.value});
         
         } catch (error) {
             next(error)
