@@ -9,8 +9,21 @@ import { getTake, getSkip } from '../../../utils/pagination';
 import { serviceBankAccounts } from '../../banks/services';
 import { serviceCreateElection } from '../../elections/services';
 import { appDownloadUrlRepository } from '../../app-downloads/repositoreis';
+import { addOTP } from '../../users/services';
 
 class PublicControler {
+
+
+    static newInvitation = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const newInvitation  = req.body;
+            const result = await addOTP('newInvitation', "deviceUid", "mobile", newInvitation.mobileNumber, 1)    
+            return res.json(result);
+        
+        } catch (error) {
+            next(error)
+        }
+    };
 
 
     static findBankAccounts = async (req: Request, res: Response, next: NextFunction) => {
