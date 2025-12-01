@@ -12,8 +12,7 @@ publicRouter.post("/public/bankAccounts", PublicControler.findBankAccounts)
 publicRouter.post("/public/numberDonationPerson", PublicControler.findNumberDonationPerson)
 
 publicRouter.post("/public/newInvitation", PublicControler.newInvitation)
-
-
+publicRouter.post("/public/confirmInvitation", PublicControler.confirmInvitation)
 
 
 publicRouter.post("/public/electionsdetail", PublicControler.findElectionsDetail)

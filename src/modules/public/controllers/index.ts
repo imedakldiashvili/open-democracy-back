@@ -9,7 +9,7 @@ import { getTake, getSkip } from '../../../utils/pagination';
 import { serviceBankAccounts } from '../../banks/services';
 import { serviceCreateElection } from '../../elections/services';
 import { appDownloadUrlRepository } from '../../app-downloads/repositoreis';
-import { addOTP } from '../../users/services';
+import { addOTP, checkOTP } from '../../users/services';
 import { sendSMS } from '../../notifications/smsApi';
 
 class PublicControler {
@@ -22,6 +22,24 @@ class PublicControler {
             const mobileNumber =  newInvitation.mobileNumber
             const result = await addOTP(target, "deviceUid", "mobile", mobileNumber, 1)   
             const smsText = `code: ${result.code} for ${target}`
+
+            const sms = await sendSMS(mobileNumber, smsText) 
+            return res.json({id: result.id, status: result.status, type: result.type, value: result.value});
+        
+        } catch (error) {
+            next(error)
+        }
+    };
+
+     static confirmInvitation = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const newInvitation  = req.body;
+            const target = 'newInvitation'
+            const mobileNumber =  newInvitation.mobileNumber
+            const code = newInvitation.code
+
+            const result = await checkOTP(target, "deviceUid", "mobile", mobileNumber, 1, code)   
+            const smsText = `notification url: http://localhost:8000/notifications/${result.id}`
 
             const sms = await sendSMS(mobileNumber, smsText) 
             return res.json({id: result.id, status: result.status, type: result.type, value: result.value});
