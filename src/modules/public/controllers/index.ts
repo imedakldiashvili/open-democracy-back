@@ -10,6 +10,7 @@ import { serviceBankAccounts } from '../../banks/services';
 import { serviceCreateElection } from '../../elections/services';
 import { appDownloadUrlRepository } from '../../app-downloads/repositoreis';
 import { addOTP } from '../../users/services';
+import { sendSMS } from '../../notifications/smsApi';
 
 class PublicControler {
 
@@ -17,7 +18,12 @@ class PublicControler {
     static newInvitation = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const newInvitation  = req.body;
-            const result = await addOTP('newInvitation', "deviceUid", "mobile", newInvitation.mobileNumber, 1)    
+            const target = 'newInvitation'
+            const mobileNumber =  newInvitation.mobileNumber
+            const result = await addOTP(target, "deviceUid", "mobile", mobileNumber, 1)   
+            const smsText = `code: ${result.code} for ${target}`
+
+            const sms = await sendSMS(mobileNumber, smsText) 
             return res.json({id: result.id, status: result.status, type: result.type, value: result.value});
         
         } catch (error) {
