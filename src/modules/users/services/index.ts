@@ -158,7 +158,7 @@ export const addOTP = async (target: string, deviceUid: string, type: string, va
     otp.expirationDate = dateNowAddMinutes(5)
 
     await userOTPRepository.save(otp)
-    const result = { id: otp.id, type: otp.type, value: otp.value, status: "otp_send_successfuly" }
+    const result = { id: otp.id, code: otp.code, type: otp.type, value: otp.value, status: "otp_send_successfuly" }
     return result
 }
 
