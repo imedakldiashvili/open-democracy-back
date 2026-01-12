@@ -96,10 +96,7 @@ const getTrasactionDescriptionInfo = (transactionDescription: string) =>
     if (matches)
     {
         if ((matches.length == 1)) { 
-            if (matches[0].length == 9)
-            {
-                result = matches[0] 
-            }
+            result = matches[0] 
         }
     }
     return result;
