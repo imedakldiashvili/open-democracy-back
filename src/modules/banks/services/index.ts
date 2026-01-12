@@ -46,8 +46,10 @@ export const serviceBOGTransactionProcesing = async () => {
         }
 
         try {
-            const resultDescription = getTrasactionDescriptionInfo(transaction.description)         
-            await addUserPersonalId(transaction.clientCode, transaction.clientName, transaction.uid, 1, 'bank', resultDescription)
+            const resultDescriptionIvivitationId = getTrasactionDescriptionInfo(transaction.description)
+            const clientCode =  transaction.clientCode;
+            const clientName =  getClientName(transaction.clientName, transaction.clientCode);            
+            await addUserPersonalId(clientCode, clientName, transaction.uid, 1, 'bank', resultDescriptionIvivitationId)
             
         } catch (error) {
             console.log(error)
@@ -74,7 +76,9 @@ export const serviceTBCTransactionProcesing = async () => {
             const resultDescriptionIvivitationId = getTrasactionDescriptionInfo(transaction.description)
             if (resultDescriptionIvivitationId)
             {
-                await addUserPersonalId(transaction.clientCode, transaction.clientName, transaction.uid, 1, 'bank', resultDescriptionIvivitationId)    
+                const clientCode =  transaction.clientCode;
+                const clientName =  getClientName(transaction.clientName, transaction.clientCode);
+                await addUserPersonalId(clientCode , clientName, transaction.uid, 1, 'bank', resultDescriptionIvivitationId)    
             }
             
         } catch (error) {
@@ -98,6 +102,14 @@ const getTrasactionDescriptionInfo = (transactionDescription: string) =>
             }
         }
     }
+    return result;
+}
+
+const getClientName = (clientName: string, clientCode: string) =>
+{
+    var result = clientName = clientName.replace(", " + clientCode, "");
+    result = result.replace(clientCode, "");
+    result = result.replace("ი/მ ", "");
     return result;
 }
 
