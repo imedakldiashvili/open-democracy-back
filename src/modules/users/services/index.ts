@@ -269,7 +269,7 @@ export const addUserInivitation = async (mobileNumber: string, fullName: string,
     
 };
 
-export const addUserPersonalId = async (personalId: string, fullName: string, uid: string, createdBy: number, sessionUid: string, mobileNumber: string) => {
+export const addUserPersonalId = async (personalId: string, fullName: string, uid: string, createdBy: number, sessionUid: string, userInivitayionId :number) => {
     
     if (personalId == null) { return }
     
@@ -278,6 +278,16 @@ export const addUserPersonalId = async (personalId: string, fullName: string, ui
     var exUsersByCode = await userRepository.find({ where: { userDetail: { code: personalId } } })
     if (exUsersByCode.length) { return }
     
+    var exUserInivitation = await userInivitationRepository.findOne({ where: {id: userInivitayionId}})
+    const mobileNumber = exUserInivitation.mobileNumber;
+
+    if (exUserInivitation == null) { return; }
+    if (exUserInivitation.statusId != 1) { return; }
+
+    exUserInivitation.statusId = 2;
+    await userInivitationRepository.save(exUserInivitation)
+
+
     const createdUserId = createdBy
 
     var exPersonalIds = await userPersonalIdRepository.find({where: {statusId: MoreThanOrEqual(0), personalId: personalId }});

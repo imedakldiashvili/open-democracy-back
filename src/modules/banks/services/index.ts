@@ -46,19 +46,8 @@ export const serviceBOGTransactionProcesing = async () => {
         }
 
         try {
-            const descLength = transaction.description.indexOf("\n"); 
-            const matches = transaction.description.substring(0, descLength).match(/\d+/g);
-            var mobileNumber = null
-            if (matches)
-            {
-                if ((matches.length == 1)) { 
-                    if (matches[0].length == 9)
-                    {
-                        mobileNumber = matches[0] 
-                    }
-                }
-            }            
-            await addUserPersonalId(transaction.clientCode, transaction.clientName, transaction.uid, 1, 'bank', mobileNumber)
+            const resultDescription = getTrasactionDescriptionInfo(transaction.description)         
+            await addUserPersonalId(transaction.clientCode, transaction.clientName, transaction.uid, 1, 'bank', resultDescription)
             
         } catch (error) {
             console.log(error)
@@ -82,19 +71,12 @@ export const serviceTBCTransactionProcesing = async () => {
         }
 
         try {
-            const matches = transaction.description.match(/\d+/g);
-            var mobileNumber = null
-            if (matches)
+            const resultDescriptionIvivitationId = getTrasactionDescriptionInfo(transaction.description)
+            if (resultDescriptionIvivitationId)
             {
-                if ((matches.length == 1)) { 
-                    if (matches[0].length == 9)
-                    {
-                        mobileNumber = matches[0] 
-                    }
-                }
+                await addUserPersonalId(transaction.clientCode, transaction.clientName, transaction.uid, 1, 'bank', resultDescriptionIvivitationId)    
             }
             
-            await addUserPersonalId(transaction.clientCode, transaction.clientName, transaction.uid, 1, 'bank', mobileNumber)
         } catch (error) {
             console.log(error)
         }
@@ -103,6 +85,21 @@ export const serviceTBCTransactionProcesing = async () => {
     return { status: 1, message: "TBC Transaction processed successfuly" };
 }
 
+const getTrasactionDescriptionInfo = (transactionDescription: string) =>
+{
+    var result = null
+    const matches = transactionDescription.match(/\d+/g);
+    if (matches)
+    {
+        if ((matches.length == 1)) { 
+            if (matches[0].length == 9)
+            {
+                result = matches[0] 
+            }
+        }
+    }
+    return result;
+}
 
 export const serviceBankAccounts = async () => {
 
