@@ -41,7 +41,7 @@ class PublicControler {
             const result = await checkOTP(target, "deviceUid", "mobile", mobileNumber, 1, code)
             var newInivitation = await addUserInivitation(mobileNumber, "full name", "email", 1, "sessionUd")
 
-            const smsText = `inivitation url: https://www.opendemocracy.ge/inivitations/${newInivitation.id}`    
+            const smsText = `link: https://www.opendemocracy.ge/inivitations/${newInivitation.id}`    
             const sms = await sendSMS(mobileNumber, smsText) 
             
             return res.json({id: newInivitation.id, status: result.status, type: result.type, value: result.value});
