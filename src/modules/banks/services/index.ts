@@ -107,7 +107,8 @@ const getTrasactionDescriptionInfo = (transactionDescription: string) =>
 
 const getClientName = (clientName: string, clientCode: string) =>
 {
-    var result = clientName = clientName.replace(", " + clientCode, "");
+    var result = clientName
+    result = result.replace(", " + clientCode, "");
     result = result.replace(clientCode, "");
     result = result.replace("ი/მ ", "");
     return result;
