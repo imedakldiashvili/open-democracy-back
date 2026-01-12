@@ -273,11 +273,10 @@ export const addUserPersonalId = async (personalId: string, fullName: string, ui
     if (exUsersByCode.length) { return }
     
     var exUserInivitation = await userInivitationRepository.findOne({ where: {id: userInivitayionId}})
-    const mobileNumber = exUserInivitation.mobileNumber;
-
     if (exUserInivitation == null) { return; }
     if (exUserInivitation.statusId != 1) { return; }
 
+    const mobileNumber = exUserInivitation.mobileNumber;
     exUserInivitation.statusId = 2;
     await userInivitationRepository.save(exUserInivitation)
 
@@ -298,9 +297,10 @@ export const addUserPersonalId = async (personalId: string, fullName: string, ui
     newUserPersonalId.statusId = 1   
     newUserPersonalId.mobileNumber = mobileNumber;             
     await userPersonalIdRepository.save(newUserPersonalId);
+
     userPersonalId = newUserPersonalId.id;
 
-    const smsText = "welcome to primaries.ge: " + personalId + (mobileNumber ? " - " + mobileNumber : "");            
+    const smsText = "welcome to opendemocracy.ge";            
     if (mobileNumber) { await sendSMS(mobileNumber, smsText) } 
     
 };
