@@ -99,7 +99,7 @@ const getTrasactionDescriptionInfo = (transactionDescription: string) =>
     const matches = transactionDescription.match(/\d+/g);
     if (matches)
     {
-        if ((matches.length == 1)) { 
+        if ((matches.length > 0)) { 
             result = matches[0] 
         }
     }
