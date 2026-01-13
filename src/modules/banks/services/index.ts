@@ -48,7 +48,8 @@ export const serviceBOGTransactionProcesing = async () => {
         try {
             const resultDescriptionIvivitationId = getTrasactionDescriptionInfo(transaction.description)
             const clientCode =  transaction.clientCode;
-            const clientName =  getClientName(transaction.clientName, transaction.clientCode);            
+            const clientName =  getClientName(transaction.clientName, transaction.clientCode);  
+            console.log("clientName", clientName)          
             await addUserPersonalId(clientCode, clientName, transaction.uid, 1, 'bank', resultDescriptionIvivitationId)
             
         } catch (error) {
@@ -78,6 +79,7 @@ export const serviceTBCTransactionProcesing = async () => {
             {
                 const clientCode =  transaction.clientCode;
                 const clientName =  getClientName(transaction.clientName, transaction.clientCode);
+                console.log("clientName", clientName)
                 await addUserPersonalId(clientCode , clientName, transaction.uid, 1, 'bank', resultDescriptionIvivitationId)    
             }
             
