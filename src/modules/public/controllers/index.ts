@@ -21,7 +21,7 @@ class PublicControler {
             const target = 'newInvitation'
             const mobileNumber = newInvitation.mobileNumber
             const result = await addOTP(target, "deviceUid", "mobile", mobileNumber, 1)
-            const smsText = `code: ${result.code} for ${target}`
+            const smsText = `sms code: ${result.code}`
 
             const sms = await sendSMS(mobileNumber, smsText)
             return res.json({ id: result.id, status: result.status, type: result.type, value: result.value });
