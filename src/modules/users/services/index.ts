@@ -313,22 +313,13 @@ export const changeMobile = async (deviceUid: string, userId: number, mobileNumb
 }
 
 export const addUserPersonalId = async (personalId: string, fullName: string, uid: string, createdBy: number, sessionUid: string, userInivitayionId :number) => {
-    console.log("1")
     if (personalId == null) { return }
-    console.log("2")
     if (personalId.toString().length != 11) { return }
-    console.log("3")
     var exUsersByCode = await userRepository.find({ where: { userDetail: { code: personalId } } })
     if (exUsersByCode.length) { return }
-    console.log("4", userInivitayionId)
     var exUserInivitation = await userInivitationRepository.findOne({ where: {id: userInivitayionId}})
     if (exUserInivitation == null) { return; }
-    console.log("4.1", userInivitayionId)
     if (exUserInivitation.statusId != 1) { return; }
-    console.log("4.2", userInivitayionId)
-    
-    console.log("5")
-
 
     const mobileNumber = exUserInivitation.mobileNumber;
     exUserInivitation.statusId = 2;
@@ -337,23 +328,25 @@ export const addUserPersonalId = async (personalId: string, fullName: string, ui
 
     const createdUserId = createdBy
 
-    var exPersonalIds = await userPersonalIdRepository.find({where: {statusId: MoreThanOrEqual(0), personalId: personalId }});
-    if (exPersonalIds.filter(e=> e.createdUserId == 1 && e.uid == uid).length) { return }
+    var exPersonalIds = await userPersonalIdRepository.find({where: {personalId: personalId }});
 
-    let userPersonalId = 0;
-
-    const newUserPersonalId = new UserPersonalId();
-    newUserPersonalId.createdUserId = createdUserId
-    newUserPersonalId.personalId = personalId,
-    newUserPersonalId.fullName = fullName,
-    newUserPersonalId.uid = uid
-    newUserPersonalId.expireOn = dateNowAddMinutes(2 * 24 * 60);
-    newUserPersonalId.statusId = 1
-    newUserPersonalId.createdOn = dateNow()
-    newUserPersonalId.mobileNumber = mobileNumber;             
-    await userPersonalIdRepository.save(newUserPersonalId);
-
-    userPersonalId = newUserPersonalId.id;
+    if (exPersonalIds.length){
+        const newUserPersonalId = new UserPersonalId();
+        newUserPersonalId.createdUserId = createdUserId
+        newUserPersonalId.personalId = personalId,
+        newUserPersonalId.fullName = fullName,
+        newUserPersonalId.uid = uid
+        newUserPersonalId.expireOn = dateNowAddMinutes(2 * 24 * 60);
+        newUserPersonalId.statusId = 1
+        newUserPersonalId.createdOn = dateNow()
+        newUserPersonalId.mobileNumber = mobileNumber;             
+        await userPersonalIdRepository.save(newUserPersonalId);    
+    }
+    else {
+        const  exPersonalId = exPersonalIds[0];
+        exPersonalId.mobileNumber = mobileNumber
+        await userPersonalIdRepository.save(exPersonalId);    
+    }   
 
     const smsText = "welcome to opendemocracy.ge";            
     if (mobileNumber) { await sendSMS(mobileNumber, smsText) } 
