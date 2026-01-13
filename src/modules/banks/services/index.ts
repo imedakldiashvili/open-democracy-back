@@ -40,7 +40,9 @@ export const serviceBOGTransactionProcesing = async () => {
 
     for (var transaction of transactions) {
         try {
+            console.log("addBankTransaction - add")
             await addBankTransaction(transaction)
+            console.log("addBankTransaction - end")
         } catch (error) {
             console.log(error)
         }
@@ -49,8 +51,9 @@ export const serviceBOGTransactionProcesing = async () => {
             const resultDescriptionIvivitationId = getTrasactionDescriptionInfo(transaction.description)
             const clientCode =  transaction.clientCode;
             const clientName =  getClientName(transaction.clientName, transaction.clientCode);  
+            console.log("addUserPersonalId - add")
             await addUserPersonalId(clientCode, clientName, transaction.uid, 1, 'bank', resultDescriptionIvivitationId)
-            
+            console.log("addUserPersonalId - end")
         } catch (error) {
             console.log(error)
         }
