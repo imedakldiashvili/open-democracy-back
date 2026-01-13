@@ -313,17 +313,19 @@ export const changeMobile = async (deviceUid: string, userId: number, mobileNumb
 }
 
 export const addUserPersonalId = async (personalId: string, fullName: string, uid: string, createdBy: number, sessionUid: string, userInivitayionId :number) => {
-    
+    console.log("1")
     if (personalId == null) { return }
-    
+    console.log("2")
     if (personalId.toString().length != 11) { return }
-
+    console.log("3")
     var exUsersByCode = await userRepository.find({ where: { userDetail: { code: personalId } } })
     if (exUsersByCode.length) { return }
-    
+    console.log("4")
     var exUserInivitation = await userInivitationRepository.findOne({ where: {id: userInivitayionId}})
     if (exUserInivitation == null) { return; }
     if (exUserInivitation.statusId != 1) { return; }
+    console.log("5")
+
 
     const mobileNumber = exUserInivitation.mobileNumber;
     exUserInivitation.statusId = 2;
