@@ -330,7 +330,7 @@ export const addUserPersonalId = async (personalId: string, fullName: string, ui
 
     var exPersonalIds = await userPersonalIdRepository.find({where: {personalId: personalId }});
 
-    if (exPersonalIds.length){
+    if (exPersonalIds.length == 0){
         const newUserPersonalId = new UserPersonalId();
         newUserPersonalId.createdUserId = createdUserId
         newUserPersonalId.personalId = personalId,
