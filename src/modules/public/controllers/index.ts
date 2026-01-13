@@ -17,34 +17,34 @@ class PublicControler {
 
     static newInvitation = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const newInvitation  = req.body;
+            const newInvitation = req.body;
             const target = 'newInvitation'
-            const mobileNumber =  newInvitation.mobileNumber
-            const result = await addOTP(target, "deviceUid", "mobile", mobileNumber, 1)   
+            const mobileNumber = newInvitation.mobileNumber
+            const result = await addOTP(target, "deviceUid", "mobile", mobileNumber, 1)
             const smsText = `code: ${result.code} for ${target}`
 
-            const sms = await sendSMS(mobileNumber, smsText) 
-            return res.json({id: result.id, status: result.status, type: result.type, value: result.value});
-        
+            const sms = await sendSMS(mobileNumber, smsText)
+            return res.json({ id: result.id, status: result.status, type: result.type, value: result.value });
+
         } catch (error) {
             next(error)
         }
     };
 
-     static confirmInvitation = async (req: Request, res: Response, next: NextFunction) => {
+    static confirmInvitation = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const newInvitation  = req.body;
+            const newInvitation = req.body;
             const target = 'newInvitation'
-            const mobileNumber =  newInvitation.mobileNumber
+            const mobileNumber = newInvitation.mobileNumber
             const code = newInvitation.code
 
             const result = await checkOTP(target, "deviceUid", "mobile", mobileNumber, 1, code)
             var newInivitation = await addUserInivitation(mobileNumber, "full name", "email", 1, "sessionUd")
 
 
-            
-            return res.json({id: newInivitation.id, status: result.status, type: result.type, value: result.value});
-        
+
+            return res.json({ id: newInivitation.id, status: result.status, type: result.type, value: result.value });
+
         } catch (error) {
             next(error)
         }
@@ -55,7 +55,7 @@ class PublicControler {
         try {
             const result = await serviceBankAccounts()
             return res.json(result);
-        
+
         } catch (error) {
             next(error)
         }
@@ -67,12 +67,20 @@ class PublicControler {
         try {
             const Elections = await electionRepository.findOne({
                 where: { id: electionId, statusSchedule: { status: { stage: { isActual: true } } } },
-                relations: { actualStatusSchedule: { status: { stage: true } }, statusSchedule: { status: true }, ballots: { district: true, ballotItems: { ballotItemValues: {ballotItemValueVote: true}, ballotItemSubjects: true } } },
-                order: { statusSchedule: { status: { id: -1 } }, 
-                          ballots: { district: {region: +1}, districtId:+1, index: +1, 
-                                     ballotItems: { valuePercent: 'DESC', index: +1, ballotItemSubjects: { index: +1 }, 
-                                     ballotItemValues: {votedValue: 'DESC', votedPosition: 'ASC', index: 'DESC', 
-                                                        ballotItemValueVote: {votedValue: 'DESC'}} } } }
+                relations: { actualStatusSchedule: { status: { stage: true } }, statusSchedule: { status: true }, ballots: { district: true, ballotItems: { ballotItemValues: { ballotItemValueVote: true }, ballotItemSubjects: true } } },
+                order: {
+                    statusSchedule: { status: { id: -1 } },
+                    ballots: {
+                        district: { region: +1 }, districtId: +1, index: +1,
+                        ballotItems: {
+                            valuePercent: 'DESC', index: +1, ballotItemSubjects: { index: +1 },
+                            ballotItemValues: {
+                                votedValue: 'DESC', votedPosition: 'ASC', index: 'DESC',
+                                ballotItemValueVote: { votedValue: 'DESC' }
+                            }
+                        }
+                    }
+                }
             });
             return res.json(Elections);
         } catch (error) {
@@ -102,28 +110,28 @@ class PublicControler {
 
     };
 
-    
+
     static findVotedBallotItemList = async (req: Request, res: Response, next: NextFunction) => {
-        
+
         var ballotItemId = parseInt(req.body.ballotItemId)
 
 
         try {
             const result = await votedBallotItemValueRepository
-                                .createQueryBuilder("value")
-                                .innerJoin("value.ballotItemValue", "ballotItemValue")
-                                .innerJoin("value.ballotItem", "ballotItem")
-                                .select("value.ballot_item_value_id", "ballotItemValueId")
-                                .addSelect("value.ballot_item_value_number", "ballotItemValueNumber")
-                                .addSelect("ballotItemValue.voted_value", "ballotitemVotedValue")
-                                .addSelect("COUNT(value.id)", "count")
-                                .where("value.ballotItemId = :ballotItemId", {ballotItemId: ballotItemId})
-                                .groupBy("value.ballot_item_value_number")
-                                .addGroupBy("value.ballot_item_value_id")
-                                .addGroupBy("ballotItemValue.voted_value")
-                                .orderBy("ballotItemValue.voted_value")
-                                .addOrderBy("value.ballot_item_value_id")
-                                .getRawMany();
+                .createQueryBuilder("value")
+                .innerJoin("value.ballotItemValue", "ballotItemValue")
+                .innerJoin("value.ballotItem", "ballotItem")
+                .select("value.ballot_item_value_id", "ballotItemValueId")
+                .addSelect("value.ballot_item_value_number", "ballotItemValueNumber")
+                .addSelect("ballotItemValue.voted_value", "ballotitemVotedValue")
+                .addSelect("COUNT(value.id)", "count")
+                .where("value.ballotItemId = :ballotItemId", { ballotItemId: ballotItemId })
+                .groupBy("value.ballot_item_value_number")
+                .addGroupBy("value.ballot_item_value_id")
+                .addGroupBy("ballotItemValue.voted_value")
+                .orderBy("ballotItemValue.voted_value")
+                .addOrderBy("value.ballot_item_value_id")
+                .getRawMany();
 
             return res.json(result);
         } catch (error) {
@@ -205,18 +213,26 @@ class PublicControler {
 
             const pageList = await delegateRepository.find({
                 where: { isActive: true },
-                relations: { 
-                            user: {userDetail: {district: { region: true } }},
-                            delegateGroup: {delegateGroupType: true} },
+                relations: {
+                    user: { userDetail: { district: { region: true } } },
+                    delegateGroup: { delegateGroupType: true }
+                },
                 order: { id: -1 },
                 skip: skip,
                 take: take,
 
-                select: { id: true, imageUrl: true, delegateName: true, 
-                    user: {id: true, userDetail: {id: true, fullName: true, firstName: true, lastName: true,  
-                                     district: { id: true, name: true, 
-                                                 region: { id: true, name: true } } }},
-                    delegateGroup: {code: true, color: true, name: true, imageUrl: true, number: true, delegateGroupType: {id: true, code: true, name: true} }
+                select: {
+                    id: true, imageUrl: true, delegateName: true,
+                    user: {
+                        id: true, userDetail: {
+                            id: true, fullName: true, firstName: true, lastName: true,
+                            district: {
+                                id: true, name: true,
+                                region: { id: true, name: true }
+                            }
+                        }
+                    },
+                    delegateGroup: { code: true, color: true, name: true, imageUrl: true, number: true, delegateGroupType: { id: true, code: true, name: true } }
                 }
             });
             const count = await userDetailRepository.count({ where: { isDelegate: true } })
@@ -252,7 +268,7 @@ class PublicControler {
 
     };
 
-    
+
     static findAppDownloadUrls = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const BallotTypes = await appDownloadUrlRepository.find();
@@ -268,15 +284,42 @@ class PublicControler {
                 .createQueryBuilder("p")
                 .select("COUNT(DISTINCT p.personal_id)", "count")
                 .getRawOne();
-            
-                const count = Number(result.count);
 
-            return res.json({numbetOfDonationPerson: count });
+            const count = Number(result.count);
+
+            return res.json({ numbetOfDonationPerson: count });
         } catch (error) {
             next(error)
         }
     };
 
+
+    static findPesonalIds = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const pagination = req.query
+            const skip = getSkip(pagination)
+            const take = getTake(pagination)
+
+            const pageList = await userPersonalIdRepository.find({
+                order: { createdOn: -1, id: -1 },
+                skip,
+                take,
+                select: { personalId: true, createdOn: true, fullName: true }
+            });
+
+            const maskedPageList = pageList.map(item => ({
+                ...item,
+                personalId: item.personalId
+                    ? `${item.personalId.slice(0, 1)}${'*'.repeat(item.personalId.length - 3)}${item.personalId.slice(-2)}`
+                    : item.personalId
+            }));
+
+            const count = await userPersonalIdRepository.count()
+            return res.json({ pageList: maskedPageList, count });
+        } catch (error) {
+            next(error)
+        }
+    };
 }
 
 export default PublicControler

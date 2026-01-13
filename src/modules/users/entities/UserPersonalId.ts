@@ -23,6 +23,9 @@ export class UserPersonalId {
 
     @Column()
     createdUserId: number
+    
+    @Column()
+    createdOn: Date
 
     @Column()
     mobileNumber: string

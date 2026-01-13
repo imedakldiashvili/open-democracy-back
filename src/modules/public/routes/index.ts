@@ -27,8 +27,10 @@ publicRouter.post("/public/donations", PublicControler.findDonations)
 publicRouter.post("/public/supporters", PublicControler.finSupporters)
 publicRouter.post("/public/delegates", PublicControler.findDelegates)
 publicRouter.post("/public/delegatesgroups", PublicControler.findDelegatesGroups)
+publicRouter.post("/public/persons", PublicControler.findPesonalIds)
 
 publicRouter.post("/public/createElection", PublicControler.createElection)
+
 
 
 
