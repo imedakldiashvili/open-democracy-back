@@ -343,7 +343,8 @@ export const addUserPersonalId = async (personalId: string, fullName: string, ui
     newUserPersonalId.fullName = fullName,
     newUserPersonalId.uid = uid
     newUserPersonalId.expireOn = dateNowAddMinutes(2 * 24 * 60);
-    newUserPersonalId.statusId = 1   
+    newUserPersonalId.statusId = 1
+    newUserPersonalId.createdOn = dateNow()
     newUserPersonalId.mobileNumber = mobileNumber;             
     await userPersonalIdRepository.save(newUserPersonalId);
 
