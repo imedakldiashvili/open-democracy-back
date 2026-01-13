@@ -49,6 +49,7 @@ export const serviceBOGTransactionProcesing = async () => {
 
         try {
             const resultDescriptionIvivitationId = getTrasactionDescriptionInfo(transaction.description)
+            console.log(transaction.description, resultDescriptionIvivitationId)
             const clientCode =  transaction.clientCode;
             const clientName =  getClientName(transaction.clientName, transaction.clientCode);  
             console.log("addUserPersonalId - add")
