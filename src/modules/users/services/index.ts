@@ -320,10 +320,13 @@ export const addUserPersonalId = async (personalId: string, fullName: string, ui
     console.log("3")
     var exUsersByCode = await userRepository.find({ where: { userDetail: { code: personalId } } })
     if (exUsersByCode.length) { return }
-    console.log("4")
+    console.log("4", userInivitayionId)
     var exUserInivitation = await userInivitationRepository.findOne({ where: {id: userInivitayionId}})
     if (exUserInivitation == null) { return; }
+    console.log("4.1", userInivitayionId)
     if (exUserInivitation.statusId != 1) { return; }
+    console.log("4.2", userInivitayionId)
+    
     console.log("5")
 
 
