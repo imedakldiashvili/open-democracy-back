@@ -317,18 +317,22 @@ export const addUserPersonalId = async (personalId: string, fullName: string, ui
     if (personalId.toString().length != 11) { return }
     var exUsersByCode = await userRepository.find({ where: { userDetail: { code: personalId } } })
     if (exUsersByCode.length) { return }
-    var exUserInivitation = await userInivitationRepository.findOne({ where: {id: userInivitayionId}})
+
+    var exUserInivitation = await userInivitationRepository.findOne({ where: {personalId: personalId}, order: {id: -1}})
     if (exUserInivitation == null) { return; }
     if (exUserInivitation.statusId != 1) { return; }
 
     const mobileNumber = exUserInivitation.mobileNumber;
-    exUserInivitation.statusId = 2;
-    await userInivitationRepository.save(exUserInivitation)
+    for(var itemUserInivitation of exUserInivitations)
+    {
+        itemUserInivitation.statusId = 2;
+        await userInivitationRepository.save(itemUserInivitation);
+    }
 
 
     const createdUserId = createdBy
 
-    var exPersonalIds = await userPersonalIdRepository.find({where: {personalId: personalId }});
+    var exPersonalIds = await userPersonalIdRepository.find({where: {personalId: personalId, statusId: 1 }});
 
     if (exPersonalIds.length == 0){
         const newUserPersonalId = new UserPersonalId();
@@ -347,6 +351,10 @@ export const addUserPersonalId = async (personalId: string, fullName: string, ui
         exPersonalId.mobileNumber = mobileNumber
         await userPersonalIdRepository.save(exPersonalId);    
     }   
+
+    var exUserInivitations = await userInivitationRepository.find({ where: {personalId: personalId}})
+
+
 
     const smsText = "welcome to opendemocracy.ge";            
     if (mobileNumber) { await sendSMS(mobileNumber, smsText) } 
