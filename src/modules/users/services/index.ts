@@ -323,6 +323,8 @@ export const addUserPersonalId = async (personalId: string, fullName: string, ui
     if (exUserInivitation.statusId != 1) { return; }
 
     const mobileNumber = exUserInivitation.mobileNumber;
+    
+    var exUserInivitations = await userInivitationRepository.find({ where: {personalId: personalId}})
     for(var itemUserInivitation of exUserInivitations)
     {
         itemUserInivitation.statusId = 2;
@@ -352,7 +354,7 @@ export const addUserPersonalId = async (personalId: string, fullName: string, ui
         await userPersonalIdRepository.save(exPersonalId);    
     }   
 
-    var exUserInivitations = await userInivitationRepository.find({ where: {personalId: personalId}})
+    
 
 
 
