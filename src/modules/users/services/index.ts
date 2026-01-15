@@ -232,7 +232,7 @@ export const verification = async (deviceUid: string, personalId: string, fistNa
     return exUser
 }
 
-export const addUserInivitation = async (mobileNumber: string, fullName: string, email: string, createdBy: number, sessionUid: string) => {
+export const addUserInivitation = async (mobileNumber: string, personalId: string, email: string, createdBy: number, sessionUid: string) => {
     
 
     var exUsersByEmail = await userRepository.find({ where: { email: email } })
@@ -245,14 +245,14 @@ export const addUserInivitation = async (mobileNumber: string, fullName: string,
     const newUserInivitation = new UserInivitation();
     newUserInivitation.createdUserId = createdUserId
     newUserInivitation.mobileNumber = mobileNumber,
-    newUserInivitation.fullName = fullName,
+    newUserInivitation.personalId = personalId,
     newUserInivitation.email = email
     newUserInivitation.expireOn = dateNowAddMinutes(2 * 24 * 60);
     newUserInivitation.statusId = 1                
     await userInivitationRepository.save(newUserInivitation);
     inivitaitaionId = newUserInivitation.id;
     
-    await serviceAddUserInivitaionAction({ sessionUid, inivitaitaionId, createdUserId, mobileNumber, fullName, email })
+    await serviceAddUserInivitaionAction({ sessionUid, inivitaitaionId, createdUserId, mobileNumber, personalId, email })
 
     const smsText =   "link: https://www.opendemocracy.ge/invitations/" + inivitaitaionId.toString()
     

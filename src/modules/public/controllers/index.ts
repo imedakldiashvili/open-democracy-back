@@ -36,10 +36,11 @@ class PublicControler {
             const newInvitation = req.body;
             const target = 'newInvitation'
             const mobileNumber = newInvitation.mobileNumber
+            const personalId = newInvitation.personalId
             const code = newInvitation.code
 
             const result = await checkOTP(target, "deviceUid", "mobile", mobileNumber, 1, code)
-            var newInivitation = await addUserInivitation(mobileNumber, "full name", "email", 1, "sessionUd")
+            var newInivitation = await addUserInivitation(mobileNumber, personalId, "email", 1, "sessionUd")
 
 
 

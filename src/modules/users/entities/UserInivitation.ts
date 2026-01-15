@@ -10,7 +10,7 @@ export class UserInivitation {
     mobileNumber: string
 
     @Column()
-    fullName: string
+    personalId: string
 
     @Column()
     email: string
