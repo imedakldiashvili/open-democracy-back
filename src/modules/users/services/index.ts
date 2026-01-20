@@ -257,7 +257,7 @@ export const addUserInivitation = async (mobileNumber: string, personalId: strin
     
     const smsText = "მოწვევის გასააქტიურებლად თქვენი პირადი ანგარიშიდან გადარიცხე 1 ლარი, ჩვენს ერთ-ერთ საბანკო ანგარიშზე " + "\n"
                   + "ჩვენი რეკვიზიტები " + "\n"
-                  + "link: https://www.opendemocracy.ge/invitations/" + inivitaitaionId.toString() + "\n"
+                  + "https://www.opendemocracy.ge/invitations/" + inivitaitaionId.toString() + "\n"
     
     if (mobileNumber) { await sendSMS(mobileNumber, smsText) } 
 
@@ -362,7 +362,7 @@ export const addUserPersonalId = async (personalId: string, fullName: string, ui
 
 
     const smsText = "თქვენი მოწვევა გააქტიურებულია, ჩამოტვირთეთ აპლიკაცია და ჩაერთეთ" + "\n" 
-                  + "link: https://www.opendemocracy.ge";
+                  + "https://www.opendemocracy.ge";
     if (mobileNumber) { await sendSMS(mobileNumber, smsText) } 
     
 };
