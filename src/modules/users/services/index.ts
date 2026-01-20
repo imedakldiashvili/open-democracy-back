@@ -254,13 +254,10 @@ export const addUserInivitation = async (mobileNumber: string, personalId: strin
     inivitaitaionId = newUserInivitation.id;
     
     await serviceAddUserInivitaionAction({ sessionUid, inivitaitaionId, createdUserId, mobileNumber, personalId, email })
-
-
-    const bankAccounts = await serviceBankAccounts()
-    var bankAccountText = "";
     
     const smsText = "მოწვევის გასააქტიურებლად თქვენი პირადი ანგარიშიდან გადარიცხე 1 ლარი, ჩვენს ერთ-ერთ საბანკო ანგარიშზე " + "\n"
-                  + "რეკვიზიტები: https://www.opendemocracy.ge/invitations/" + inivitaitaionId.toString() + "\n"
+                  + "ჩვენი რეკვიზიტები " + "\n"
+                  + "link: https://www.opendemocracy.ge/invitations/" + inivitaitaionId.toString() + "\n"
     
     if (mobileNumber) { await sendSMS(mobileNumber, smsText) } 
 
@@ -365,7 +362,7 @@ export const addUserPersonalId = async (personalId: string, fullName: string, ui
 
 
     const smsText = "თქვენი მოწვევა გააქტიურებულია, ჩამოტვირთეთ აპლიკაცია და ჩაერთეთ" + "\n" 
-                  + "https://www.opendemocracy.ge";
+                  + "link: https://www.opendemocracy.ge";
     if (mobileNumber) { await sendSMS(mobileNumber, smsText) } 
     
 };
