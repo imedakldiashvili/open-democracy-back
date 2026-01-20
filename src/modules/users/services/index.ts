@@ -260,7 +260,7 @@ export const addUserInivitation = async (mobileNumber: string, personalId: strin
     var bankAccountText = "";
     for(const bankAccount of bankAccounts)
     {
-        bankAccountText += bankAccount.value + "\n";
+        bankAccountText += "#" + bankAccount.value + "\n";
     }
     const smsText =   "link: https://www.opendemocracy.ge/invitations/" + inivitaitaionId.toString() + "\n" + bankAccountText
     
