@@ -12,6 +12,7 @@ import settings from "../../../settings";
 import { sendMail } from "../../notifications/services";
 import { sendSMS } from "../../notifications/smsApi";
 import e = require("express");
+import { serviceBankAccounts } from "../../banks/services";
 
 
 export const getLoginUser = async (loginEmail: string) => {
@@ -254,7 +255,14 @@ export const addUserInivitation = async (mobileNumber: string, personalId: strin
     
     await serviceAddUserInivitaionAction({ sessionUid, inivitaitaionId, createdUserId, mobileNumber, personalId, email })
 
-    const smsText =   "link: https://www.opendemocracy.ge/invitations/" + inivitaitaionId.toString()
+
+    const bankAccounts = await serviceBankAccounts()
+    var bankAccountText = "";
+    for(const bankAccount of bankAccounts)
+    {
+        bankAccountText += bankAccount.value + "\n";
+    }
+    const smsText =   "link: https://www.opendemocracy.ge/invitations/" + inivitaitaionId.toString() + "\n" + bankAccountText
     
     if (mobileNumber) { await sendSMS(mobileNumber, smsText) } 
 
