@@ -9,7 +9,7 @@ import { getTake, getSkip } from '../../../utils/pagination';
 import { serviceBankAccounts } from '../../banks/services';
 import { serviceCreateElection } from '../../elections/services';
 import { appDownloadUrlRepository } from '../../app-downloads/repositoreis';
-import { addOTP, addUserInivitation, checkOTP } from '../../users/services';
+import { addOTP, addUserInivitation, checkOTP, checkUserInivitation } from '../../users/services';
 import { sendSMS } from '../../notifications/smsApi';
 
 class PublicControler {
@@ -20,9 +20,10 @@ class PublicControler {
             const newInvitation = req.body;
             const target = 'newInvitation'
             const mobileNumber = newInvitation.mobileNumber
+            const personalId = newInvitation.personalId
             const result = await addOTP(target, "deviceUid", "mobile", mobileNumber, 1)
             const smsText = `sms code: ${result.code}`
-
+            await checkUserInivitation(mobileNumber, personalId)
             const sms = await sendSMS(mobileNumber, smsText)
             return res.json({ id: result.id, status: result.status, type: result.type, value: result.value });
 

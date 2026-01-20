@@ -233,17 +233,21 @@ export const verification = async (deviceUid: string, personalId: string, fistNa
     return exUser
 }
 
-export const addUserInivitation = async (mobileNumber: string, personalId: string, email: string, createdBy: number, sessionUid: string) => {
-    
 
-    var exUsersByEmail = await userRepository.find({ where: { userDetail: { code: personalId } } })
-    if (exUsersByEmail.length) { { throwBadRequest("user_with_this_personal_id_already_exists") } }
-
+export const checkUserInivitation = async (mobileNumber: string, personalId: string) => {
     var userInivitationByPersonalId = await userInivitationRepository.find({ where: { statusId: 1, expireOn: MoreThan(dateNow()), personalId: personalId } })
     if (userInivitationByPersonalId.length) { { throwBadRequest("active_user_inivitation_with_this_personal_id_already_exists") } }
     
     var userInivitationByMobileNumber = await userInivitationRepository.find({ where: { statusId: 1, expireOn: MoreThan(dateNow()), mobileNumber: mobileNumber } })
     if (userInivitationByMobileNumber.length) { { throwBadRequest("active_user_inivitation_with_this_mobile_number_already_exists") } }
+    
+    return {message: "ok"}
+}
+
+export const addUserInivitation = async (mobileNumber: string, personalId: string, email: string, createdBy: number, sessionUid: string) => {
+    
+
+
 
 
     const createdUserId = createdBy
