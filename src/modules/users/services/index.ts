@@ -364,7 +364,8 @@ export const addUserPersonalId = async (personalId: string, fullName: string, ui
 
 
 
-    const smsText = "welcome to opendemocracy.ge";            
+    const smsText = "თქვენი მოწვევა გააქტიურებულია, ჩამოტვირთეთ აპლიკაცია და ჩაერთეთ" + "\n" 
+                  + "https://www.opendemocracy.ge";
     if (mobileNumber) { await sendSMS(mobileNumber, smsText) } 
     
 };
