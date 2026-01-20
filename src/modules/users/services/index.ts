@@ -259,7 +259,7 @@ export const addUserInivitation = async (mobileNumber: string, personalId: strin
     const bankAccounts = await serviceBankAccounts()
     var bankAccountText = "";
     
-    const smsText = "გასააქტიურებლად თქვენი პირადი ანგარიშიდან გადარიცხე 1 ლარი, ჩვენს ერთ-ერთ საბანკო ანგარიშზე " + "\n"
+    const smsText = "მოწვევის გასააქტიურებლად თქვენი პირადი ანგარიშიდან გადარიცხე 1 ლარი, ჩვენს ერთ-ერთ საბანკო ანგარიშზე " + "\n"
                   + "რეკვიზიტები: https://www.opendemocracy.ge/invitations/" + inivitaitaionId.toString() + "\n"
     
     if (mobileNumber) { await sendSMS(mobileNumber, smsText) } 
