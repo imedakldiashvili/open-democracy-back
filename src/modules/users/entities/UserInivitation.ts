@@ -15,6 +15,10 @@ export class UserInivitation {
     @Column()
     email: string
 
+    
+    @Column()
+    createdOn: Date
+
     @Column()
     expireOn: Date
 

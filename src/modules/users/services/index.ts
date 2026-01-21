@@ -259,7 +259,8 @@ export const addUserInivitation = async (mobileNumber: string, personalId: strin
     newUserInivitation.mobileNumber = mobileNumber,
     newUserInivitation.personalId = personalId,
     newUserInivitation.email = email
-    newUserInivitation.expireOn = dateNowAddMinutes(2 * 24 * 60);
+    newUserInivitation.createdOn = dateNow();
+    newUserInivitation.expireOn = dateNowAddMinutes(15);
     newUserInivitation.statusId = 1                
     await userInivitationRepository.save(newUserInivitation);
     inivitaitaionId = newUserInivitation.id;
