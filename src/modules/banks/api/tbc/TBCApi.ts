@@ -18,7 +18,6 @@ const baseUrl = "https://secdbi.tbconline.ge/dbi/dbiService"
 const getAxiosInstance = () => {
 
   const certPath = path.join(__dirname, '../../../../../keys/cert/'+keys.TBC_CERT_FILE_NAME+'.pfx');
-  console.log(certPath);
   const httpsAgent = new https.Agent({
     pfx: fs.readFileSync(certPath),
     passphrase: keys.TBC_CERT_PASSWORD,
