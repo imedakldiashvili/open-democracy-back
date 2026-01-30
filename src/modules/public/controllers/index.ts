@@ -306,14 +306,17 @@ class PublicControler {
                 order: { createdOn: -1, id: -1 },
                 skip,
                 take,
-                select: { personalId: true, createdOn: true, fullName: true }
+                select: { personalId: true, mobileNumber: true, createdOn: true }
             });
 
             const maskedPageList = pageList.map(item => ({
                 ...item,
                 personalId: item.personalId
                     ? `${item.personalId.slice(0, 1)}${'*'.repeat(item.personalId.length - 3)}${item.personalId.slice(-2)}`
-                    : item.personalId
+                    : item.personalId,
+                mobileNumber: item.mobileNumber
+                    ? `${item.mobileNumber.slice(0, 1)}${'*'.repeat(item.mobileNumber.length - 3)}${item.mobileNumber.slice(-2)}`
+                    : item.mobileNumber
             }));
 
             const count = await userPersonalIdRepository.count()
