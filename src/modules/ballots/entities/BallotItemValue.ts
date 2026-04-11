@@ -45,7 +45,7 @@ export class BallotItemValue {
 
 
     @OneToMany(() => BallotItemValueVote, (ballotItemValueVote) => ballotItemValueVote.ballotItemValue)
-    ballotItemValueVote: BallotItemValueVote[]
+    ballotItemValueVotes: BallotItemValueVote[]
     
     
 }

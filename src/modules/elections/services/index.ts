@@ -392,7 +392,7 @@ export const serviceCalculateElectionResults = async (electionId: number) => {
     // Get all ballot items and their values and votes
     var ballotItems = await ballotItemRepository.find({
         where: { ballot: { election: { id: electionId } } },
-        relations: { ballot: true, ballotItemValues: { ballotItemValueVote: true } }
+        relations: { ballot: true, ballotItemValues: { ballotItemValueVotes: true } }
     })
     
     // Reset all ballot item values and votes
@@ -405,14 +405,9 @@ export const serviceCalculateElectionResults = async (electionId: number) => {
             ballotItemValue.votedPosition = 0
             ballotItemValue.votedValue = 0
             ballotItemValue.voted = 0
-            ballotItemValue.externalId = 0
             ballotItemValue.numberOfVotes = 0
             await ballotItemValueRepository.save(ballotItemValue)
-            for (var ballotItemValueVote of ballotItemValue.ballotItemValueVote) {
-                ballotItemValueVote.numberOfVotes = 0
-                ballotItemValueVote.votedValue = 0
-                await ballotItemValueVoteRepository.delete(ballotItemValueVote)
-            }
+            await ballotItemValueVoteRepository.remove(ballotItemValue.ballotItemValueVotes || [])
         }
     }
 
