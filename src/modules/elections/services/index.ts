@@ -305,7 +305,7 @@ export const serviceProcessElection = async () => {
     var result = await serviceCalculateElectionResults(election.id)
     console.log("serviceCalculateElectionResults-end")
     console.log("result", result)
-    
+
     let dateTime = new Date()
     if (actualElectionStatusSchedule.valueDateTo >= dateTime) { return { status: 0, message: "waiting_status_" + actualElectionStatusSchedule.status.code } }
 
@@ -381,18 +381,35 @@ export const serviceCalculateElectionResults = async (electionId: number) => {
     })
 
     if (election == null) { return { status: 0, message: "new_election_not_found" } }
-
-    
-
+    console.log("1")
     election.participantVoters = await votingCardRepository.count({ where: { election: { id: electionId }, statusId: 2 } })
+    election.registeredVoters = await votingCardRepository.count({ where: { election: { id: electionId } } })
     await electionRepository.save(election)
-
+    console.log("2")
     var ballotItems = await ballotItemRepository.find({
         where: { ballot: { election: { id: electionId } } },
         relations: { ballot: true, ballotItemValues: true }
     })
+    
+    console.log("3")
+    
+    for (var ballotItem of ballotItems) {
+        ballotItem.numberOfVotes = 0
+        ballotItem.numberOfParticipants = 0
+        ballotItem.valuePercent = 0
+        await ballotItemRepository.save(ballotItem)
+        for (var ballotItemValue of ballotItem.ballotItemValues) {
+            ballotItemValue.votedPosition = 0
+            ballotItemValue.votedValue = 0
+            ballotItemValue.voted = 0
+            ballotItemValue.externalId = 0
+            ballotItemValue.numberOfVotes = 0
+            await ballotItemValueRepository.save(ballotItemValue)
+        }
+    }
 
-
+    console.log("4")
+    
 
     for (var ballotItem of ballotItems) {
         const ballotItemId = ballotItem.id
@@ -422,7 +439,8 @@ export const serviceCalculateElectionResults = async (electionId: number) => {
             .getRawMany(); // Get raw result (since aggregation returns custom columns)
 
         const ballotItemValueIds = []
-
+        console.log("5")
+    
         for (var itemballotItemValue of ballotItem.ballotItemValues) {
             var votedValueIndex = 0
             
@@ -456,7 +474,8 @@ export const serviceCalculateElectionResults = async (electionId: number) => {
                 await ballotItemValueVoteRepository.save(ballotItemValueVote)
             }
         }
-
+        console.log("6")
+    
         var ballotItemValues = await ballotItemValueRepository.find({
                                                                         where: {ballotItem: {id: ballotItem.id}},
                                                                         order: { votedValue: "DESC" }
@@ -474,12 +493,6 @@ export const serviceCalculateElectionResults = async (electionId: number) => {
                 await ballotItemValueRepository.save(ballotItemValue)
             }
         }
-        
-        // while (votedValue < ballotItem.numberOfItemValue) {
-        //     votedValue++
-        //     const initialVotedValue = votedValue;
-        //     await setBallotItemVoteValue( ballotItemId, ballotItemValueIds, initialVotedValue, votedValue, ballotItem.numberOfItemValue)
-        // }
 
     }
 
