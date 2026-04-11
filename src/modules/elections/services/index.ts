@@ -381,17 +381,13 @@ export const serviceCalculateElectionResults = async (electionId: number) => {
     })
 
     if (election == null) { return { status: 0, message: "new_election_not_found" } }
-    console.log("1")
     election.participantVoters = await votingCardRepository.count({ where: { election: { id: electionId }, statusId: 2 } })
     election.registeredVoters = await votingCardRepository.count({ where: { election: { id: electionId } } })
     await electionRepository.save(election)
-    console.log("2")
     var ballotItems = await ballotItemRepository.find({
         where: { ballot: { election: { id: electionId } } },
         relations: { ballot: true, ballotItemValues: true }
     })
-    
-    console.log("3")
     
     for (var ballotItem of ballotItems) {
         ballotItem.numberOfVotes = 0
@@ -407,9 +403,6 @@ export const serviceCalculateElectionResults = async (electionId: number) => {
             await ballotItemValueRepository.save(ballotItemValue)
         }
     }
-
-    console.log("4")
-    
 
     for (var ballotItem of ballotItems) {
         const ballotItemId = ballotItem.id
@@ -450,13 +443,15 @@ export const serviceCalculateElectionResults = async (electionId: number) => {
             const itemVotesResult = votesResult.filter(e=> e.ballotItemValueId == itemballotItemValueId);
             const numberOfVotes = itemVotesResult.filter(e=> e.votedValue > 0).reduce((sum, current) => sum + (1 * current.count), 0);
             
+            console.log("5.1")
+
             var ballotItemValue = await ballotItemValueRepository.findOneOrFail({ where: { id: itemballotItemValueId } })
             ballotItemValue.numberOfVotes = numberOfVotes;
             ballotItemValue.voted = numberOfVotes ? 1 : 0;
             ballotItemValue.votedValue = itemVotesResult.reduce((sum, current) => sum + (current.votedValue * current.count), 0);
             
             await ballotItemValueRepository.save(ballotItemValue) 
-            
+            console.log("5.2")
             while(votedValueIndex < ballotItem.numberOfItemValue)
             {
                 
@@ -473,6 +468,7 @@ export const serviceCalculateElectionResults = async (electionId: number) => {
                 }
                 await ballotItemValueVoteRepository.save(ballotItemValueVote)
             }
+            console.log("5.3")
         }
         console.log("6")
     
