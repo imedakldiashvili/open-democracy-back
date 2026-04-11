@@ -159,7 +159,7 @@ export const serviceCreateElection = async (templateId: number) => {
                             ballotItemValue.title = delegatesGroup.name
                             ballotItemValue.imageUrl = delegate.imageUrl
                             ballotItemValue.votedValue = 0
-
+                            ballotItemValue.externalId = delegate.id
                             await ballotItemValueRepository.save(ballotItemValue);
 
                         }
@@ -191,7 +191,7 @@ export const serviceCreateElection = async (templateId: number) => {
                         ballotItem.ballot = ballot
                         ballotItem.index = itemIndex;
                         ballotItem.index = templateBallotItem.index,
-                            ballotItem.code = templateBallotItem.code;
+                        ballotItem.code = templateBallotItem.code;
                         ballotItem.name = templateBallotItem.name;
                         ballotItem.imageUrl = templateBallotItem.imageUrl;
                         ballotItem.hasItemValue = templateBallotItem.hasItemValue
@@ -205,8 +205,6 @@ export const serviceCreateElection = async (templateId: number) => {
                         var itemValueindex = 0;
                         for (var delegatesGroup of delegatesGroups) {
 
-
-
                             itemValueindex++;
                             var ballotItemValue = new BallotItemValue()
                             ballotItemValue.ballotItem = ballotItem;
@@ -216,7 +214,7 @@ export const serviceCreateElection = async (templateId: number) => {
                             ballotItemValue.index = delegatesGroup.number
                             ballotItemValue.imageUrl = delegatesGroup.imageUrl
                             ballotItemValue.votedValue = 0
-
+                            ballotItemValue.externalId = delegatesGroup.id
                             await ballotItemValueRepository.save(ballotItemValue);
 
                         }

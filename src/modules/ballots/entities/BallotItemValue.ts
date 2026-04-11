@@ -34,6 +34,9 @@ export class BallotItemValue {
     voted: number
 
     @Column()
+    externalId: number
+
+    @Column()
     numberOfVotes: number
 
     @OneToOne(() => BallotItem)
