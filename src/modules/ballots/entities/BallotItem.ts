@@ -42,6 +42,9 @@ export class BallotItem {
     @Column()
     valuePercent: number
 
+    @Column()
+    externalId: number
+
     @OneToOne(() => Ballot)
     @JoinColumn()
     ballot: Ballot   
