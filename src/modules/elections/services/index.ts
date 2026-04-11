@@ -301,10 +301,7 @@ export const serviceProcessElection = async () => {
     if (election == null) { return { status: 0, message: "active_election_election_not_found" } }
     var actualElectionStatusSchedule = election.actualStatusSchedule;
 
-    console.log("serviceCalculateElectionResults-Start")
     var result = await serviceCalculateElectionResults(election.id)
-    console.log("serviceCalculateElectionResults-end")
-    console.log("result", result)
 
     let dateTime = new Date()
     if (actualElectionStatusSchedule.valueDateTo >= dateTime) { return { status: 0, message: "waiting_status_" + actualElectionStatusSchedule.status.code } }
@@ -451,21 +448,13 @@ export const serviceCalculateElectionResults = async (electionId: number) => {
             const itemVotesResult = votesResult.filter(e=> e.ballotItemValueId == itemballotItemValueId);
             const numberOfVotes = itemVotesResult.filter(e=> e.votedValue > 0).reduce((sum, current) => sum + (1 * current.count), 0);
             
-            console.log("5.1")
-
             var ballotItemValue = await ballotItemValueRepository.findOneOrFail({ where: { id: itemballotItemValueId } })
-            console.log("5.1.1")
             ballotItemValue.numberOfVotes = numberOfVotes;
             ballotItemValue.voted = numberOfVotes ? 1 : 0;
             ballotItemValue.votedValue = itemVotesResult.reduce((sum, current) => sum + (current.votedValue * current.count), 0);
-            console.log("5.x")
-            try {
-                var result = await ballotItemValueRepository.save(ballotItemValue)
-                console.log("5.2.1", result)
-            } catch (error) {
-                console.log("5.2.1", error)
-            }
-            console.log("5.2")
+            
+            await ballotItemValueRepository.save(ballotItemValue)
+            
             while(votedValueIndex < ballotItem.numberOfItemValue)
             {
                 
@@ -480,13 +469,9 @@ export const serviceCalculateElectionResults = async (electionId: number) => {
                 if (votesResults.length == 1) {
                     ballotItemValueVote.numberOfVotes = votesResults[0].count
                 }
-                console.log("5.2.1")
                 await ballotItemValueVoteRepository.save(ballotItemValueVote)
-                console.log("5.2.2")
             }
-            console.log("5.3")
         }
-        console.log("6")
     
         var ballotItemValues = await ballotItemValueRepository.find({
                                                                         where: {ballotItem: {id: ballotItem.id}},
