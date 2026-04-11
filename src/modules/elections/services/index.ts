@@ -325,6 +325,14 @@ export const serviceProcessElection = async () => {
     election.uid = newGuid()
     await electionRepository.save(election)
 
+    if (newElectionStatusSchedule.status.id == ElectionStatusEnum.finished) {
+        await votingCardRepository.createQueryBuilder()
+        .update()
+        .set({ statusId: -1 })
+        .where("election_id = :electionId and status_id = :statusId ", { electionId: election.id, statusId: 1 })
+        .execute()
+    }
+
     return { status: 1, message: "election_" + newElectionStatusSchedule.status.code + "_successfuly" };
 }
 
@@ -369,11 +377,7 @@ export const serviceCalculateElectionResults = async (electionId: number) => {
 
     if (election == null) { return { status: 0, message: "new_election_not_found" } }
 
-    await votingCardRepository.createQueryBuilder()
-        .update()
-        .set({ statusId: -1 })
-        .where("election_id = :electionId and status_id = :statusId ", { electionId: electionId, statusId: 1 })
-        .execute()
+    
 
     election.participantVoters = await votingCardRepository.count({ where: { election: { id: electionId }, statusId: 2 } })
     await electionRepository.save(election)
