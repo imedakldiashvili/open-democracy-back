@@ -301,6 +301,11 @@ export const serviceProcessElection = async () => {
     if (election == null) { return { status: 0, message: "active_election_election_not_found" } }
     var actualElectionStatusSchedule = election.actualStatusSchedule;
 
+    console.log("serviceCalculateElectionResults-Start")
+    var result = await serviceCalculateElectionResults(election.id)
+    console.log("serviceCalculateElectionResults-end")
+    console.log("result", result)
+    
     let dateTime = new Date()
     if (actualElectionStatusSchedule.valueDateTo >= dateTime) { return { status: 0, message: "waiting_status_" + actualElectionStatusSchedule.status.code } }
 
@@ -331,7 +336,7 @@ export const serviceProcessElection = async () => {
         .execute()
     }
 
-    await serviceCalculateElectionResults(election.id)
+    
 
     return { status: 1, message: "election_" + newElectionStatusSchedule.status.code + "_successfuly" };
 }
