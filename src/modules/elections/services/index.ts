@@ -479,7 +479,9 @@ export const serviceCalculateElectionResults = async (electionId: number) => {
                 if (votesResults.length == 1) {
                     ballotItemValueVote.numberOfVotes = votesResults[0].count
                 }
+                console.log("5.2.1")
                 await ballotItemValueVoteRepository.save(ballotItemValueVote)
+                console.log("5.2.2")
             }
             console.log("5.3")
         }
