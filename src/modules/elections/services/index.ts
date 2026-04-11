@@ -316,8 +316,6 @@ export const serviceProcessElection = async () => {
         await servicePublishElection(election.id)
     }
 
-    await serviceCalculateElectionResults(election.id)
-
     newElectionStatusSchedule.state = newElectionStatusSchedule.status.id == ElectionStatusEnum.archive ? 2 : 1;
     await electionStatusScheduleRepository.save(newElectionStatusSchedule)
 
@@ -332,6 +330,8 @@ export const serviceProcessElection = async () => {
         .where("election_id = :electionId and status_id = :statusId ", { electionId: election.id, statusId: 1 })
         .execute()
     }
+
+    await serviceCalculateElectionResults(election.id)
 
     return { status: 1, message: "election_" + newElectionStatusSchedule.status.code + "_successfuly" };
 }
