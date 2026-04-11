@@ -375,20 +375,27 @@ export const servicePublishElection = async (electionId: number) => {
 }
 
 export const serviceCalculateElectionResults = async (electionId: number) => {
+    // Check if the election exists
     var election = await electionRepository.findOne({
         where: { id: electionId },
         relations: { statusSchedule: { status: true } }
     })
 
+    // Check if the election exists
     if (election == null) { return { status: 0, message: "new_election_not_found" } }
+    
+    // Get the number of participants and registered voters
     election.participantVoters = await votingCardRepository.count({ where: { election: { id: electionId }, statusId: 2 } })
     election.registeredVoters = await votingCardRepository.count({ where: { election: { id: electionId } } })
     await electionRepository.save(election)
+
+    // Get all ballot items and their values and votes
     var ballotItems = await ballotItemRepository.find({
         where: { ballot: { election: { id: electionId } } },
-        relations: { ballot: true, ballotItemValues: true }
+        relations: { ballot: true, ballotItemValues: { ballotItemValueVote: true } }
     })
     
+    // Reset all ballot item values and votes
     for (var ballotItem of ballotItems) {
         ballotItem.numberOfVotes = 0
         ballotItem.numberOfParticipants = 0
@@ -401,9 +408,15 @@ export const serviceCalculateElectionResults = async (electionId: number) => {
             ballotItemValue.externalId = 0
             ballotItemValue.numberOfVotes = 0
             await ballotItemValueRepository.save(ballotItemValue)
+            for (var ballotItemValueVote of ballotItemValue.ballotItemValueVote) {
+                ballotItemValueVote.numberOfVotes = 0
+                ballotItemValueVote.votedValue = 0
+                await ballotItemValueVoteRepository.delete(ballotItemValueVote)
+            }
         }
     }
 
+    // Calculate the number of participants and votes for each ballot item
     for (var ballotItem of ballotItems) {
         const ballotItemId = ballotItem.id
 
