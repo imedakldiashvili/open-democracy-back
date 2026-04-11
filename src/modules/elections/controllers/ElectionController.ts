@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express'
 import { votingCardRepository } from '../../votings/repositories';
 import { Election} from '../entities';
 import { electionRepository, electionStatusRepository } from '../repositories';
-import { serviceCalculateVotedValueElection, serviceCompleteElection, serviceCreateElection, serviceProcessElection, servicePublishElection } from '../services';
+import { serviceCalculateVotedValueElection, serviceCalculateElectionResults, serviceCreateElection, serviceProcessElection, servicePublishElection } from '../services';
 import { Equal, MoreThan, Not } from 'typeorm';
 import { ElectionStatusEnum } from '../../enums';
 
@@ -28,7 +28,7 @@ class ElectionControler {
     }
 
     static completeElection = async (req: Request, res: Response, next: NextFunction) =>{
-        var result = await serviceCompleteElection(req.body.electionId)
+        var result = await serviceCalculateElectionResults(req.body.electionId)
         return res.json(result);
     }
 

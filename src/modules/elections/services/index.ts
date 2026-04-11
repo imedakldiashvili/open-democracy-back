@@ -310,16 +310,13 @@ export const serviceProcessElection = async () => {
     await electionStatusScheduleRepository.save(actualElectionStatusSchedule)
     var newElectionStatusSchedule = election.statusSchedule.filter(e => (e.state == 0) && (e.status.id > actualElectionStatusSchedule.status.id))[0]
 
+    election = await electionRepository.findOne({ where: { id: election.id } })
 
     if (newElectionStatusSchedule.status.id == ElectionStatusEnum.startedIn) {
         await servicePublishElection(election.id)
-        election = await electionRepository.findOne({ where: { id: election.id } })
     }
 
-    if (newElectionStatusSchedule.status.id == ElectionStatusEnum.finished) {
-        await serviceCompleteElection(election.id)
-        election = await electionRepository.findOne({ where: { id: election.id } })
-    }
+    await serviceCalculateElectionResults(election.id)
 
     newElectionStatusSchedule.state = newElectionStatusSchedule.status.id == ElectionStatusEnum.archive ? 2 : 1;
     await electionStatusScheduleRepository.save(newElectionStatusSchedule)
@@ -364,7 +361,7 @@ export const servicePublishElection = async (electionId: number) => {
     return { status: 1, message: "election_published_successfuly" };
 }
 
-export const serviceCompleteElection = async (electionId: number) => {
+export const serviceCalculateElectionResults = async (electionId: number) => {
     var election = await electionRepository.findOne({
         where: { id: electionId },
         relations: { statusSchedule: { status: true } }
