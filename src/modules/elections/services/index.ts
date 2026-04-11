@@ -505,7 +505,7 @@ export const serviceCalculateElectionResults = async (electionId: number) => {
 
     }
 
-    return { status: 1, message: "election_complete_successfuly" };
+    return { status: 1, message: "election_calculated_successfuly" };
 }
 
 
