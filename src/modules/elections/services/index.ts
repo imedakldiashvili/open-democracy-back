@@ -459,12 +459,14 @@ export const serviceCalculateElectionResults = async (electionId: number) => {
             console.log("5.1")
 
             var ballotItemValue = await ballotItemValueRepository.findOneOrFail({ where: { id: itemballotItemValueId } })
+            console.log("5.1.1")
             ballotItemValue.numberOfVotes = numberOfVotes;
             ballotItemValue.voted = numberOfVotes ? 1 : 0;
             ballotItemValue.votedValue = itemVotesResult.reduce((sum, current) => sum + (current.votedValue * current.count), 0);
-            
+            console.log("5.x")
             try {
-                await ballotItemValueRepository.save(ballotItemValue)
+                var result = await ballotItemValueRepository.save(ballotItemValue)
+                console.log("5.2.1", result)
             } catch (error) {
                 console.log("5.2.1", error)
             }
