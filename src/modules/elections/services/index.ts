@@ -437,7 +437,6 @@ export const serviceCalculateElectionResults = async (electionId: number) => {
             .getRawMany(); // Get raw result (since aggregation returns custom columns)
 
         const ballotItemValueIds = []
-        console.log("5")
     
         for (var itemballotItemValue of ballotItem.ballotItemValues) {
             var votedValueIndex = 0
