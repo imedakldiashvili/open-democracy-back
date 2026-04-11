@@ -463,7 +463,11 @@ export const serviceCalculateElectionResults = async (electionId: number) => {
             ballotItemValue.voted = numberOfVotes ? 1 : 0;
             ballotItemValue.votedValue = itemVotesResult.reduce((sum, current) => sum + (current.votedValue * current.count), 0);
             
-            await ballotItemValueRepository.save(ballotItemValue) 
+            try {
+                await ballotItemValueRepository.save(ballotItemValue)
+            } catch (error) {
+                console.log("5.2.1", error)
+            }
             console.log("5.2")
             while(votedValueIndex < ballotItem.numberOfItemValue)
             {
