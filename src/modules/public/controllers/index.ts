@@ -9,6 +9,7 @@ import { getTake, getSkip } from '../../../utils/pagination';
 import { serviceBankAccounts } from '../../banks/services';
 import { serviceCreateElection } from '../../elections/services';
 import { appDownloadUrlRepository } from '../../app-downloads/repositoreis';
+import { serviceFooterSection, serviceHeroSectionData } from '../services';
 import { addOTP, addUserInivitation, checkOTP, checkUserInivitation } from '../../users/services';
 import { sendSMS } from '../../notifications/smsApi';
 
@@ -275,6 +276,24 @@ class PublicControler {
         try {
             const BallotTypes = await appDownloadUrlRepository.find();
             return res.json(BallotTypes);
+        } catch (error) {
+            next(error)
+        }
+    };
+
+    static findHeroSectionData = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const data = await serviceHeroSectionData();
+            return res.json(data);
+        } catch (error) {
+            next(error)
+        }
+    };
+
+    static findFooterSectionData = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const data = await serviceFooterSection();
+            return res.json(data);
         } catch (error) {
             next(error)
         }

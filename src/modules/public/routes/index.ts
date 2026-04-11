@@ -9,6 +9,10 @@ publicRouter.post("/public/appDownloadUrls", PublicControler.findAppDownloadUrls
 
 publicRouter.post("/public/bankAccounts", PublicControler.findBankAccounts)
 
+publicRouter.post("/public/heroSectionData", PublicControler.findHeroSectionData)
+
+publicRouter.post("/public/footerSectionData", PublicControler.findFooterSectionData)
+
 publicRouter.post("/public/numberDonationPerson", PublicControler.findNumberDonationPerson)
 
 publicRouter.post("/public/newInvitation", PublicControler.newInvitation)
