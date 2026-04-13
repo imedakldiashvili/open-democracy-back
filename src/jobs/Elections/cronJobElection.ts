@@ -1,27 +1,22 @@
-import * as cron from "node-cron";
-import 
-{ 
-    serviceCreateElection,
-    serviceProcessElection, 
-} 
-    from "../../modules/elections/services";
+import * as cron from "node-cron"
+import { jobServiceCreateElection, jobServiceProcessElection } from "./jobServiceElection"
 
 export const cronJobCreateElection = cron.schedule(
     "0 0 1 * *",
-    async () => { 
+    async () => {
         console.log(new Date().toISOString(), "createElection ...")
-        var resut = await serviceCreateElection(1000)
-        console.log(new Date().toISOString(), "createElection ", resut)
-        return resut
+        const result = await jobServiceCreateElection(1000)
+        console.log(new Date().toISOString(), "createElection ", result)
+        return result
     }
 )
 
 export const cronJobElectionProcessing = cron.schedule(
     "*/1 * * * *",
-    async () => { 
+    async () => {
         console.log(new Date().toISOString(), "processElection ...")
-        var resut = await serviceProcessElection()
-        console.log(new Date().toISOString(), "processElection", resut)
-        return resut
+        const result = await jobServiceProcessElection()
+        console.log(new Date().toISOString(), "processElection", result)
+        return result
     }
 )

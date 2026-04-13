@@ -508,7 +508,7 @@ export const serviceProcessElection = async () => {
         .set({ statusId: -1 })
         .where("election_id = :electionId and status_id = :statusId ", { electionId: election.id, statusId: 1 })
         .execute()
-    }    
+    }
 
     return { status: 1, message: "election_" + newElectionStatusSchedule.status.code + "_successfuly" };
 }

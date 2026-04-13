@@ -1,19 +1,20 @@
-import * as cron from "node-cron";
-import { serviceBOGTransactionProcesing, serviceTBCTransactionProcesing } from "../../modules/banks/services";
-
+import * as cron from "node-cron"
+import {
+    jobServiceBOGTransactionProcesing,
+    jobServiceTBCTransactionProcesing,
+} from "./jobServiceDonation"
 
 export const cronJobBankTrasactions = cron.schedule(
     "*/5 * * * *",
-    async () => { 
-        console.log(new Date().toISOString(),"BOGTransaction ...")
-        var resut = await serviceBOGTransactionProcesing()
-        console.log(new Date().toISOString(),"BOGTransaction ", resut)
+    async () => {
+        console.log(new Date().toISOString(), "BOGTransaction ...")
+        const bogResult = await jobServiceBOGTransactionProcesing()
+        console.log(new Date().toISOString(), "BOGTransaction ", bogResult)
 
         console.log(new Date().toISOString(), "TBCTransaction ...")
-        var resut = await serviceTBCTransactionProcesing()
-        console.log(new Date().toISOString(),"TBCTransaction ", resut)
-        
-        return resut
+        const tbcResult = await jobServiceTBCTransactionProcesing()
+        console.log(new Date().toISOString(), "TBCTransaction ", tbcResult)
+
+        return { bog: bogResult, tbc: tbcResult }
     }
 )
-
