@@ -1,6 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn, OneToOne, ManyToMany, JoinTable } from "typeorm"
 import { Ballot } from "../../ballots/entities"
-import { ElectionStatus } from "./ElectionStatus"
 import { ElectionStatusSchedule } from "./ElectionStatusSchedule"
 import { District } from "../../locations/entities"
 
@@ -67,6 +66,9 @@ export class Election {
 
     @Column()
     templateId: number
+
+    @Column()
+    isPermanent: boolean
 
    
 }

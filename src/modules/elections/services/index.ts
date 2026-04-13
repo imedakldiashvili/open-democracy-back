@@ -289,8 +289,6 @@ export const serviceCreateElection = async (templateId: number) => {
     return { status: 1, message: "election_created_successfuly" };
 }
 
-
-
 export const serviceProcessElection = async () => {
     var election = await electionRepository.findOne({
         where: { actualStatusSchedule: { status: { jobProcessingFlag: true } } },
@@ -316,6 +314,9 @@ export const serviceProcessElection = async () => {
 
     if (newElectionStatusSchedule.status.id == ElectionStatusEnum.startedIn) {
         await servicePublishElection(election.id)
+    }
+    if (newElectionStatusSchedule.status.id == ElectionStatusEnum.archive) {
+        await serviceArchiveElection(election.id)
     }
 
     newElectionStatusSchedule.state = newElectionStatusSchedule.status.id == ElectionStatusEnum.archive ? 2 : 1;
@@ -369,6 +370,250 @@ export const servicePublishElection = async (electionId: number) => {
     await electionRepository.save(election)
 
     return { status: 1, message: "election_published_successfuly" };
+}
+
+export const serviceArchiveElection = async (electionId: number) => {
+    const election = await electionRepository.findOne({ where: { id: electionId } })
+    if (election == null) { return { status: 0, message: "new_election_not_found" } }
+
+    await appDataSource.transaction(async (transactionalEntityManager) => {
+        // Transfer ballots -> elections_ballots
+        await transactionalEntityManager.query(
+            `INSERT INTO elections_ballots
+                ("index", code, name, district_id, election_id, ballot_type_id, parent_id)
+            SELECT b."index", b.code, b.name, b.district_id, b.election_id, b.ballot_type_id, b.id
+            FROM ballots b
+            WHERE b.election_id = $1
+              AND NOT EXISTS (
+                SELECT 1
+                FROM elections_ballots eb
+                WHERE eb.election_id = b.election_id
+                  AND eb.parent_id = b.id
+              )`,
+            [electionId]
+        )
+
+        // Transfer ballots_items -> elections_ballots_items
+        await transactionalEntityManager.query(
+            `INSERT INTO elections_ballots_items
+                ("index", code, name, image_url, has_item_value, is_item_value_readonly, number_of_item_value, number_of_votes, number_of_participants, value_percent, external_id, parent_id, election_ballot_id)
+            SELECT bi."index", bi.code, bi.name, bi.image_url, bi.has_item_value, bi.is_item_value_readonly, bi.number_of_item_value, bi.number_of_votes, bi.number_of_participants, bi.value_percent, bi.external_id, bi.id, eb.id
+            FROM ballots_items bi
+            INNER JOIN ballots b ON b.id = bi.ballot_id
+            INNER JOIN elections_ballots eb ON eb.parent_id = b.id AND eb.election_id = b.election_id
+            WHERE b.election_id = $1
+              AND NOT EXISTS (
+                SELECT 1
+                FROM elections_ballots_items ebi
+                WHERE ebi.parent_id = bi.id
+                  AND ebi.election_ballot_id = eb.id
+              )`,
+            [electionId]
+        )
+
+        // Transfer ballots_items_values -> elections_ballots_items_values
+        await transactionalEntityManager.query(
+            `INSERT INTO elections_ballots_items_values
+                ("index", code, title, name, image_url, voted_value, voted_position, voted, external_id, number_of_votes, parent_id, election_ballot_item_id)
+            SELECT biv."index", biv.code, biv.title, biv.name, biv.image_url, biv.voted_value, biv.voted_position, biv.voted, biv.external_id, biv.number_of_votes, biv.id, ebi.id
+            FROM ballots_items_values biv
+            INNER JOIN ballots_items bi ON bi.id = biv.ballot_item_id
+            INNER JOIN elections_ballots_items ebi ON ebi.parent_id = bi.id
+            INNER JOIN ballots b ON b.id = bi.ballot_id
+            INNER JOIN elections_ballots eb ON eb.id = ebi.election_ballot_id AND eb.election_id = b.election_id
+            WHERE b.election_id = $1
+              AND NOT EXISTS (
+                SELECT 1
+                FROM elections_ballots_items_values ebiv
+                WHERE ebiv.parent_id = biv.id
+                  AND ebiv.election_ballot_item_id = ebi.id
+              )`,
+            [electionId]
+        )
+
+        // Transfer ballots_items_subjects -> elections_ballots_items_subjects
+        await transactionalEntityManager.query(
+            `INSERT INTO elections_ballots_items_subjects
+                ("index", code, name, image_url, parent_id, election_ballot_item_id)
+            SELECT bis."index", bis.code, bis.name, bis.image_url, bis.id, ebi.id
+            FROM ballots_items_subjects bis
+            INNER JOIN ballots_items bi ON bi.id = bis.ballot_item_id
+            INNER JOIN elections_ballots_items ebi ON ebi.parent_id = bi.id
+            INNER JOIN ballots b ON b.id = bi.ballot_id
+            INNER JOIN elections_ballots eb ON eb.id = ebi.election_ballot_id AND eb.election_id = b.election_id
+            WHERE b.election_id = $1
+              AND NOT EXISTS (
+                SELECT 1
+                FROM elections_ballots_items_subjects ebis
+                WHERE ebis.parent_id = bis.id
+                  AND ebis.election_ballot_item_id = ebi.id
+              )`,
+            [electionId]
+        )
+
+        // Transfer ballots_items_values_votes -> elections_ballots_items_values_votes
+        await transactionalEntityManager.query(
+            `INSERT INTO elections_ballots_items_values_votes
+                (voted_value, number_of_votes, ballot_item_value_id, parent_id)
+            SELECT bivv.voted_value, bivv.number_of_votes, ebiv.id, bivv.id
+            FROM ballots_items_values_votes bivv
+            INNER JOIN ballots_items_values biv ON biv.id = bivv.ballot_item_value_id
+            INNER JOIN elections_ballots_items_values ebiv ON ebiv.parent_id = biv.id
+            INNER JOIN ballots_items bi ON bi.id = biv.ballot_item_id
+            INNER JOIN ballots b ON b.id = bi.ballot_id
+            INNER JOIN elections_ballots_items ebi ON ebi.id = ebiv.election_ballot_item_id AND ebi.parent_id = bi.id
+            INNER JOIN elections_ballots eb ON eb.id = ebi.election_ballot_id AND eb.election_id = b.election_id
+            WHERE b.election_id = $1
+              AND NOT EXISTS (
+                SELECT 1
+                FROM elections_ballots_items_values_votes ebivv
+                WHERE ebivv.parent_id = bivv.id
+                  AND ebivv.ballot_item_value_id = ebiv.id
+              )`,
+            [electionId]
+        )
+
+        // Transfer votings_cards -> elections_votes_cards
+        await transactionalEntityManager.query(
+            `INSERT INTO elections_votes_cards
+                (election_id, voter_id, district_id, status_id, created_at, voted_at)
+            SELECT vc.election_id, vc.voter_id, vc.district_id, vc.status_id, vc.created_at, vc.voted_at
+            FROM votings_cards vc
+            WHERE vc.election_id = $1
+              AND NOT EXISTS (
+                SELECT 1
+                FROM elections_votes_cards evc
+                WHERE evc.election_id = vc.election_id
+                  AND evc.voter_id = vc.voter_id
+              )`,
+            [electionId]
+        )
+
+        // Transfer votings_cards_ballots -> elections_votes_cards_ballots
+        await transactionalEntityManager.query(
+            `INSERT INTO elections_votes_cards_ballots
+                ("index", election_vote_card_id, election_ballot_id)
+            SELECT vcb."index", evc.id, eb.id
+            FROM votings_cards_ballots vcb
+            INNER JOIN votings_cards vc ON vc.id = vcb.voting_card_id
+            INNER JOIN elections_votes_cards evc ON evc.election_id = vc.election_id AND evc.voter_id = vc.voter_id
+            INNER JOIN elections_ballots eb ON eb.parent_id = vcb.ballot_id AND eb.election_id = vc.election_id
+            WHERE vc.election_id = $1
+              AND NOT EXISTS (
+                SELECT 1
+                FROM elections_votes_cards_ballots evcb
+                WHERE evcb.election_vote_card_id = evc.id
+                  AND evcb.election_ballot_id = eb.id
+                  AND evcb."index" = vcb."index"
+              )`,
+            [electionId]
+        )
+
+        // Transfer votes -> elections_votes
+        await transactionalEntityManager.query(
+            `INSERT INTO elections_votes
+                (voting_card_id)
+            SELECT evc.id
+            FROM votes v
+            INNER JOIN votings_cards vc ON vc.id = v.voting_card_id
+            INNER JOIN elections_votes_cards evc ON evc.election_id = vc.election_id AND evc.voter_id = vc.voter_id
+            WHERE vc.election_id = $1
+              AND NOT EXISTS (
+                SELECT 1
+                FROM elections_votes ev
+                WHERE ev.voting_card_id = evc.id
+              )`,
+            [electionId]
+        )
+
+        // Transfer votes_ballots_items -> elections_votes_ballots_items
+        await transactionalEntityManager.query(
+            `INSERT INTO elections_votes_ballots_items
+                (code, ballot_id, ballot_item_id)
+            SELECT vbi.code, eb.id, ebi.id
+            FROM votes_ballots_items vbi
+            INNER JOIN ballots b ON b.id = vbi.ballot_id
+            INNER JOIN elections_ballots eb ON eb.parent_id = vbi.ballot_id AND eb.election_id = b.election_id
+            INNER JOIN elections_ballots_items ebi ON ebi.parent_id = vbi.ballot_item_id AND ebi.election_ballot_id = eb.id
+            WHERE b.election_id = $1
+              AND NOT EXISTS (
+                SELECT 1
+                FROM elections_votes_ballots_items evbi
+                WHERE evbi.code = vbi.code
+                  AND evbi.ballot_id = eb.id
+                  AND evbi.ballot_item_id = ebi.id
+              )`,
+            [electionId]
+        )
+
+        // Transfer votes_ballots_items_values -> elections_votes_ballots_items_values
+        await transactionalEntityManager.query(
+            `INSERT INTO elections_votes_ballots_items_values
+                (vote_ballot_item_id, voted_value, ballot_item_value_id, ballot_item_id)
+            SELECT evbi.id, vbiv.voted_value, ebiv.id, ebi.id
+            FROM votes_ballots_items_values vbiv
+            INNER JOIN votes_ballots_items vbi ON vbi.id = vbiv.vote_ballot_item_id
+            INNER JOIN ballots_items bi ON bi.id = vbiv.ballot_item_id
+            INNER JOIN ballots b ON b.id = bi.ballot_id
+            INNER JOIN elections_ballots eb ON eb.parent_id = vbi.ballot_id AND eb.election_id = b.election_id
+            INNER JOIN elections_ballots_items ebi ON ebi.parent_id = vbi.ballot_item_id AND ebi.election_ballot_id = eb.id
+            INNER JOIN elections_ballots_items_values ebiv ON ebiv.parent_id = vbiv.ballot_item_value_id AND ebiv.election_ballot_item_id = ebi.id
+            INNER JOIN elections_votes_ballots_items evbi ON evbi.code = vbi.code AND evbi.ballot_id = eb.id AND evbi.ballot_item_id = ebi.id
+            WHERE b.election_id = $1
+              AND NOT EXISTS (
+                SELECT 1
+                FROM elections_votes_ballots_items_values evbiv
+                WHERE evbiv.vote_ballot_item_id = evbi.id
+                  AND evbiv.ballot_item_value_id = ebiv.id
+                  AND evbiv.ballot_item_id = ebi.id
+                  AND evbiv.voted_value = vbiv.voted_value
+              )`,
+            [electionId]
+        )
+
+        if (!election.isPermanent) {
+            await transactionalEntityManager.query(
+                `DELETE FROM votes_ballots_items_values vbiv
+                USING ballots_items bi, ballots b
+                WHERE vbiv.ballot_item_id = bi.id
+                  AND bi.ballot_id = b.id
+                  AND b.election_id = $1`,
+                [electionId]
+            )
+
+            await transactionalEntityManager.query(
+                `DELETE FROM votes_ballots_items vbi
+                USING ballots b
+                WHERE vbi.ballot_id = b.id
+                  AND b.election_id = $1`,
+                [electionId]
+            )
+
+            await transactionalEntityManager.query(
+                `DELETE FROM votes v
+                USING votings_cards vc
+                WHERE v.voting_card_id = vc.id
+                  AND vc.election_id = $1`,
+                [electionId]
+            )
+
+            await transactionalEntityManager.query(
+                `DELETE FROM votings_cards_ballots vcb
+                USING votings_cards vc
+                WHERE vcb.voting_card_id = vc.id
+                  AND vc.election_id = $1`,
+                [electionId]
+            )
+
+            await transactionalEntityManager.query(
+                `DELETE FROM votings_cards
+                WHERE election_id = $1`,
+                [electionId]
+            )
+        }
+    })
+
+    return { status: 1, message: "election_archived_successfuly" };
 }
 
 export const serviceCalculateElectionResults = async (electionId: number) => {
