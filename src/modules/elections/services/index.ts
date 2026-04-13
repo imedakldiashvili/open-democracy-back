@@ -451,13 +451,7 @@ export const serviceCreateElection = async (templateId: number) => {
     if (actualElections.length > 1) { return { status: 0, message: "multiple_actual_elections_exists" }; }
 
     await appDataSource.manager.transaction(async (transactionalEntityManager) => {
-        if (actualElections.length == 1) {
-            const electon = await updateExistingElection(transactionalEntityManager, template, actualElections[0])
-            await syncExElectionBallotsAndChildren(transactionalEntityManager, template, electon)
-        } else {
-            const electon = await createNewElection(transactionalEntityManager, templateId, template, dateValue)
-            await syncNewElectionBallotsAndChildren(transactionalEntityManager, template, electon)
-        }
+        const electon = await createNewElection(transactionalEntityManager, templateId, template, dateValue)
     })
 
     return { status: 1, message: actualElections.length == 1 ? "election_updated_successfuly" : "election_created_successfuly" };
@@ -556,6 +550,7 @@ export const serviceArchiveElection = async (electionId: number) => {
         await transactionalEntityManager.query(
             `INSERT INTO elections_ballots
                 (id, "index", code, name, district_id, election_id, ballot_type_id)
+            OVERRIDING SYSTEM VALUE
             SELECT b.id, b."index", b.code, b.name, b.district_id, $1, b.ballot_type_id
             FROM ballots b
             WHERE b.election_id = $1
@@ -573,6 +568,7 @@ export const serviceArchiveElection = async (electionId: number) => {
         await transactionalEntityManager.query(
             `INSERT INTO elections_ballots_items
                 (id, "index", code, name, image_url, has_item_value, is_item_value_readonly, number_of_item_value, number_of_votes, number_of_participants, value_percent, external_id, election_ballot_id)
+            OVERRIDING SYSTEM VALUE
             SELECT bi.id, bi."index", bi.code, bi.name, bi.image_url, bi.has_item_value, bi.is_item_value_readonly, bi.number_of_item_value, bi.number_of_votes, bi.number_of_participants, bi.value_percent, bi.external_id, bi.ballot_id
             FROM ballots_items bi
             INNER JOIN ballots b ON b.id = bi.ballot_id
@@ -591,6 +587,7 @@ export const serviceArchiveElection = async (electionId: number) => {
         await transactionalEntityManager.query(
             `INSERT INTO elections_ballots_items_values
                 (id, "index", code, title, name, image_url, voted_value, voted_position, voted, external_id, number_of_votes, election_ballot_item_id)
+            OVERRIDING SYSTEM VALUE
             SELECT biv.id, biv."index", biv.code, biv.title, biv.name, biv.image_url, biv.voted_value, biv.voted_position, biv.voted, biv.external_id, biv.number_of_votes, bi.id
             FROM ballots_items_values biv
             INNER JOIN ballots_items bi ON bi.id = biv.ballot_item_id
@@ -610,6 +607,7 @@ export const serviceArchiveElection = async (electionId: number) => {
         await transactionalEntityManager.query(
             `INSERT INTO elections_ballots_items_subjects
                 (id, "index", code, name, image_url, election_ballot_item_id)
+            OVERRIDING SYSTEM VALUE
             SELECT bis.id, bis."index", bis.code, bis.name, bis.image_url, bi.id
             FROM ballots_items_subjects bis
             INNER JOIN ballots_items bi ON bi.id = bis.ballot_item_id
@@ -629,6 +627,7 @@ export const serviceArchiveElection = async (electionId: number) => {
         await transactionalEntityManager.query(
             `INSERT INTO elections_ballots_items_values_votes
                 (id, voted_value, number_of_votes, election_ballot_item_value_id)
+            OVERRIDING SYSTEM VALUE
             SELECT bivv.id, bivv.voted_value, bivv.number_of_votes, biv.id
             FROM ballots_items_values_votes bivv
             INNER JOIN ballots_items_values biv ON biv.id = bivv.ballot_item_value_id
@@ -649,6 +648,7 @@ export const serviceArchiveElection = async (electionId: number) => {
         await transactionalEntityManager.query(
             `INSERT INTO elections_votings_cards
                 (id, election_id, voter_id, district_id, status_id, created_at, voted_at)
+            OVERRIDING SYSTEM VALUE
             SELECT vc.id, $1, vc.voter_id, vc.district_id, vc.status_id, vc.created_at, vc.voted_at
             FROM votings_cards vc
             WHERE vc.election_id = $1
@@ -666,6 +666,7 @@ export const serviceArchiveElection = async (electionId: number) => {
         await transactionalEntityManager.query(
             `INSERT INTO elections_votings_cards_ballots
                 (id, "index", election_voting_card_id, election_ballot_id)
+            OVERRIDING SYSTEM VALUE
             SELECT vcb.id, vcb."index", vc.id, vcb.ballot_id
             FROM votings_cards_ballots vcb
             INNER JOIN votings_cards vc ON vc.id = vcb.voting_card_id
@@ -685,6 +686,7 @@ export const serviceArchiveElection = async (electionId: number) => {
         await transactionalEntityManager.query(
             `INSERT INTO elections_votes
                 (id, election_voting_card_id)
+            OVERRIDING SYSTEM VALUE
             SELECT v.id, vc.id
             FROM votes v
             INNER JOIN votings_cards vc ON vc.id = v.voting_card_id
@@ -702,6 +704,7 @@ export const serviceArchiveElection = async (electionId: number) => {
         await transactionalEntityManager.query(
             `INSERT INTO elections_votes_ballots_items
                 (id, code, election_ballot_id, election_ballot_item_id)
+            OVERRIDING SYSTEM VALUE
             SELECT vbi.id, vbi.code, vbi.ballot_id, vbi.ballot_item_id
             FROM votes_ballots_items vbi
             INNER JOIN ballots b ON b.id = vbi.ballot_id
@@ -719,6 +722,7 @@ export const serviceArchiveElection = async (electionId: number) => {
         await transactionalEntityManager.query(
             `INSERT INTO elections_votes_ballots_items_values
                 (id, election_vote_ballot_item_id, voted_value, election_ballot_item_value_id, election_ballot_item_id)
+            OVERRIDING SYSTEM VALUE
             SELECT vbiv.id::uuid, vbiv.vote_ballot_item_id::uuid, vbiv.voted_value, vbiv.ballot_item_value_id, vbiv.ballot_item_id
             FROM votes_ballots_items_values vbiv
             INNER JOIN votes_ballots_items vbi ON vbi.id = vbiv.vote_ballot_item_id::uuid
@@ -732,46 +736,110 @@ export const serviceArchiveElection = async (electionId: number) => {
             [electionId]
         )
 
-        if (!election.isPermanent) {
-            await transactionalEntityManager.query(
-                `DELETE FROM votes_ballots_items_values vbiv
+        // After archive copy: always remove live rows for this election (votes, cards, ballots tree).
+        console.log("// Archive cleanup: live votes / cards / ballots", electionId)
+
+        // votes_ballots_items_values — ამომრჩევლის არჩეული მნიშვნელობები (ხმის დეტალები პუნქტზე)
+        console.log("// Delete votes_ballots_items_values")
+        await transactionalEntityManager.query(
+            `DELETE FROM votes_ballots_items_values vbiv
                 USING ballots_items bi, ballots b
                 WHERE vbiv.ballot_item_id = bi.id
                   AND bi.ballot_id = b.id
                   AND b.election_id = $1`,
-                [electionId]
-            )
+            [electionId]
+        )
 
-            await transactionalEntityManager.query(
-                `DELETE FROM votes_ballots_items vbi
+        // votes_ballots_items — ხმა ბიულეტენის კონკრეტულ პუნქტზე
+        console.log("// Delete votes_ballots_items")
+        await transactionalEntityManager.query(
+            `DELETE FROM votes_ballots_items vbi
                 USING ballots b
                 WHERE vbi.ballot_id = b.id
                   AND b.election_id = $1`,
-                [electionId]
-            )
+            [electionId]
+        )
 
-            await transactionalEntityManager.query(
-                `DELETE FROM votes v
+        // votes — ხმის სესია (ბარათთან ბმა voting_card_id-ით)
+        console.log("// Delete votes")
+        await transactionalEntityManager.query(
+            `DELETE FROM votes v
                 USING votings_cards vc
                 WHERE v.voting_card_id = vc.id
                   AND vc.election_id = $1`,
-                [electionId]
-            )
+            [electionId]
+        )
 
-            await transactionalEntityManager.query(
-                `DELETE FROM votings_cards_ballots vcb
+        // votings_cards_ballots — რომელი ბიულეტენია მიბმული ამომრჩევლის ბარათზე
+        console.log("// Delete votings_cards_ballots")
+        await transactionalEntityManager.query(
+            `DELETE FROM votings_cards_ballots vcb
                 USING votings_cards vc
                 WHERE vcb.voting_card_id = vc.id
                   AND vc.election_id = $1`,
-                [electionId]
-            )
+            [electionId]
+        )
 
-            await transactionalEntityManager.query(
-                `DELETE FROM votings_cards
+        // votings_cards — საარჩევნო ბარათები ამ არჩევნისთვის
+        console.log("// Delete votings_cards")
+        await transactionalEntityManager.query(
+            `DELETE FROM votings_cards
                 WHERE election_id = $1`,
-                [electionId]
-            )
-        }
+            [electionId]
+        )
+
+        // ballots_* — ბიულეტენის სტრუქტურა/აგრეგატები (უკვე elections_*-შია აკოპირებული)
+        // ballots_items_values_votes
+        console.log("// Delete ballots_items_values_votes")
+        await transactionalEntityManager.query(
+            `DELETE FROM ballots_items_values_votes bivv
+                USING ballots_items_values biv, ballots_items bi, ballots b
+                WHERE bivv.ballot_item_value_id = biv.id
+                  AND biv.ballot_item_id = bi.id
+                  AND bi.ballot_id = b.id
+                  AND b.election_id = $1`,
+            [electionId]
+        )
+
+        // ballots_items_values
+        console.log("// Delete ballots_items_values")
+        await transactionalEntityManager.query(
+            `DELETE FROM ballots_items_values biv
+                USING ballots_items bi, ballots b
+                WHERE biv.ballot_item_id = bi.id
+                  AND bi.ballot_id = b.id
+                  AND b.election_id = $1`,
+            [electionId]
+        )
+
+        // ballots_items_subjects
+        console.log("// Delete ballots_items_subjects")
+        await transactionalEntityManager.query(
+            `DELETE FROM ballots_items_subjects bis
+                USING ballots_items bi, ballots b
+                WHERE bis.ballot_item_id = bi.id
+                  AND bi.ballot_id = b.id
+                  AND b.election_id = $1`,
+            [electionId]
+        )
+
+        // ballots_items
+        console.log("// Delete ballots_items")
+        await transactionalEntityManager.query(
+            `DELETE FROM ballots_items bi
+                USING ballots b
+                WHERE bi.ballot_id = b.id
+                  AND b.election_id = $1`,
+            [electionId]
+        )
+
+        // ballots
+        console.log("// Delete ballots")
+        await transactionalEntityManager.query(
+            `DELETE FROM ballots b
+                WHERE b.election_id = $1`,
+            [electionId]
+        )
     })
 
     return { status: 1, message: "election_archived_successfuly" };
@@ -781,11 +849,15 @@ export const serviceCalculateElectionResults = async (electionId: number) => {
     // Check if the election exists
     var election = await electionRepository.findOne({
         where: { id: electionId },
-        relations: { statusSchedule: { status: true } }
+        relations: { statusSchedule: { status: true }, actualStatusSchedule: { status: true } }
     })
 
     // Check if the election exists
     if (election == null) { return { status: 0, message: "new_election_not_found" } }
+
+    if (election.actualStatusSchedule?.status?.id === ElectionStatusEnum.archive) {
+        return { status: 0, message: "election_archived_no_recount" }
+    }
     
     // Get the number of participants and registered voters
     election.participantVoters = await votingCardRepository.count({ where: { election: { id: electionId }, statusId: 2 } })
