@@ -684,7 +684,7 @@ export const serviceArchiveElection = async (electionId: number) => {
         console.log("// Transfer votes -> elections_votes")
         await transactionalEntityManager.query(
             `INSERT INTO elections_votes
-                (id, voting_card_id)
+                (id, election_voting_card_id)
             SELECT v.id, vc.id
             FROM votes v
             INNER JOIN votings_cards vc ON vc.id = v.voting_card_id
@@ -701,7 +701,7 @@ export const serviceArchiveElection = async (electionId: number) => {
         console.log("// Transfer votes_ballots_items -> elections_votes_ballots_items")
         await transactionalEntityManager.query(
             `INSERT INTO elections_votes_ballots_items
-                (id, code, ballot_id, ballot_item_id)
+                (id, code, election_ballot_id, election_ballot_item_id)
             SELECT vbi.id, vbi.code, vbi.ballot_id, vbi.ballot_item_id
             FROM votes_ballots_items vbi
             INNER JOIN ballots b ON b.id = vbi.ballot_id
@@ -718,7 +718,7 @@ export const serviceArchiveElection = async (electionId: number) => {
         console.log("// Transfer votes_ballots_items_values -> elections_votes_ballots_items_values")
         await transactionalEntityManager.query(
             `INSERT INTO elections_votes_ballots_items_values
-                (id, vote_ballot_item_id, voted_value, ballot_item_value_id, ballot_item_id)
+                (id, election_vote_ballot_item_id, voted_value, election_ballot_item_value_id, election_ballot_item_id)
             SELECT vbiv.id, vbiv.vote_ballot_item_id, vbiv.voted_value, vbiv.ballot_item_value_id, vbiv.ballot_item_id
             FROM votes_ballots_items_values vbiv
             INNER JOIN votes_ballots_items vbi ON vbi.id = vbiv.vote_ballot_item_id

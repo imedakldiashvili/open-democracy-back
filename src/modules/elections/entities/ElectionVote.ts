@@ -7,6 +7,6 @@ export class ElectionVote{
     id: string
 
     @Column()
-    votingCardId: number
+    electionVotingCardId: number
 
 }

@@ -9,16 +9,16 @@ export class ElectionVoteBallotItemValue {
     id: string
 
     @Column()
-    voteBallotItemId: string
+    electionVoteBallotItemId: string
 
     @Column()
     votedValue: number
 
     @Column()
-    ballotItemValueId: number 
+    electionBallotItemValueId: number 
 
     @Column()
-    ballotItemId: number 
+    electionBallotItemId: number 
 
     @OneToOne(() => ElectionBallotItem)
     @JoinColumn()

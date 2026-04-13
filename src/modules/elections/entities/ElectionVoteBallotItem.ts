@@ -12,14 +12,14 @@ export class ElectionVoteBallotItem {
     code: string
 
     @Column()
-    ballotId: number
+    electionBallotId: number
     
     @OneToOne(() => ElectionBallot)
     @JoinColumn()
     electionBallot: ElectionBallot
 
     @Column()
-    ballotItemId: number
+    electionBallotItemId: number
 
     @OneToOne(() => ElectionBallotItem)
     @JoinColumn()
