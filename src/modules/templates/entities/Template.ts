@@ -19,7 +19,11 @@ export class Template {
     name: string
 
     @Column()
-    isActive: Boolean
+    isActive: boolean
+
+    
+    @Column()
+    isPermanent: boolean
 
     @OneToMany(() => TemplateBallot, (templateBallots) => templateBallots.template)
     templateBallots: TemplateBallot[]   

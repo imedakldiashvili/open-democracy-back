@@ -19,31 +19,9 @@ import { BallotItemValueVote } from "../../ballots/entities/BallotItemValueVote"
 
 
 export const serviceCreateElection = async (templateId: number) => {
+    const dateValue = dateNowMinute();
 
-    var exElections = await electionRepository.find({ where: { templateId: templateId, actualStatusSchedule: { status: { jobProcessingFlag: true } } } })
-    if (exElections.length > 0) { return { status: 0, message: "not_complete_elections_exists" }; }
-
-    var resultedElections = await electionRepository.find({
-        where: { templateId: templateId, statusSchedule: true, actualStatusSchedule: { status: { id: ElectionStatusEnum.finished } } }
-    })
-
-
-
-    for (var resultedElection of resultedElections) {
-        var newElectionStatusSchedule = resultedElection.statusSchedule.filter(e => (e.state == 0) && (e.status.id = ElectionStatusEnum.result))[0]
-        resultedElection.actualStatusSchedule = newElectionStatusSchedule;
-
-        newElectionStatusSchedule.state = 2;
-        await electionStatusScheduleRepository.save(newElectionStatusSchedule)
-
-        resultedElection.actualStatusSchedule = newElectionStatusSchedule
-        resultedElection.uid = newGuid()
-        await electionRepository.save(resultedElection)
-    }
-
-    var dateValue = dateNowMinute();
-
-    var template = await templateRepository.findOne({
+    const template = await templateRepository.findOne({
         where: { id: templateId, isActive: true },
         relations: {
             templateBallots: {
@@ -59,100 +37,127 @@ export const serviceCreateElection = async (templateId: number) => {
 
     if (!template) { return { status: 0, message: "active_template_not_found" }; }
 
+    const actualElections = await electionRepository.find({
+        where: { templateId: templateId, isActual: true },
+        relations: { statusSchedule: { status: true }, actualStatusSchedule: { status: true } }
+    })
+    if (actualElections.length > 1) { return { status: 0, message: "multiple_actual_elections_exists" }; }
 
     await appDataSource.manager.transaction(async (transactionalEntityManager) => {
+        let electon: Election
 
-        var electon = new Election()
-        electon.templateId = template.id
-        electon.uid = newGuid()
-        electon.code = template.code
-        electon.name = template.name
-        electon.registeredVoters = 0
-        electon.participantVoters = 0
-        electon.createdAt = dateValue,
+        if (actualElections.length == 1) {
+            electon = actualElections[0]
+            electon.uid = newGuid()
+            electon.code = template.code
+            electon.name = template.name
+            electon.isPermanent = template.isPermanent
+            await transactionalEntityManager.save(Election, electon)
+        }
+        else {
+            electon = new Election()
+            electon.templateId = template.id
+            electon.uid = newGuid()
+            electon.code = template.code
+            electon.name = template.name
+            electon.registeredVoters = 0
+            electon.participantVoters = 0
+            electon.createdAt = dateValue
+            electon.isPermanent = template.isPermanent
+            electon.isActual = true
 
-            await electionRepository.save(electon);
+            await transactionalEntityManager.save(Election, electon)
 
-        // electon.code = template.code + ' / ' + electon.id
-        // electon.name = template.name + ' / ' + electon.id
-        // await electionRepository.save(electon);
+            const templateStatusSchedule = await templateStatusScheduleRepository.find({
+                where: { template: { id: templateId } },
+                relations: { status: true }
+            });
 
-
-        var templateStatusSchedule = await templateStatusScheduleRepository.find({
-            where: { template: { id: templateId } },
-            relations: { status: true }
-        });
-
-
-        for (var itemTempalteStatusSchedule of templateStatusSchedule) {
-            var elemplateStatusSchedule = new ElectionStatusSchedule();
-            elemplateStatusSchedule.election = electon;
-            elemplateStatusSchedule.state = itemTempalteStatusSchedule.state,
-                elemplateStatusSchedule.status = itemTempalteStatusSchedule.status,
-                elemplateStatusSchedule.hasValueDate = itemTempalteStatusSchedule.hasValueMin,
-                elemplateStatusSchedule.valueDateFrom = addMinutes(dateValue, itemTempalteStatusSchedule.valueMinFrom),
+            for (const itemTempalteStatusSchedule of templateStatusSchedule) {
+                const elemplateStatusSchedule = new ElectionStatusSchedule();
+                elemplateStatusSchedule.election = electon;
+                elemplateStatusSchedule.state = itemTempalteStatusSchedule.state
+                elemplateStatusSchedule.status = itemTempalteStatusSchedule.status
+                elemplateStatusSchedule.hasValueDate = itemTempalteStatusSchedule.hasValueMin
+                elemplateStatusSchedule.valueDateFrom = addMinutes(dateValue, itemTempalteStatusSchedule.valueMinFrom)
                 elemplateStatusSchedule.valueDateTo = addMinutes(dateValue, itemTempalteStatusSchedule.valueMinTo)
 
-            await electionStatusScheduleRepository.save(elemplateStatusSchedule)
-            if (itemTempalteStatusSchedule.status.id == ElectionStatusEnum.new) {
-                electon.actualStatusSchedule = elemplateStatusSchedule
-                await electionRepository.save(electon);
-            }
+                await transactionalEntityManager.save(ElectionStatusSchedule, elemplateStatusSchedule)
+                if (itemTempalteStatusSchedule.status.id == ElectionStatusEnum.new) {
+                    electon.actualStatusSchedule = elemplateStatusSchedule
+                    await transactionalEntityManager.save(Election, electon)
+                }
 
-            if (itemTempalteStatusSchedule.status.id == ElectionStatusEnum.In_Progress_10) {
-                electon.valueDateFrom = addMinutes(dateValue, itemTempalteStatusSchedule.valueMinFrom)
-                await electionRepository.save(electon);
-            }
+                if (itemTempalteStatusSchedule.status.id == ElectionStatusEnum.In_Progress_10) {
+                    electon.valueDateFrom = addMinutes(dateValue, itemTempalteStatusSchedule.valueMinFrom)
+                    await transactionalEntityManager.save(Election, electon)
+                }
 
-            if (itemTempalteStatusSchedule.status.id == ElectionStatusEnum.In_Progress_20) {
-                electon.valueDateTo = addMinutes(dateValue, itemTempalteStatusSchedule.valueMinTo)
-                await electionRepository.save(electon);
+                if (itemTempalteStatusSchedule.status.id == ElectionStatusEnum.In_Progress_20) {
+                    electon.valueDateTo = addMinutes(dateValue, itemTempalteStatusSchedule.valueMinTo)
+                    await transactionalEntityManager.save(Election, electon)
+                }
             }
-
         }
 
-        for (var tempateBallot of template.templateBallots) {
+        for (const tempateBallot of template.templateBallots) {
 
-            for (var templateBallotDistrict of tempateBallot.templateBallotDistricts) {
+            for (const templateBallotDistrict of tempateBallot.templateBallotDistricts) {
 
-                var ballot = new Ballot()
+                let ballot = await ballotRepository.findOne({
+                    where: {
+                        electionId: electon.id,
+                        districtId: templateBallotDistrict.districtId,
+                        ballotTypeId: tempateBallot.ballotTypeId
+                    }
+                })
 
-                ballot.election = electon;
-                ballot.index = tempateBallot.index,
-                    ballot.ballotTypeId = tempateBallot.ballotTypeId,
-                    ballot.code = tempateBallot.ballotType.code,
-                    ballot.name = tempateBallot.ballotType.name,
-                    ballot.districtId = templateBallotDistrict.districtId,
+                if (!ballot) {
+                    ballot = new Ballot()
+                    ballot.election = electon;
+                    ballot.index = tempateBallot.index
+                    ballot.ballotTypeId = tempateBallot.ballotTypeId
+                    ballot.code = tempateBallot.ballotType.code
+                    ballot.name = tempateBallot.ballotType.name
+                    ballot.districtId = templateBallotDistrict.districtId
 
-                    await ballotRepository.save(ballot);
+                    await transactionalEntityManager.save(Ballot, ballot)
+                }
 
                 if (tempateBallot.ballotType.ballotSourceId == 20) {
-                    var itemIndex = 0;
-                    var delegatesGroups = await delegateGroupRepository.find({
+                    const delegatesGroups = await delegateGroupRepository.find({
                         relations: { delegates: { user: { userDetail: true } } },
                         where: { isActive: true },
                         order: { number: +1 }
                     });
 
-                    for (var delegatesGroup of delegatesGroups) {
-                        itemIndex++;
-                        var ballotItem = new BallotItem()
+                    for (const delegatesGroup of delegatesGroups) {
+                        let ballotItem = await ballotItemRepository.findOne({
+                            where: { ballot: { id: ballot.id }, externalId: delegatesGroup.id }
+                        })
 
-                        ballotItem.ballot = ballot
-                        ballotItem.index = delegatesGroup.number,
-                        ballotItem.code = delegatesGroup.color;
-                        ballotItem.name = delegatesGroup.name;
-                        ballotItem.imageUrl = delegatesGroup.imageUrl;
-                        ballotItem.hasItemValue = delegatesGroup.delegates.length > 0
-                        ballotItem.isItemValueReadonly = true
-                        ballotItem.numberOfItemValue = delegatesGroup.delegates.length;
-                        ballotItem.externalId = delegatesGroup.id,
+                        if (!ballotItem) {
+                            ballotItem = new BallotItem()
+                            ballotItem.ballot = ballot
+                            ballotItem.index = delegatesGroup.number
+                            ballotItem.code = delegatesGroup.color
+                            ballotItem.name = delegatesGroup.name
+                            ballotItem.imageUrl = delegatesGroup.imageUrl
+                            ballotItem.hasItemValue = delegatesGroup.delegates.length > 0
+                            ballotItem.isItemValueReadonly = true
+                            ballotItem.numberOfItemValue = delegatesGroup.delegates.length
+                            ballotItem.externalId = delegatesGroup.id
+                            await transactionalEntityManager.save(BallotItem, ballotItem)
+                        }
 
-                        await ballotItemRepository.save(ballotItem);
+                        for (const delegate of delegatesGroup.delegates) {
+                            const existValue = await ballotItemValueRepository.findOne({
+                                where: { ballotItem: { id: ballotItem.id }, externalId: delegate.id }
+                            })
+                            if (existValue) { continue; }
 
-                        for (var delegate of delegatesGroup.delegates) {
-                            var ballotItemValue = new BallotItemValue()
-                            ballotItemValue.ballotItem = ballotItem;
+                            const ballotItemValue = new BallotItemValue()
+                            ballotItemValue.ballotItem = ballotItem
                             ballotItemValue.index = 0
                             ballotItemValue.code = delegate.user.userDetail.code
                             ballotItemValue.name = delegate.user.userDetail.fullName
@@ -160,54 +165,60 @@ export const serviceCreateElection = async (templateId: number) => {
                             ballotItemValue.imageUrl = delegate.imageUrl
                             ballotItemValue.votedValue = 0
                             ballotItemValue.externalId = delegate.id
-                            await ballotItemValueRepository.save(ballotItemValue);
-
+                            await transactionalEntityManager.save(BallotItemValue, ballotItemValue)
                         }
 
-                        var newBallotItemSubject = new BallotItemSubject()
-                        newBallotItemSubject.ballotItem = ballotItem;
-                        newBallotItemSubject.index = delegatesGroup.number
-                        newBallotItemSubject.code = delegatesGroup.code
-                        newBallotItemSubject.name = delegatesGroup.name
-                        newBallotItemSubject.imageUrl = delegatesGroup.imageUrl
-
-                        await ballotItemSubjectRepository.save(newBallotItemSubject);
+                        const exSubject = await ballotItemSubjectRepository.findOne({
+                            where: { ballotItem: { id: ballotItem.id }, code: delegatesGroup.code }
+                        })
+                        if (!exSubject) {
+                            const newBallotItemSubject = new BallotItemSubject()
+                            newBallotItemSubject.ballotItem = ballotItem
+                            newBallotItemSubject.index = delegatesGroup.number
+                            newBallotItemSubject.code = delegatesGroup.code
+                            newBallotItemSubject.name = delegatesGroup.name
+                            newBallotItemSubject.imageUrl = delegatesGroup.imageUrl
+                            await transactionalEntityManager.save(BallotItemSubject, newBallotItemSubject)
+                        }
 
                     }
 
                 }
 
                 if (tempateBallot.ballotType.ballotSourceId == 21) {
-                    var delegatesGroups = await delegateGroupRepository.find({
+                    const delegatesGroups = await delegateGroupRepository.find({
                         relations: { delegates: { user: true } },
                         order: { number: +1 }
                     });
 
-                    var itemIndex = 0;
-                    for (var templateBallotItem of tempateBallot.templateBallotItems) {
-                        itemIndex++;
-                        var ballotItem = new BallotItem()
-
-                        ballotItem.ballot = ballot
-                        ballotItem.index = itemIndex;
-                        ballotItem.index = templateBallotItem.index,
-                        ballotItem.code = templateBallotItem.code;
-                        ballotItem.name = templateBallotItem.name;
-                        ballotItem.imageUrl = templateBallotItem.imageUrl;
-                        ballotItem.hasItemValue = templateBallotItem.hasItemValue
-                        ballotItem.isItemValueReadonly = templateBallotItem.isItemValueReadonly
-                        ballotItem.numberOfItemValue = templateBallotItem.numberOfItemValue;
-
-                        await ballotItemRepository.save(ballotItem);
+                    for (const templateBallotItem of tempateBallot.templateBallotItems) {
+                        let ballotItem = await ballotItemRepository.findOne({
+                            where: { ballot: { id: ballot.id }, externalId: templateBallotItem.id }
+                        })
+                        if (!ballotItem) {
+                            ballotItem = new BallotItem()
+                            ballotItem.ballot = ballot
+                            ballotItem.index = templateBallotItem.index
+                            ballotItem.code = templateBallotItem.code
+                            ballotItem.name = templateBallotItem.name
+                            ballotItem.imageUrl = templateBallotItem.imageUrl
+                            ballotItem.hasItemValue = templateBallotItem.hasItemValue
+                            ballotItem.isItemValueReadonly = templateBallotItem.isItemValueReadonly
+                            ballotItem.numberOfItemValue = templateBallotItem.numberOfItemValue
+                            ballotItem.externalId = templateBallotItem.id
+                            await transactionalEntityManager.save(BallotItem, ballotItem)
+                        }
 
                         if (!templateBallotItem.hasItemValue) { continue; }
 
-                        var itemValueindex = 0;
-                        for (var delegatesGroup of delegatesGroups) {
+                        for (const delegatesGroup of delegatesGroups) {
+                            const existValue = await ballotItemValueRepository.findOne({
+                                where: { ballotItem: { id: ballotItem.id }, externalId: delegatesGroup.id }
+                            })
+                            if (existValue) { continue; }
 
-                            itemValueindex++;
-                            var ballotItemValue = new BallotItemValue()
-                            ballotItemValue.ballotItem = ballotItem;
+                            const ballotItemValue = new BallotItemValue()
+                            ballotItemValue.ballotItem = ballotItem
                             ballotItemValue.code = delegatesGroup.color
                             ballotItemValue.name = delegatesGroup.name
                             ballotItemValue.title = delegatesGroup.name
@@ -215,7 +226,7 @@ export const serviceCreateElection = async (templateId: number) => {
                             ballotItemValue.imageUrl = delegatesGroup.imageUrl
                             ballotItemValue.votedValue = 0
                             ballotItemValue.externalId = delegatesGroup.id
-                            await ballotItemValueRepository.save(ballotItemValue);
+                            await transactionalEntityManager.save(BallotItemValue, ballotItemValue)
 
                         }
 
@@ -223,7 +234,7 @@ export const serviceCreateElection = async (templateId: number) => {
                 }
 
                 if (tempateBallot.ballotType.ballotSourceId == 30) {
-                    var delegates = await delegateRepository.find({
+                    let delegates = await delegateRepository.find({
                         where: { isActive: true },
                         relations: { delegateGroup: true, user: { userDetail: true } },
                         order: { numberOfSupporters: +1 }
@@ -233,45 +244,46 @@ export const serviceCreateElection = async (templateId: number) => {
                         delegates = delegates.filter(d => d.user.userDetail.districtId == templateBallotDistrict.districtId)
                     }
 
-                    if (delegates.length == 0) {
-                        await ballotRepository.remove(ballot);
-                        continue;
-                    }
+                    if (delegates.length == 0) { continue; }
 
-                    var itemIndex = 0;
-                    for (var templateBallotItem of tempateBallot.templateBallotItems) {
-                        itemIndex++;
-                        var ballotItem = new BallotItem()
-
-                        ballotItem.ballot = ballot
-                        ballotItem.index = itemIndex;
-                        ballotItem.index = templateBallotItem.index,
-                            ballotItem.code = templateBallotItem.code;
-                        ballotItem.name = templateBallotItem.name;
-                        ballotItem.imageUrl = templateBallotItem.imageUrl;
-                        ballotItem.hasItemValue = templateBallotItem.hasItemValue
-                        ballotItem.isItemValueReadonly = templateBallotItem.isItemValueReadonly
-                        ballotItem.numberOfItemValue = templateBallotItem.numberOfItemValue;
-
-                        await ballotItemRepository.save(ballotItem);
-
-                        if (!templateBallotItem.hasItemValue) { continue; }
-                        var itemValueindex = 0;
-                        for (var delegate of delegates) {
-                            itemValueindex++;
-                            var ballotItemValue = new BallotItemValue()
-                            ballotItemValue.ballotItem = ballotItem;
-                            ballotItemValue.code = itemValueindex.toString();
-                            ballotItemValue.name = delegate.user.userDetail.fullName
-                            ballotItemValue.title = delegate.delegateGroup.name
-                            ballotItemValue.index = itemValueindex,
-                                ballotItemValue.imageUrl = delegate.imageUrl
-                            ballotItemValue.votedValue = 0
-
-                            await ballotItemValueRepository.save(ballotItemValue);
-
+                    for (const templateBallotItem of tempateBallot.templateBallotItems) {
+                        let ballotItem = await ballotItemRepository.findOne({
+                            where: { ballot: { id: ballot.id }, externalId: templateBallotItem.id }
+                        })
+                        if (!ballotItem) {
+                            ballotItem = new BallotItem()
+                            ballotItem.ballot = ballot
+                            ballotItem.index = templateBallotItem.index
+                            ballotItem.code = templateBallotItem.code
+                            ballotItem.name = templateBallotItem.name
+                            ballotItem.imageUrl = templateBallotItem.imageUrl
+                            ballotItem.hasItemValue = templateBallotItem.hasItemValue
+                            ballotItem.isItemValueReadonly = templateBallotItem.isItemValueReadonly
+                            ballotItem.numberOfItemValue = templateBallotItem.numberOfItemValue
+                            ballotItem.externalId = templateBallotItem.id
+                            await transactionalEntityManager.save(BallotItem, ballotItem)
                         }
 
+                        if (!templateBallotItem.hasItemValue) { continue; }
+                        let itemValueindex = 0;
+                        for (const delegate of delegates) {
+                            itemValueindex++;
+                            const exValue = await ballotItemValueRepository.findOne({
+                                where: { ballotItem: { id: ballotItem.id }, externalId: delegate.id }
+                            })
+                            if (exValue) { continue; }
+
+                            const ballotItemValue = new BallotItemValue()
+                            ballotItemValue.ballotItem = ballotItem
+                            ballotItemValue.code = itemValueindex.toString()
+                            ballotItemValue.name = delegate.user.userDetail.fullName
+                            ballotItemValue.title = delegate.delegateGroup.name
+                            ballotItemValue.index = itemValueindex
+                            ballotItemValue.imageUrl = delegate.imageUrl
+                            ballotItemValue.votedValue = 0
+                            ballotItemValue.externalId = delegate.id
+                            await transactionalEntityManager.save(BallotItemValue, ballotItemValue)
+                        }
                     }
                 }
 
@@ -284,9 +296,10 @@ export const serviceCreateElection = async (templateId: number) => {
 
 
         }
+
     })
 
-    return { status: 1, message: "election_created_successfuly" };
+    return { status: 1, message: actualElections.length == 1 ? "election_updated_successfuly" : "election_created_successfuly" };
 }
 
 export const serviceProcessElection = async () => {
@@ -377,20 +390,40 @@ export const serviceArchiveElection = async (electionId: number) => {
     if (election == null) { return { status: 0, message: "new_election_not_found" } }
 
     await appDataSource.transaction(async (transactionalEntityManager) => {
+        const valueDateTo = new Date(election.valueDateTo)
+        const day = valueDateTo.getDate().toString().padStart(2, "0")
+        const month = (valueDateTo.getMonth() + 1).toString().padStart(2, "0")
+        const dayMonth = `${day}.${month}`
+
+        const archivedElection = transactionalEntityManager.create(Election, {
+            uid: newGuid(),
+            code: election.code,
+            name: election.name + ` ${election.name}-${dayMonth}`,
+            registeredVoters: election.registeredVoters,
+            participantVoters: election.participantVoters,
+            valueDateFrom: election.valueDateFrom,
+            valueDateTo: election.valueDateTo,
+            createdAt: dateNowMinute(),
+            templateId: election.templateId,
+            isPermanent: false,
+            isActual: false
+        })
+        await transactionalEntityManager.save(Election, archivedElection)
+
         // Transfer ballots -> elections_ballots
         await transactionalEntityManager.query(
             `INSERT INTO elections_ballots
                 ("index", code, name, district_id, election_id, ballot_type_id, parent_id)
-            SELECT b."index", b.code, b.name, b.district_id, b.election_id, b.ballot_type_id, b.id
+            SELECT b."index", b.code, b.name, b.district_id, $2, b.ballot_type_id, b.id
             FROM ballots b
             WHERE b.election_id = $1
               AND NOT EXISTS (
                 SELECT 1
                 FROM elections_ballots eb
-                WHERE eb.election_id = b.election_id
+                WHERE eb.election_id = $2
                   AND eb.parent_id = b.id
               )`,
-            [electionId]
+            [electionId, archivedElection.id]
         )
 
         // Transfer ballots_items -> elections_ballots_items
@@ -400,7 +433,7 @@ export const serviceArchiveElection = async (electionId: number) => {
             SELECT bi."index", bi.code, bi.name, bi.image_url, bi.has_item_value, bi.is_item_value_readonly, bi.number_of_item_value, bi.number_of_votes, bi.number_of_participants, bi.value_percent, bi.external_id, bi.id, eb.id
             FROM ballots_items bi
             INNER JOIN ballots b ON b.id = bi.ballot_id
-            INNER JOIN elections_ballots eb ON eb.parent_id = b.id AND eb.election_id = b.election_id
+            INNER JOIN elections_ballots eb ON eb.parent_id = b.id AND eb.election_id = $2
             WHERE b.election_id = $1
               AND NOT EXISTS (
                 SELECT 1
@@ -408,7 +441,7 @@ export const serviceArchiveElection = async (electionId: number) => {
                 WHERE ebi.parent_id = bi.id
                   AND ebi.election_ballot_id = eb.id
               )`,
-            [electionId]
+            [electionId, archivedElection.id]
         )
 
         // Transfer ballots_items_values -> elections_ballots_items_values
@@ -420,7 +453,7 @@ export const serviceArchiveElection = async (electionId: number) => {
             INNER JOIN ballots_items bi ON bi.id = biv.ballot_item_id
             INNER JOIN elections_ballots_items ebi ON ebi.parent_id = bi.id
             INNER JOIN ballots b ON b.id = bi.ballot_id
-            INNER JOIN elections_ballots eb ON eb.id = ebi.election_ballot_id AND eb.election_id = b.election_id
+            INNER JOIN elections_ballots eb ON eb.id = ebi.election_ballot_id AND eb.election_id = $2
             WHERE b.election_id = $1
               AND NOT EXISTS (
                 SELECT 1
@@ -428,7 +461,7 @@ export const serviceArchiveElection = async (electionId: number) => {
                 WHERE ebiv.parent_id = biv.id
                   AND ebiv.election_ballot_item_id = ebi.id
               )`,
-            [electionId]
+            [electionId, archivedElection.id]
         )
 
         // Transfer ballots_items_subjects -> elections_ballots_items_subjects
@@ -440,7 +473,7 @@ export const serviceArchiveElection = async (electionId: number) => {
             INNER JOIN ballots_items bi ON bi.id = bis.ballot_item_id
             INNER JOIN elections_ballots_items ebi ON ebi.parent_id = bi.id
             INNER JOIN ballots b ON b.id = bi.ballot_id
-            INNER JOIN elections_ballots eb ON eb.id = ebi.election_ballot_id AND eb.election_id = b.election_id
+            INNER JOIN elections_ballots eb ON eb.id = ebi.election_ballot_id AND eb.election_id = $2
             WHERE b.election_id = $1
               AND NOT EXISTS (
                 SELECT 1
@@ -448,7 +481,7 @@ export const serviceArchiveElection = async (electionId: number) => {
                 WHERE ebis.parent_id = bis.id
                   AND ebis.election_ballot_item_id = ebi.id
               )`,
-            [electionId]
+            [electionId, archivedElection.id]
         )
 
         // Transfer ballots_items_values_votes -> elections_ballots_items_values_votes
@@ -462,7 +495,7 @@ export const serviceArchiveElection = async (electionId: number) => {
             INNER JOIN ballots_items bi ON bi.id = biv.ballot_item_id
             INNER JOIN ballots b ON b.id = bi.ballot_id
             INNER JOIN elections_ballots_items ebi ON ebi.id = ebiv.election_ballot_item_id AND ebi.parent_id = bi.id
-            INNER JOIN elections_ballots eb ON eb.id = ebi.election_ballot_id AND eb.election_id = b.election_id
+            INNER JOIN elections_ballots eb ON eb.id = ebi.election_ballot_id AND eb.election_id = $2
             WHERE b.election_id = $1
               AND NOT EXISTS (
                 SELECT 1
@@ -470,23 +503,23 @@ export const serviceArchiveElection = async (electionId: number) => {
                 WHERE ebivv.parent_id = bivv.id
                   AND ebivv.ballot_item_value_id = ebiv.id
               )`,
-            [electionId]
+            [electionId, archivedElection.id]
         )
 
         // Transfer votings_cards -> elections_votes_cards
         await transactionalEntityManager.query(
             `INSERT INTO elections_votes_cards
                 (election_id, voter_id, district_id, status_id, created_at, voted_at)
-            SELECT vc.election_id, vc.voter_id, vc.district_id, vc.status_id, vc.created_at, vc.voted_at
+            SELECT $2, vc.voter_id, vc.district_id, vc.status_id, vc.created_at, vc.voted_at
             FROM votings_cards vc
             WHERE vc.election_id = $1
               AND NOT EXISTS (
                 SELECT 1
                 FROM elections_votes_cards evc
-                WHERE evc.election_id = vc.election_id
+                WHERE evc.election_id = $2
                   AND evc.voter_id = vc.voter_id
               )`,
-            [electionId]
+            [electionId, archivedElection.id]
         )
 
         // Transfer votings_cards_ballots -> elections_votes_cards_ballots
@@ -496,8 +529,8 @@ export const serviceArchiveElection = async (electionId: number) => {
             SELECT vcb."index", evc.id, eb.id
             FROM votings_cards_ballots vcb
             INNER JOIN votings_cards vc ON vc.id = vcb.voting_card_id
-            INNER JOIN elections_votes_cards evc ON evc.election_id = vc.election_id AND evc.voter_id = vc.voter_id
-            INNER JOIN elections_ballots eb ON eb.parent_id = vcb.ballot_id AND eb.election_id = vc.election_id
+            INNER JOIN elections_votes_cards evc ON evc.election_id = $2 AND evc.voter_id = vc.voter_id
+            INNER JOIN elections_ballots eb ON eb.parent_id = vcb.ballot_id AND eb.election_id = $2
             WHERE vc.election_id = $1
               AND NOT EXISTS (
                 SELECT 1
@@ -506,7 +539,7 @@ export const serviceArchiveElection = async (electionId: number) => {
                   AND evcb.election_ballot_id = eb.id
                   AND evcb."index" = vcb."index"
               )`,
-            [electionId]
+            [electionId, archivedElection.id]
         )
 
         // Transfer votes -> elections_votes
@@ -516,14 +549,14 @@ export const serviceArchiveElection = async (electionId: number) => {
             SELECT evc.id
             FROM votes v
             INNER JOIN votings_cards vc ON vc.id = v.voting_card_id
-            INNER JOIN elections_votes_cards evc ON evc.election_id = vc.election_id AND evc.voter_id = vc.voter_id
+            INNER JOIN elections_votes_cards evc ON evc.election_id = $2 AND evc.voter_id = vc.voter_id
             WHERE vc.election_id = $1
               AND NOT EXISTS (
                 SELECT 1
                 FROM elections_votes ev
                 WHERE ev.voting_card_id = evc.id
               )`,
-            [electionId]
+            [electionId, archivedElection.id]
         )
 
         // Transfer votes_ballots_items -> elections_votes_ballots_items
@@ -533,7 +566,7 @@ export const serviceArchiveElection = async (electionId: number) => {
             SELECT vbi.code, eb.id, ebi.id
             FROM votes_ballots_items vbi
             INNER JOIN ballots b ON b.id = vbi.ballot_id
-            INNER JOIN elections_ballots eb ON eb.parent_id = vbi.ballot_id AND eb.election_id = b.election_id
+            INNER JOIN elections_ballots eb ON eb.parent_id = vbi.ballot_id AND eb.election_id = $2
             INNER JOIN elections_ballots_items ebi ON ebi.parent_id = vbi.ballot_item_id AND ebi.election_ballot_id = eb.id
             WHERE b.election_id = $1
               AND NOT EXISTS (
@@ -543,7 +576,7 @@ export const serviceArchiveElection = async (electionId: number) => {
                   AND evbi.ballot_id = eb.id
                   AND evbi.ballot_item_id = ebi.id
               )`,
-            [electionId]
+            [electionId, archivedElection.id]
         )
 
         // Transfer votes_ballots_items_values -> elections_votes_ballots_items_values
@@ -555,7 +588,7 @@ export const serviceArchiveElection = async (electionId: number) => {
             INNER JOIN votes_ballots_items vbi ON vbi.id = vbiv.vote_ballot_item_id
             INNER JOIN ballots_items bi ON bi.id = vbiv.ballot_item_id
             INNER JOIN ballots b ON b.id = bi.ballot_id
-            INNER JOIN elections_ballots eb ON eb.parent_id = vbi.ballot_id AND eb.election_id = b.election_id
+            INNER JOIN elections_ballots eb ON eb.parent_id = vbi.ballot_id AND eb.election_id = $2
             INNER JOIN elections_ballots_items ebi ON ebi.parent_id = vbi.ballot_item_id AND ebi.election_ballot_id = eb.id
             INNER JOIN elections_ballots_items_values ebiv ON ebiv.parent_id = vbiv.ballot_item_value_id AND ebiv.election_ballot_item_id = ebi.id
             INNER JOIN elections_votes_ballots_items evbi ON evbi.code = vbi.code AND evbi.ballot_id = eb.id AND evbi.ballot_item_id = ebi.id
@@ -568,7 +601,7 @@ export const serviceArchiveElection = async (electionId: number) => {
                   AND evbiv.ballot_item_id = ebi.id
                   AND evbiv.voted_value = vbiv.voted_value
               )`,
-            [electionId]
+            [electionId, archivedElection.id]
         )
 
         if (!election.isPermanent) {

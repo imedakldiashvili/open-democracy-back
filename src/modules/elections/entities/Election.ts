@@ -70,5 +70,8 @@ export class Election {
     @Column()
     isPermanent: boolean
 
-   
+    @Column()
+    isActual: boolean
+
 }
+
