@@ -490,7 +490,9 @@ export const serviceProcessElection = async () => {
         await servicePublishElection(election.id)
     }
     if (newElectionStatusSchedule.status.id == ElectionStatusEnum.archive) {
-        await serviceArchiveElection(election.id)
+        console.log("archive election", election.id)
+        const result = await serviceArchiveElection(election.id)
+        console.log("archive election result", result)
     }
 
     newElectionStatusSchedule.state = newElectionStatusSchedule.status.id == ElectionStatusEnum.archive ? 2 : 1;
@@ -506,9 +508,7 @@ export const serviceProcessElection = async () => {
         .set({ statusId: -1 })
         .where("election_id = :electionId and status_id = :statusId ", { electionId: election.id, statusId: 1 })
         .execute()
-    }
-
-    
+    }    
 
     return { status: 1, message: "election_" + newElectionStatusSchedule.status.code + "_successfuly" };
 }
@@ -572,6 +572,7 @@ export const serviceArchiveElection = async (electionId: number) => {
         await transactionalEntityManager.save(Election, archivedElection)
 
         // Transfer ballots -> elections_ballots
+        console.log("// Transfer ballots -> elections_ballots")
         await transactionalEntityManager.query(
             `INSERT INTO elections_ballots
                 ("index", code, name, district_id, election_id, ballot_type_id, parent_id)
@@ -588,6 +589,7 @@ export const serviceArchiveElection = async (electionId: number) => {
         )
 
         // Transfer ballots_items -> elections_ballots_items
+        console.log("// Transfer ballots_items -> elections_ballots_items")
         await transactionalEntityManager.query(
             `INSERT INTO elections_ballots_items
                 ("index", code, name, image_url, has_item_value, is_item_value_readonly, number_of_item_value, number_of_votes, number_of_participants, value_percent, external_id, parent_id, election_ballot_id)
@@ -606,6 +608,7 @@ export const serviceArchiveElection = async (electionId: number) => {
         )
 
         // Transfer ballots_items_values -> elections_ballots_items_values
+        console.log("// Transfer ballots_items_values -> elections_ballots_items_values")
         await transactionalEntityManager.query(
             `INSERT INTO elections_ballots_items_values
                 ("index", code, title, name, image_url, voted_value, voted_position, voted, external_id, number_of_votes, parent_id, election_ballot_item_id)
@@ -626,6 +629,7 @@ export const serviceArchiveElection = async (electionId: number) => {
         )
 
         // Transfer ballots_items_subjects -> elections_ballots_items_subjects
+        console.log("// Transfer ballots_items_subjects -> elections_ballots_items_subjects")
         await transactionalEntityManager.query(
             `INSERT INTO elections_ballots_items_subjects
                 ("index", code, name, image_url, parent_id, election_ballot_item_id)
@@ -646,6 +650,7 @@ export const serviceArchiveElection = async (electionId: number) => {
         )
 
         // Transfer ballots_items_values_votes -> elections_ballots_items_values_votes
+        console.log("// Transfer ballots_items_values_votes -> elections_ballots_items_values_votes")
         await transactionalEntityManager.query(
             `INSERT INTO elections_ballots_items_values_votes
                 (voted_value, number_of_votes, ballot_item_value_id, parent_id)
@@ -668,6 +673,7 @@ export const serviceArchiveElection = async (electionId: number) => {
         )
 
         // Transfer votings_cards -> elections_votes_cards
+        console.log("// Transfer votings_cards -> elections_votes_cards")
         await transactionalEntityManager.query(
             `INSERT INTO elections_votes_cards
                 (election_id, voter_id, district_id, status_id, created_at, voted_at)
@@ -684,6 +690,7 @@ export const serviceArchiveElection = async (electionId: number) => {
         )
 
         // Transfer votings_cards_ballots -> elections_votes_cards_ballots
+        console.log("// Transfer votings_cards_ballots -> elections_votes_cards_ballots")
         await transactionalEntityManager.query(
             `INSERT INTO elections_votes_cards_ballots
                 ("index", election_vote_card_id, election_ballot_id)
@@ -704,6 +711,7 @@ export const serviceArchiveElection = async (electionId: number) => {
         )
 
         // Transfer votes -> elections_votes
+        console.log("// Transfer votes -> elections_votes")
         await transactionalEntityManager.query(
             `INSERT INTO elections_votes
                 (voting_card_id)
@@ -721,6 +729,7 @@ export const serviceArchiveElection = async (electionId: number) => {
         )
 
         // Transfer votes_ballots_items -> elections_votes_ballots_items
+        console.log("// Transfer votes_ballots_items -> elections_votes_ballots_items")
         await transactionalEntityManager.query(
             `INSERT INTO elections_votes_ballots_items
                 (code, ballot_id, ballot_item_id)
@@ -741,6 +750,7 @@ export const serviceArchiveElection = async (electionId: number) => {
         )
 
         // Transfer votes_ballots_items_values -> elections_votes_ballots_items_values
+        console.log("// Transfer votes_ballots_items_values -> elections_votes_ballots_items_values")
         await transactionalEntityManager.query(
             `INSERT INTO elections_votes_ballots_items_values
                 (vote_ballot_item_id, voted_value, ballot_item_value_id, ballot_item_id)
