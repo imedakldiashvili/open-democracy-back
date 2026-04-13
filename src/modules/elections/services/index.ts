@@ -18,10 +18,8 @@ import { BallotItemSubject } from "../../ballots/entities/BallotItemSubject"
 import { BallotItemValueVote } from "../../ballots/entities/BallotItemValueVote"
 
 
-export const serviceCreateElection = async (templateId: number) => {
-    const dateValue = dateNowMinute();
-
-    const template = await templateRepository.findOne({
+const getActiveTemplate = async (templateId: number) => {
+    return templateRepository.findOne({
         where: { id: templateId, isActive: true },
         relations: {
             templateBallots: {
@@ -34,269 +32,432 @@ export const serviceCreateElection = async (templateId: number) => {
         },
         order: { templateBallots: { index: +1, templateBallotItems: { index: +1, templateBallotItemValues: { index: +1 } } }, statusSchedule: { id: +1 } }
     })
+}
 
-    if (!template) { return { status: 0, message: "active_template_not_found" }; }
-
-    const actualElections = await electionRepository.find({
+const getActualElections = async (templateId: number) => {
+    return electionRepository.find({
         where: { templateId: templateId, isActual: true },
         relations: { statusSchedule: { status: true }, actualStatusSchedule: { status: true } }
     })
+}
+
+const updateExistingElection = async (
+    transactionalEntityManager: any,
+    template: any,
+    actualElection: Election
+) => {
+    const electon = actualElection
+    electon.uid = newGuid()
+    electon.code = template.code
+    electon.name = template.name
+    electon.isPermanent = template.isPermanent
+    await transactionalEntityManager.save(Election, electon)
+
+    return electon
+}
+
+const createNewElection = async (
+    transactionalEntityManager: any,
+    templateId: number,
+    template: any,
+    dateValue: Date
+) => {
+    const electon = new Election()
+    electon.templateId = template.id
+    electon.uid = newGuid()
+    electon.code = template.code
+    electon.name = template.name
+    electon.registeredVoters = 0
+    electon.participantVoters = 0
+    electon.createdAt = dateValue
+    electon.isPermanent = template.isPermanent
+    electon.isActual = true
+
+    await transactionalEntityManager.save(Election, electon)
+
+    const templateStatusSchedule = await templateStatusScheduleRepository.find({
+        where: { template: { id: templateId } },
+        relations: { status: true }
+    });
+
+    for (const itemTempalteStatusSchedule of templateStatusSchedule) {
+        const elemplateStatusSchedule = new ElectionStatusSchedule();
+        elemplateStatusSchedule.election = electon;
+        elemplateStatusSchedule.state = itemTempalteStatusSchedule.state
+        elemplateStatusSchedule.status = itemTempalteStatusSchedule.status
+        elemplateStatusSchedule.hasValueDate = itemTempalteStatusSchedule.hasValueMin
+        elemplateStatusSchedule.valueDateFrom = addMinutes(dateValue, itemTempalteStatusSchedule.valueMinFrom)
+        elemplateStatusSchedule.valueDateTo = addMinutes(dateValue, itemTempalteStatusSchedule.valueMinTo)
+
+        await transactionalEntityManager.save(ElectionStatusSchedule, elemplateStatusSchedule)
+        if (itemTempalteStatusSchedule.status.id == ElectionStatusEnum.new) {
+            electon.actualStatusSchedule = elemplateStatusSchedule
+            await transactionalEntityManager.save(Election, electon)
+        }
+
+        if (itemTempalteStatusSchedule.status.id == ElectionStatusEnum.In_Progress_10) {
+            electon.valueDateFrom = addMinutes(dateValue, itemTempalteStatusSchedule.valueMinFrom)
+            await transactionalEntityManager.save(Election, electon)
+        }
+
+        if (itemTempalteStatusSchedule.status.id == ElectionStatusEnum.In_Progress_20) {
+            electon.valueDateTo = addMinutes(dateValue, itemTempalteStatusSchedule.valueMinTo)
+            await transactionalEntityManager.save(Election, electon)
+        }
+    }
+
+    return electon
+}
+
+const syncNewElectionBallotsAndChildren = async (
+    transactionalEntityManager: any,
+    template: any,
+    electon: Election
+) => {
+    for (const tempateBallot of template.templateBallots) {
+        for (const templateBallotDistrict of tempateBallot.templateBallotDistricts) {
+            const ballot = new Ballot()
+            ballot.election = electon
+            ballot.index = tempateBallot.index
+            ballot.ballotTypeId = tempateBallot.ballotTypeId
+            ballot.code = tempateBallot.ballotType.code
+            ballot.name = tempateBallot.ballotType.name
+            ballot.districtId = templateBallotDistrict.districtId
+            await transactionalEntityManager.save(Ballot, ballot)
+
+            if (tempateBallot.ballotType.ballotSourceId == 20) {
+                const delegatesGroups = await delegateGroupRepository.find({
+                    relations: { delegates: { user: { userDetail: true } } },
+                    where: { isActive: true },
+                    order: { number: +1 }
+                });
+
+                for (const delegatesGroup of delegatesGroups) {
+                    const ballotItem = new BallotItem()
+                    ballotItem.ballot = ballot
+                    ballotItem.index = delegatesGroup.number
+                    ballotItem.code = delegatesGroup.color
+                    ballotItem.name = delegatesGroup.name
+                    ballotItem.imageUrl = delegatesGroup.imageUrl
+                    ballotItem.hasItemValue = delegatesGroup.delegates.length > 0
+                    ballotItem.isItemValueReadonly = true
+                    ballotItem.numberOfItemValue = delegatesGroup.delegates.length
+                    ballotItem.externalId = delegatesGroup.id
+                    await transactionalEntityManager.save(BallotItem, ballotItem)
+
+                    for (const delegate of delegatesGroup.delegates) {
+                        const ballotItemValue = new BallotItemValue()
+                        ballotItemValue.ballotItem = ballotItem
+                        ballotItemValue.index = 0
+                        ballotItemValue.code = delegate.user.userDetail.code
+                        ballotItemValue.name = delegate.user.userDetail.fullName
+                        ballotItemValue.title = delegatesGroup.name
+                        ballotItemValue.imageUrl = delegate.imageUrl
+                        ballotItemValue.votedValue = 0
+                        ballotItemValue.externalId = delegate.id
+                        await transactionalEntityManager.save(BallotItemValue, ballotItemValue)
+                    }
+
+                    const newBallotItemSubject = new BallotItemSubject()
+                    newBallotItemSubject.ballotItem = ballotItem
+                    newBallotItemSubject.index = delegatesGroup.number
+                    newBallotItemSubject.code = delegatesGroup.code
+                    newBallotItemSubject.name = delegatesGroup.name
+                    newBallotItemSubject.imageUrl = delegatesGroup.imageUrl
+                    await transactionalEntityManager.save(BallotItemSubject, newBallotItemSubject)
+                }
+            }
+
+            if (tempateBallot.ballotType.ballotSourceId == 21) {
+                const delegatesGroups = await delegateGroupRepository.find({
+                    relations: { delegates: { user: true } },
+                    order: { number: +1 }
+                });
+
+                for (const templateBallotItem of tempateBallot.templateBallotItems) {
+                    const ballotItem = new BallotItem()
+                    ballotItem.ballot = ballot
+                    ballotItem.index = templateBallotItem.index
+                    ballotItem.code = templateBallotItem.code
+                    ballotItem.name = templateBallotItem.name
+                    ballotItem.imageUrl = templateBallotItem.imageUrl
+                    ballotItem.hasItemValue = templateBallotItem.hasItemValue
+                    ballotItem.isItemValueReadonly = templateBallotItem.isItemValueReadonly
+                    ballotItem.numberOfItemValue = templateBallotItem.numberOfItemValue
+                    ballotItem.externalId = templateBallotItem.id
+                    await transactionalEntityManager.save(BallotItem, ballotItem)
+
+                    if (!templateBallotItem.hasItemValue) { continue; }
+
+                    for (const delegatesGroup of delegatesGroups) {
+                        const ballotItemValue = new BallotItemValue()
+                        ballotItemValue.ballotItem = ballotItem
+                        ballotItemValue.code = delegatesGroup.color
+                        ballotItemValue.name = delegatesGroup.name
+                        ballotItemValue.title = delegatesGroup.name
+                        ballotItemValue.index = delegatesGroup.number
+                        ballotItemValue.imageUrl = delegatesGroup.imageUrl
+                        ballotItemValue.votedValue = 0
+                        ballotItemValue.externalId = delegatesGroup.id
+                        await transactionalEntityManager.save(BallotItemValue, ballotItemValue)
+                    }
+                }
+            }
+
+            if (tempateBallot.ballotType.ballotSourceId == 30) {
+                let delegates = await delegateRepository.find({
+                    where: { isActive: true },
+                    relations: { delegateGroup: true, user: { userDetail: true } },
+                    order: { numberOfSupporters: +1 }
+                });
+
+                if (templateBallotDistrict.districtId != 0) {
+                    delegates = delegates.filter(d => d.user.userDetail.districtId == templateBallotDistrict.districtId)
+                }
+
+                if (delegates.length == 0) { continue; }
+
+                for (const templateBallotItem of tempateBallot.templateBallotItems) {
+                    const ballotItem = new BallotItem()
+                    ballotItem.ballot = ballot
+                    ballotItem.index = templateBallotItem.index
+                    ballotItem.code = templateBallotItem.code
+                    ballotItem.name = templateBallotItem.name
+                    ballotItem.imageUrl = templateBallotItem.imageUrl
+                    ballotItem.hasItemValue = templateBallotItem.hasItemValue
+                    ballotItem.isItemValueReadonly = templateBallotItem.isItemValueReadonly
+                    ballotItem.numberOfItemValue = templateBallotItem.numberOfItemValue
+                    ballotItem.externalId = templateBallotItem.id
+                    await transactionalEntityManager.save(BallotItem, ballotItem)
+
+                    if (!templateBallotItem.hasItemValue) { continue; }
+                    let itemValueindex = 0;
+                    for (const delegate of delegates) {
+                        itemValueindex++;
+                        const ballotItemValue = new BallotItemValue()
+                        ballotItemValue.ballotItem = ballotItem
+                        ballotItemValue.code = itemValueindex.toString()
+                        ballotItemValue.name = delegate.delegateName
+                        ballotItemValue.title = delegate.delegateGroup.name
+                        ballotItemValue.index = itemValueindex
+                        ballotItemValue.imageUrl = delegate.imageUrl
+                        ballotItemValue.votedValue = 0
+                        ballotItemValue.externalId = delegate.id
+                        await transactionalEntityManager.save(BallotItemValue, ballotItemValue)
+                    }
+                }
+            }
+        }
+    }
+}
+
+const syncExElectionBallotsAndChildren = async (
+    transactionalEntityManager: any,
+    template: any,
+    electon: Election
+) => {
+    for (const tempateBallot of template.templateBallots) {
+        for (const templateBallotDistrict of tempateBallot.templateBallotDistricts) {
+            let ballot = await ballotRepository.findOne({
+                where: {
+                    electionId: electon.id,
+                    districtId: templateBallotDistrict.districtId,
+                    ballotTypeId: tempateBallot.ballotTypeId
+                }
+            })
+
+            if (!ballot) {
+                ballot = new Ballot()
+                ballot.election = electon;
+                ballot.index = tempateBallot.index
+                ballot.ballotTypeId = tempateBallot.ballotTypeId
+                ballot.code = tempateBallot.ballotType.code
+                ballot.name = tempateBallot.ballotType.name
+                ballot.districtId = templateBallotDistrict.districtId
+
+                await transactionalEntityManager.save(Ballot, ballot)
+            }
+
+            if (tempateBallot.ballotType.ballotSourceId == 20) {
+                const delegatesGroups = await delegateGroupRepository.find({
+                    relations: { delegates: { user: { userDetail: true } } },
+                    where: { isActive: true },
+                    order: { number: +1 }
+                });
+
+                for (const delegatesGroup of delegatesGroups) {
+                    let ballotItem = await ballotItemRepository.findOne({
+                        where: { ballot: { id: ballot.id }, externalId: delegatesGroup.id }
+                    })
+
+                    if (!ballotItem) {
+                        ballotItem = new BallotItem()
+                        ballotItem.ballot = ballot
+                        ballotItem.index = delegatesGroup.number
+                        ballotItem.code = delegatesGroup.color
+                        ballotItem.name = delegatesGroup.name
+                        ballotItem.imageUrl = delegatesGroup.imageUrl
+                        ballotItem.hasItemValue = delegatesGroup.delegates.length > 0
+                        ballotItem.isItemValueReadonly = true
+                        ballotItem.numberOfItemValue = delegatesGroup.delegates.length
+                        ballotItem.externalId = delegatesGroup.id
+                        await transactionalEntityManager.save(BallotItem, ballotItem)
+                    }
+
+                    for (const delegate of delegatesGroup.delegates) {
+                        const existValue = await ballotItemValueRepository.findOne({
+                            where: { ballotItem: { id: ballotItem.id }, externalId: delegate.id }
+                        })
+                        if (existValue) { continue; }
+
+                        const ballotItemValue = new BallotItemValue()
+                        ballotItemValue.ballotItem = ballotItem
+                        ballotItemValue.index = 0
+                        ballotItemValue.code = delegate.user.userDetail.code
+                        ballotItemValue.name = delegate.user.userDetail.fullName
+                        ballotItemValue.title = delegatesGroup.name
+                        ballotItemValue.imageUrl = delegate.imageUrl
+                        ballotItemValue.votedValue = 0
+                        ballotItemValue.externalId = delegate.id
+                        await transactionalEntityManager.save(BallotItemValue, ballotItemValue)
+                    }
+
+                    const exSubject = await ballotItemSubjectRepository.findOne({
+                        where: { ballotItem: { id: ballotItem.id }, code: delegatesGroup.code }
+                    })
+                    if (!exSubject) {
+                        const newBallotItemSubject = new BallotItemSubject()
+                        newBallotItemSubject.ballotItem = ballotItem
+                        newBallotItemSubject.index = delegatesGroup.number
+                        newBallotItemSubject.code = delegatesGroup.code
+                        newBallotItemSubject.name = delegatesGroup.name
+                        newBallotItemSubject.imageUrl = delegatesGroup.imageUrl
+                        await transactionalEntityManager.save(BallotItemSubject, newBallotItemSubject)
+                    }
+                }
+            }
+
+            if (tempateBallot.ballotType.ballotSourceId == 21) {
+                const delegatesGroups = await delegateGroupRepository.find({
+                    relations: { delegates: { user: true } },
+                    order: { number: +1 }
+                });
+
+                for (const templateBallotItem of tempateBallot.templateBallotItems) {
+                    let ballotItem = await ballotItemRepository.findOne({
+                        where: { ballot: { id: ballot.id }, externalId: templateBallotItem.id }
+                    })
+                    if (!ballotItem) {
+                        ballotItem = new BallotItem()
+                        ballotItem.ballot = ballot
+                        ballotItem.index = templateBallotItem.index
+                        ballotItem.code = templateBallotItem.code
+                        ballotItem.name = templateBallotItem.name
+                        ballotItem.imageUrl = templateBallotItem.imageUrl
+                        ballotItem.hasItemValue = templateBallotItem.hasItemValue
+                        ballotItem.isItemValueReadonly = templateBallotItem.isItemValueReadonly
+                        ballotItem.numberOfItemValue = templateBallotItem.numberOfItemValue
+                        ballotItem.externalId = templateBallotItem.id
+                        await transactionalEntityManager.save(BallotItem, ballotItem)
+                    }
+
+                    if (!templateBallotItem.hasItemValue) { continue; }
+
+                    for (const delegatesGroup of delegatesGroups) {
+                        const existValue = await ballotItemValueRepository.findOne({
+                            where: { ballotItem: { id: ballotItem.id }, externalId: delegatesGroup.id }
+                        })
+                        if (existValue) { continue; }
+
+                        const ballotItemValue = new BallotItemValue()
+                        ballotItemValue.ballotItem = ballotItem
+                        ballotItemValue.code = delegatesGroup.color
+                        ballotItemValue.name = delegatesGroup.name
+                        ballotItemValue.title = delegatesGroup.name
+                        ballotItemValue.index = delegatesGroup.number
+                        ballotItemValue.imageUrl = delegatesGroup.imageUrl
+                        ballotItemValue.votedValue = 0
+                        ballotItemValue.externalId = delegatesGroup.id
+                        await transactionalEntityManager.save(BallotItemValue, ballotItemValue)
+
+                    }
+                }
+            }
+
+            if (tempateBallot.ballotType.ballotSourceId == 30) {
+                let delegates = await delegateRepository.find({
+                    where: { isActive: true },
+                    relations: { delegateGroup: true, user: { userDetail: true } },
+                    order: { numberOfSupporters: +1 }
+                });
+
+                if (templateBallotDistrict.districtId != 0) {
+                    delegates = delegates.filter(d => d.user.userDetail.districtId == templateBallotDistrict.districtId)
+                }
+
+                if (delegates.length == 0) { continue; }
+
+                for (const templateBallotItem of tempateBallot.templateBallotItems) {
+                    let ballotItem = await ballotItemRepository.findOne({
+                        where: { ballot: { id: ballot.id }, externalId: templateBallotItem.id }
+                    })
+                    if (!ballotItem) {
+                        ballotItem = new BallotItem()
+                        ballotItem.ballot = ballot
+                        ballotItem.index = templateBallotItem.index
+                        ballotItem.code = templateBallotItem.code
+                        ballotItem.name = templateBallotItem.name
+                        ballotItem.imageUrl = templateBallotItem.imageUrl
+                        ballotItem.hasItemValue = templateBallotItem.hasItemValue
+                        ballotItem.isItemValueReadonly = templateBallotItem.isItemValueReadonly
+                        ballotItem.numberOfItemValue = templateBallotItem.numberOfItemValue
+                        ballotItem.externalId = templateBallotItem.id
+                        await transactionalEntityManager.save(BallotItem, ballotItem)
+                    }
+
+                    if (!templateBallotItem.hasItemValue) { continue; }
+                    let itemValueindex = 0;
+                    for (const delegate of delegates) {
+                        itemValueindex++;
+                        const exValue = await ballotItemValueRepository.findOne({
+                            where: { ballotItem: { id: ballotItem.id }, externalId: delegate.id }
+                        })
+                        if (exValue) { continue; }
+
+                        const ballotItemValue = new BallotItemValue()
+                        ballotItemValue.ballotItem = ballotItem
+                        ballotItemValue.code = itemValueindex.toString()
+                        ballotItemValue.name = delegate.delegateName
+                        ballotItemValue.title = delegate.delegateGroup.name
+                        ballotItemValue.index = itemValueindex
+                        ballotItemValue.imageUrl = delegate.imageUrl
+                        ballotItemValue.votedValue = 0
+                        ballotItemValue.externalId = delegate.id
+                        await transactionalEntityManager.save(BallotItemValue, ballotItemValue)
+                    }
+                }
+            }
+        }
+    }
+}
+
+export const serviceCreateElection = async (templateId: number) => {
+    const dateValue = dateNowMinute();
+
+    const template = await getActiveTemplate(templateId)
+    if (!template) { return { status: 0, message: "active_template_not_found" }; }
+
+    const actualElections = await getActualElections(templateId)
     if (actualElections.length > 1) { return { status: 0, message: "multiple_actual_elections_exists" }; }
 
     await appDataSource.manager.transaction(async (transactionalEntityManager) => {
-        let electon: Election
-
         if (actualElections.length == 1) {
-            electon = actualElections[0]
-            electon.uid = newGuid()
-            electon.code = template.code
-            electon.name = template.name
-            electon.isPermanent = template.isPermanent
-            await transactionalEntityManager.save(Election, electon)
+            const electon = await updateExistingElection(transactionalEntityManager, template, actualElections[0])
+            await syncExElectionBallotsAndChildren(transactionalEntityManager, template, electon)
+        } else {
+            const electon = await createNewElection(transactionalEntityManager, templateId, template, dateValue)
+            await syncNewElectionBallotsAndChildren(transactionalEntityManager, template, electon)
         }
-        else {
-            electon = new Election()
-            electon.templateId = template.id
-            electon.uid = newGuid()
-            electon.code = template.code
-            electon.name = template.name
-            electon.registeredVoters = 0
-            electon.participantVoters = 0
-            electon.createdAt = dateValue
-            electon.isPermanent = template.isPermanent
-            electon.isActual = true
-
-            await transactionalEntityManager.save(Election, electon)
-
-            const templateStatusSchedule = await templateStatusScheduleRepository.find({
-                where: { template: { id: templateId } },
-                relations: { status: true }
-            });
-
-            for (const itemTempalteStatusSchedule of templateStatusSchedule) {
-                const elemplateStatusSchedule = new ElectionStatusSchedule();
-                elemplateStatusSchedule.election = electon;
-                elemplateStatusSchedule.state = itemTempalteStatusSchedule.state
-                elemplateStatusSchedule.status = itemTempalteStatusSchedule.status
-                elemplateStatusSchedule.hasValueDate = itemTempalteStatusSchedule.hasValueMin
-                elemplateStatusSchedule.valueDateFrom = addMinutes(dateValue, itemTempalteStatusSchedule.valueMinFrom)
-                elemplateStatusSchedule.valueDateTo = addMinutes(dateValue, itemTempalteStatusSchedule.valueMinTo)
-
-                await transactionalEntityManager.save(ElectionStatusSchedule, elemplateStatusSchedule)
-                if (itemTempalteStatusSchedule.status.id == ElectionStatusEnum.new) {
-                    electon.actualStatusSchedule = elemplateStatusSchedule
-                    await transactionalEntityManager.save(Election, electon)
-                }
-
-                if (itemTempalteStatusSchedule.status.id == ElectionStatusEnum.In_Progress_10) {
-                    electon.valueDateFrom = addMinutes(dateValue, itemTempalteStatusSchedule.valueMinFrom)
-                    await transactionalEntityManager.save(Election, electon)
-                }
-
-                if (itemTempalteStatusSchedule.status.id == ElectionStatusEnum.In_Progress_20) {
-                    electon.valueDateTo = addMinutes(dateValue, itemTempalteStatusSchedule.valueMinTo)
-                    await transactionalEntityManager.save(Election, electon)
-                }
-            }
-        }
-
-        for (const tempateBallot of template.templateBallots) {
-
-            for (const templateBallotDistrict of tempateBallot.templateBallotDistricts) {
-
-                let ballot = await ballotRepository.findOne({
-                    where: {
-                        electionId: electon.id,
-                        districtId: templateBallotDistrict.districtId,
-                        ballotTypeId: tempateBallot.ballotTypeId
-                    }
-                })
-
-                if (!ballot) {
-                    ballot = new Ballot()
-                    ballot.election = electon;
-                    ballot.index = tempateBallot.index
-                    ballot.ballotTypeId = tempateBallot.ballotTypeId
-                    ballot.code = tempateBallot.ballotType.code
-                    ballot.name = tempateBallot.ballotType.name
-                    ballot.districtId = templateBallotDistrict.districtId
-
-                    await transactionalEntityManager.save(Ballot, ballot)
-                }
-
-                if (tempateBallot.ballotType.ballotSourceId == 20) {
-                    const delegatesGroups = await delegateGroupRepository.find({
-                        relations: { delegates: { user: { userDetail: true } } },
-                        where: { isActive: true },
-                        order: { number: +1 }
-                    });
-
-                    for (const delegatesGroup of delegatesGroups) {
-                        let ballotItem = await ballotItemRepository.findOne({
-                            where: { ballot: { id: ballot.id }, externalId: delegatesGroup.id }
-                        })
-
-                        if (!ballotItem) {
-                            ballotItem = new BallotItem()
-                            ballotItem.ballot = ballot
-                            ballotItem.index = delegatesGroup.number
-                            ballotItem.code = delegatesGroup.color
-                            ballotItem.name = delegatesGroup.name
-                            ballotItem.imageUrl = delegatesGroup.imageUrl
-                            ballotItem.hasItemValue = delegatesGroup.delegates.length > 0
-                            ballotItem.isItemValueReadonly = true
-                            ballotItem.numberOfItemValue = delegatesGroup.delegates.length
-                            ballotItem.externalId = delegatesGroup.id
-                            await transactionalEntityManager.save(BallotItem, ballotItem)
-                        }
-
-                        for (const delegate of delegatesGroup.delegates) {
-                            const existValue = await ballotItemValueRepository.findOne({
-                                where: { ballotItem: { id: ballotItem.id }, externalId: delegate.id }
-                            })
-                            if (existValue) { continue; }
-
-                            const ballotItemValue = new BallotItemValue()
-                            ballotItemValue.ballotItem = ballotItem
-                            ballotItemValue.index = 0
-                            ballotItemValue.code = delegate.user.userDetail.code
-                            ballotItemValue.name = delegate.user.userDetail.fullName
-                            ballotItemValue.title = delegatesGroup.name
-                            ballotItemValue.imageUrl = delegate.imageUrl
-                            ballotItemValue.votedValue = 0
-                            ballotItemValue.externalId = delegate.id
-                            await transactionalEntityManager.save(BallotItemValue, ballotItemValue)
-                        }
-
-                        const exSubject = await ballotItemSubjectRepository.findOne({
-                            where: { ballotItem: { id: ballotItem.id }, code: delegatesGroup.code }
-                        })
-                        if (!exSubject) {
-                            const newBallotItemSubject = new BallotItemSubject()
-                            newBallotItemSubject.ballotItem = ballotItem
-                            newBallotItemSubject.index = delegatesGroup.number
-                            newBallotItemSubject.code = delegatesGroup.code
-                            newBallotItemSubject.name = delegatesGroup.name
-                            newBallotItemSubject.imageUrl = delegatesGroup.imageUrl
-                            await transactionalEntityManager.save(BallotItemSubject, newBallotItemSubject)
-                        }
-
-                    }
-
-                }
-
-                if (tempateBallot.ballotType.ballotSourceId == 21) {
-                    const delegatesGroups = await delegateGroupRepository.find({
-                        relations: { delegates: { user: true } },
-                        order: { number: +1 }
-                    });
-
-                    for (const templateBallotItem of tempateBallot.templateBallotItems) {
-                        let ballotItem = await ballotItemRepository.findOne({
-                            where: { ballot: { id: ballot.id }, externalId: templateBallotItem.id }
-                        })
-                        if (!ballotItem) {
-                            ballotItem = new BallotItem()
-                            ballotItem.ballot = ballot
-                            ballotItem.index = templateBallotItem.index
-                            ballotItem.code = templateBallotItem.code
-                            ballotItem.name = templateBallotItem.name
-                            ballotItem.imageUrl = templateBallotItem.imageUrl
-                            ballotItem.hasItemValue = templateBallotItem.hasItemValue
-                            ballotItem.isItemValueReadonly = templateBallotItem.isItemValueReadonly
-                            ballotItem.numberOfItemValue = templateBallotItem.numberOfItemValue
-                            ballotItem.externalId = templateBallotItem.id
-                            await transactionalEntityManager.save(BallotItem, ballotItem)
-                        }
-
-                        if (!templateBallotItem.hasItemValue) { continue; }
-
-                        for (const delegatesGroup of delegatesGroups) {
-                            const existValue = await ballotItemValueRepository.findOne({
-                                where: { ballotItem: { id: ballotItem.id }, externalId: delegatesGroup.id }
-                            })
-                            if (existValue) { continue; }
-
-                            const ballotItemValue = new BallotItemValue()
-                            ballotItemValue.ballotItem = ballotItem
-                            ballotItemValue.code = delegatesGroup.color
-                            ballotItemValue.name = delegatesGroup.name
-                            ballotItemValue.title = delegatesGroup.name
-                            ballotItemValue.index = delegatesGroup.number
-                            ballotItemValue.imageUrl = delegatesGroup.imageUrl
-                            ballotItemValue.votedValue = 0
-                            ballotItemValue.externalId = delegatesGroup.id
-                            await transactionalEntityManager.save(BallotItemValue, ballotItemValue)
-
-                        }
-
-                    }
-                }
-
-                if (tempateBallot.ballotType.ballotSourceId == 30) {
-                    let delegates = await delegateRepository.find({
-                        where: { isActive: true },
-                        relations: { delegateGroup: true, user: { userDetail: true } },
-                        order: { numberOfSupporters: +1 }
-                    });
-
-                    if (templateBallotDistrict.districtId != 0) {
-                        delegates = delegates.filter(d => d.user.userDetail.districtId == templateBallotDistrict.districtId)
-                    }
-
-                    if (delegates.length == 0) { continue; }
-
-                    for (const templateBallotItem of tempateBallot.templateBallotItems) {
-                        let ballotItem = await ballotItemRepository.findOne({
-                            where: { ballot: { id: ballot.id }, externalId: templateBallotItem.id }
-                        })
-                        if (!ballotItem) {
-                            ballotItem = new BallotItem()
-                            ballotItem.ballot = ballot
-                            ballotItem.index = templateBallotItem.index
-                            ballotItem.code = templateBallotItem.code
-                            ballotItem.name = templateBallotItem.name
-                            ballotItem.imageUrl = templateBallotItem.imageUrl
-                            ballotItem.hasItemValue = templateBallotItem.hasItemValue
-                            ballotItem.isItemValueReadonly = templateBallotItem.isItemValueReadonly
-                            ballotItem.numberOfItemValue = templateBallotItem.numberOfItemValue
-                            ballotItem.externalId = templateBallotItem.id
-                            await transactionalEntityManager.save(BallotItem, ballotItem)
-                        }
-
-                        if (!templateBallotItem.hasItemValue) { continue; }
-                        let itemValueindex = 0;
-                        for (const delegate of delegates) {
-                            itemValueindex++;
-                            const exValue = await ballotItemValueRepository.findOne({
-                                where: { ballotItem: { id: ballotItem.id }, externalId: delegate.id }
-                            })
-                            if (exValue) { continue; }
-
-                            const ballotItemValue = new BallotItemValue()
-                            ballotItemValue.ballotItem = ballotItem
-                            ballotItemValue.code = itemValueindex.toString()
-                            ballotItemValue.name = delegate.user.userDetail.fullName
-                            ballotItemValue.title = delegate.delegateGroup.name
-                            ballotItemValue.index = itemValueindex
-                            ballotItemValue.imageUrl = delegate.imageUrl
-                            ballotItemValue.votedValue = 0
-                            ballotItemValue.externalId = delegate.id
-                            await transactionalEntityManager.save(BallotItemValue, ballotItemValue)
-                        }
-                    }
-                }
-
-
-            }
-
-
-
-
-
-
-        }
-
     })
 
     return { status: 1, message: actualElections.length == 1 ? "election_updated_successfuly" : "election_created_successfuly" };
