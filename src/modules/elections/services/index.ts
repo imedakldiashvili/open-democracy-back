@@ -662,9 +662,9 @@ export const serviceArchiveElection = async (electionId: number) => {
         )
 
         // Transfer votings_cards_ballots -> elections_voting_cards_ballots
-        console.log("// Transfer votings_cards_ballots -> elections_voting_cards_ballots")
+        console.log("// Transfer votings_cards_ballots -> elections_votings_cards_ballots")
         await transactionalEntityManager.query(
-            `INSERT INTO elections_voting_cards_ballots
+            `INSERT INTO elections_votings_cards_ballots
                 (id, "index", election_voting_card_id, election_ballot_id)
             SELECT vcb.id, vcb."index", vc.id, vcb.ballot_id
             FROM votings_cards_ballots vcb
@@ -672,9 +672,9 @@ export const serviceArchiveElection = async (electionId: number) => {
             WHERE vc.election_id = $1
               AND NOT EXISTS (
                 SELECT 1
-                FROM elections_voting_cards_ballots evcb
+                FROM elections_votings_cards_ballots evcb
                 WHERE evcb.id = vcb.id
-                  AND evcb.election_voting_card_id = vc.id
+                  AND evcb.election_voting_card_id = vc.idq
                   AND evcb.election_ballot_id = vcb.ballot_id
               )`,
             [electionId]
