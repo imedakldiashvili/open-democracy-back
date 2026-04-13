@@ -719,15 +719,15 @@ export const serviceArchiveElection = async (electionId: number) => {
         await transactionalEntityManager.query(
             `INSERT INTO elections_votes_ballots_items_values
                 (id, election_vote_ballot_item_id, voted_value, election_ballot_item_value_id, election_ballot_item_id)
-            SELECT vbiv.id, vbiv.vote_ballot_item_id, vbiv.voted_value, vbiv.ballot_item_value_id, vbiv.ballot_item_id
+            SELECT vbiv.id::uuid, vbiv.vote_ballot_item_id::uuid, vbiv.voted_value, vbiv.ballot_item_value_id, vbiv.ballot_item_id
             FROM votes_ballots_items_values vbiv
-            INNER JOIN votes_ballots_items vbi ON vbi.id = vbiv.vote_ballot_item_id
+            INNER JOIN votes_ballots_items vbi ON vbi.id = vbiv.vote_ballot_item_id::uuid
             INNER JOIN ballots b ON b.id = vbi.ballot_id
             WHERE b.election_id = $1
               AND NOT EXISTS (
                 SELECT 1
                 FROM elections_votes_ballots_items_values evbiv
-                WHERE evbiv.id = vbiv.id
+                WHERE evbiv.id = vbiv.id::uuid
               )`,
             [electionId]
         )
