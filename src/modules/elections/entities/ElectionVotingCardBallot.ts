@@ -1,11 +1,11 @@
 import { Entity, PrimaryColumn, Column, JoinColumn, OneToOne } from "typeorm"
 import { ElectionBallot } from "./ElectionBallot"
-import { ElectionVoteCard } from "./ElectionVotingCard"
+import { ElectionVotingCard } from "./ElectionVotingCard"
 
 
 
-@Entity('elections_votes_cards_ballots')
-export class ElectionVoteCardBallot {
+@Entity('elections_voting_cards_ballots')
+export class ElectionVotingCardBallot {
 
     @PrimaryColumn()
     id: number
@@ -14,11 +14,11 @@ export class ElectionVoteCardBallot {
     index: number
     
     @Column()
-    electionVoteCardId: number
+    electionVotingCardId: number
     
-    @OneToOne(() => ElectionVoteCard)
+    @OneToOne(() => ElectionVotingCard)
     @JoinColumn()
-    electionVoteCard: ElectionVoteCard
+    electionVotingCard: ElectionVotingCard
 
     @Column()
     electionBallotId: number

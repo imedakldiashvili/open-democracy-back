@@ -644,37 +644,37 @@ export const serviceArchiveElection = async (electionId: number) => {
             [electionId]
         )
 
-        // Transfer votings_cards -> elections_votes_cards
-        console.log("// Transfer votings_cards -> elections_votes_cards")
+        // Transfer votings_cards -> elections_voting_cards
+        console.log("// Transfer votings_cards -> elections_voting_cards")
         await transactionalEntityManager.query(
-            `INSERT INTO elections_votes_cards
+            `INSERT INTO elections_votings_cards
                 (id, election_id, voter_id, district_id, status_id, created_at, voted_at)
             SELECT vc.id, $1, vc.voter_id, vc.district_id, vc.status_id, vc.created_at, vc.voted_at
             FROM votings_cards vc
             WHERE vc.election_id = $1
               AND NOT EXISTS (
                 SELECT 1
-                FROM elections_votes_cards evc
+                FROM elections_votings_cards evc
                 WHERE evc.id = vc.id
                   AND evc.election_id = $1
               )`,
             [electionId]
         )
 
-        // Transfer votings_cards_ballots -> elections_votes_cards_ballots
-        console.log("// Transfer votings_cards_ballots -> elections_votes_cards_ballots")
+        // Transfer votings_cards_ballots -> elections_voting_cards_ballots
+        console.log("// Transfer votings_cards_ballots -> elections_voting_cards_ballots")
         await transactionalEntityManager.query(
-            `INSERT INTO elections_votes_cards_ballots
-                (id, "index", election_vote_card_id, election_ballot_id)
+            `INSERT INTO elections_voting_cards_ballots
+                (id, "index", election_voting_card_id, election_ballot_id)
             SELECT vcb.id, vcb."index", vc.id, vcb.ballot_id
             FROM votings_cards_ballots vcb
             INNER JOIN votings_cards vc ON vc.id = vcb.voting_card_id
             WHERE vc.election_id = $1
               AND NOT EXISTS (
                 SELECT 1
-                FROM elections_votes_cards_ballots evcb
+                FROM elections_voting_cards_ballots evcb
                 WHERE evcb.id = vcb.id
-                  AND evcb.election_vote_card_id = vc.id
+                  AND evcb.election_voting_card_id = vc.id
                   AND evcb.election_ballot_id = vcb.ballot_id
               )`,
             [electionId]

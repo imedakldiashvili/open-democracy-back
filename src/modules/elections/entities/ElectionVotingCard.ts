@@ -2,10 +2,10 @@ import { Entity, PrimaryColumn, Column, JoinColumn, OneToOne, OneToMany } from "
 import { Election } from "."
 import { District } from "../../locations/entities"
 import { UserDetail } from "../../users/entities/UserDetail"
-import { ElectionVoteCardBallot } from "./ElectionVotingCardBallot"
+import { ElectionVotingCardBallot } from "./ElectionVotingCardBallot"
 
-@Entity('elections_votes_cards')
-export class ElectionVoteCard {
+@Entity('elections_voting_cards')
+export class ElectionVotingCard {
 
     @PrimaryColumn()
     id: number
@@ -30,8 +30,8 @@ export class ElectionVoteCard {
     @JoinColumn()
     district: District
 
-    @OneToMany(() => ElectionVoteCardBallot, (electionVoteCardBallot) => electionVoteCardBallot.electionVoteCard)
-    electionVoteCardBallots: ElectionVoteCardBallot[]
+    @OneToMany(() => ElectionVotingCardBallot, (electionVotingCardBallot) => electionVotingCardBallot.electionVotingCard)
+    electionVotingCardBallots: ElectionVotingCardBallot[]
 
     @Column()
     statusId: number
