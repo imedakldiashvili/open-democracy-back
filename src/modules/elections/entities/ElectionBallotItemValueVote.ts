@@ -1,10 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from "typeorm"
+import { Entity, PrimaryColumn, Column, OneToOne, JoinColumn } from "typeorm"
 import { ElectionBallotItemValue } from "./ElectionBallotItemValue"
 
 @Entity('elections_ballots_items_values_votes')
 export class ElectionBallotItemValueVote {
 
-    @PrimaryGeneratedColumn()
+    @PrimaryColumn()
     id: number
 
     @Column()
@@ -20,6 +20,4 @@ export class ElectionBallotItemValueVote {
     @JoinColumn()
     electionBallotItemValue: ElectionBallotItemValue   
     
-    @Column()
-    parentId: number
 }

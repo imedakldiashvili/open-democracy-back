@@ -1,9 +1,9 @@
-import { Entity, Column, PrimaryGeneratedColumn } from "typeorm"
+import { Entity, Column, PrimaryColumn } from "typeorm"
 
 @Entity('elections_votes')
 export class ElectionVote{
 
-    @PrimaryGeneratedColumn("uuid")
+    @PrimaryColumn("uuid")
     id: string
 
     @Column()

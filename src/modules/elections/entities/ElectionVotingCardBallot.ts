@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, OneToOne } from "typeorm"
+import { Entity, PrimaryColumn, Column, JoinColumn, OneToOne } from "typeorm"
 import { ElectionBallot } from "./ElectionBallot"
 import { ElectionVoteCard } from "./ElectionVotingCard"
 
@@ -7,7 +7,7 @@ import { ElectionVoteCard } from "./ElectionVotingCard"
 @Entity('elections_votes_cards_ballots')
 export class ElectionVoteCardBallot {
 
-    @PrimaryGeneratedColumn()
+    @PrimaryColumn()
     id: number
 
     @Column()

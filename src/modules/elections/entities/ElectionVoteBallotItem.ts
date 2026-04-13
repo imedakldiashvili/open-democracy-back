@@ -1,11 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, OneToOne } from "typeorm"
+import { Entity, PrimaryColumn, Column, JoinColumn, OneToOne } from "typeorm"
 import { ElectionBallot } from "./ElectionBallot"
 import { ElectionBallotItem } from "./ElectionBallotItem"
 
 @Entity('elections_votes_ballots_items')
 export class ElectionVoteBallotItem {
 
-    @PrimaryGeneratedColumn("uuid")
+    @PrimaryColumn("uuid")
     id: string
 
     @Column()

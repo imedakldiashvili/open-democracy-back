@@ -551,228 +551,185 @@ export const serviceArchiveElection = async (electionId: number) => {
     if (election == null) { return { status: 0, message: "new_election_not_found" } }
 
     await appDataSource.transaction(async (transactionalEntityManager) => {
-        const valueDateTo = new Date(election.valueDateTo)
-        const day = valueDateTo.getDate().toString().padStart(2, "0")
-        const month = (valueDateTo.getMonth() + 1).toString().padStart(2, "0")
-        const dayMonth = `${day}.${month}`
-
-        const archivedElection = transactionalEntityManager.create(Election, {
-            uid: newGuid(),
-            code: election.code,
-            name: election.name + ` ${election.name}-${dayMonth}`,
-            registeredVoters: election.registeredVoters,
-            participantVoters: election.participantVoters,
-            valueDateFrom: election.valueDateFrom,
-            valueDateTo: election.valueDateTo,
-            createdAt: dateNowMinute(),
-            templateId: election.templateId,
-            isPermanent: false,
-            isActual: false
-        })
-        await transactionalEntityManager.save(Election, archivedElection)
-
         // Transfer ballots -> elections_ballots
         console.log("// Transfer ballots -> elections_ballots")
         await transactionalEntityManager.query(
             `INSERT INTO elections_ballots
-                ("index", code, name, district_id, election_id, ballot_type_id, parent_id)
-            SELECT b."index", b.code, b.name, b.district_id, $2, b.ballot_type_id, b.id
+                (id, "index", code, name, district_id, election_id, ballot_type_id)
+            SELECT b.id, b."index", b.code, b.name, b.district_id, $1, b.ballot_type_id
             FROM ballots b
             WHERE b.election_id = $1
               AND NOT EXISTS (
                 SELECT 1
                 FROM elections_ballots eb
-                WHERE eb.election_id = $2
-                  AND eb.parent_id = b.id
+                WHERE eb.election_id = $1
+                  AND eb.id = b.id
               )`,
-            [electionId, archivedElection.id]
+            [electionId]
         )
 
         // Transfer ballots_items -> elections_ballots_items
         console.log("// Transfer ballots_items -> elections_ballots_items")
         await transactionalEntityManager.query(
             `INSERT INTO elections_ballots_items
-                ("index", code, name, image_url, has_item_value, is_item_value_readonly, number_of_item_value, number_of_votes, number_of_participants, value_percent, external_id, parent_id, election_ballot_id)
-            SELECT bi."index", bi.code, bi.name, bi.image_url, bi.has_item_value, bi.is_item_value_readonly, bi.number_of_item_value, bi.number_of_votes, bi.number_of_participants, bi.value_percent, bi.external_id, bi.id, eb.id
+                (id, "index", code, name, image_url, has_item_value, is_item_value_readonly, number_of_item_value, number_of_votes, number_of_participants, value_percent, external_id, election_ballot_id)
+            SELECT bi.id, bi."index", bi.code, bi.name, bi.image_url, bi.has_item_value, bi.is_item_value_readonly, bi.number_of_item_value, bi.number_of_votes, bi.number_of_participants, bi.value_percent, bi.external_id, bi.ballot_id
             FROM ballots_items bi
             INNER JOIN ballots b ON b.id = bi.ballot_id
-            INNER JOIN elections_ballots eb ON eb.parent_id = b.id AND eb.election_id = $2
             WHERE b.election_id = $1
               AND NOT EXISTS (
                 SELECT 1
                 FROM elections_ballots_items ebi
-                WHERE ebi.parent_id = bi.id
-                  AND ebi.election_ballot_id = eb.id
+                WHERE ebi.id = bi.id
+                  AND ebi.election_ballot_id = bi.ballot_id
               )`,
-            [electionId, archivedElection.id]
+            [electionId]
         )
 
         // Transfer ballots_items_values -> elections_ballots_items_values
         console.log("// Transfer ballots_items_values -> elections_ballots_items_values")
         await transactionalEntityManager.query(
             `INSERT INTO elections_ballots_items_values
-                ("index", code, title, name, image_url, voted_value, voted_position, voted, external_id, number_of_votes, parent_id, election_ballot_item_id)
-            SELECT biv."index", biv.code, biv.title, biv.name, biv.image_url, biv.voted_value, biv.voted_position, biv.voted, biv.external_id, biv.number_of_votes, biv.id, ebi.id
+                (id, "index", code, title, name, image_url, voted_value, voted_position, voted, external_id, number_of_votes, election_ballot_item_id)
+            SELECT biv.id, biv."index", biv.code, biv.title, biv.name, biv.image_url, biv.voted_value, biv.voted_position, biv.voted, biv.external_id, biv.number_of_votes, bi.id
             FROM ballots_items_values biv
             INNER JOIN ballots_items bi ON bi.id = biv.ballot_item_id
-            INNER JOIN elections_ballots_items ebi ON ebi.parent_id = bi.id
             INNER JOIN ballots b ON b.id = bi.ballot_id
-            INNER JOIN elections_ballots eb ON eb.id = ebi.election_ballot_id AND eb.election_id = $2
             WHERE b.election_id = $1
               AND NOT EXISTS (
                 SELECT 1
                 FROM elections_ballots_items_values ebiv
-                WHERE ebiv.parent_id = biv.id
-                  AND ebiv.election_ballot_item_id = ebi.id
+                WHERE ebiv.id = biv.id
+                  AND ebiv.election_ballot_item_id = bi.id
               )`,
-            [electionId, archivedElection.id]
+            [electionId]
         )
 
         // Transfer ballots_items_subjects -> elections_ballots_items_subjects
         console.log("// Transfer ballots_items_subjects -> elections_ballots_items_subjects")
         await transactionalEntityManager.query(
             `INSERT INTO elections_ballots_items_subjects
-                ("index", code, name, image_url, parent_id, election_ballot_item_id)
-            SELECT bis."index", bis.code, bis.name, bis.image_url, bis.id, ebi.id
+                (id, "index", code, name, image_url, election_ballot_item_id)
+            SELECT bis.id, bis."index", bis.code, bis.name, bis.image_url, bi.id
             FROM ballots_items_subjects bis
             INNER JOIN ballots_items bi ON bi.id = bis.ballot_item_id
-            INNER JOIN elections_ballots_items ebi ON ebi.parent_id = bi.id
             INNER JOIN ballots b ON b.id = bi.ballot_id
-            INNER JOIN elections_ballots eb ON eb.id = ebi.election_ballot_id AND eb.election_id = $2
             WHERE b.election_id = $1
               AND NOT EXISTS (
                 SELECT 1
                 FROM elections_ballots_items_subjects ebis
-                WHERE ebis.parent_id = bis.id
-                  AND ebis.election_ballot_item_id = ebi.id
+                WHERE ebis.id = bis.id
+                  AND ebis.election_ballot_item_id = bi.id
               )`,
-            [electionId, archivedElection.id]
+            [electionId]
         )
 
         // Transfer ballots_items_values_votes -> elections_ballots_items_values_votes
         console.log("// Transfer ballots_items_values_votes -> elections_ballots_items_values_votes")
         await transactionalEntityManager.query(
             `INSERT INTO elections_ballots_items_values_votes
-                (voted_value, number_of_votes, ballot_item_value_id, parent_id)
-            SELECT bivv.voted_value, bivv.number_of_votes, ebiv.id, bivv.id
+                (id, voted_value, number_of_votes, ballot_item_value_id)
+            SELECT bivv.id, bivv.voted_value, bivv.number_of_votes, biv.id
             FROM ballots_items_values_votes bivv
             INNER JOIN ballots_items_values biv ON biv.id = bivv.ballot_item_value_id
-            INNER JOIN elections_ballots_items_values ebiv ON ebiv.parent_id = biv.id
             INNER JOIN ballots_items bi ON bi.id = biv.ballot_item_id
             INNER JOIN ballots b ON b.id = bi.ballot_id
-            INNER JOIN elections_ballots_items ebi ON ebi.id = ebiv.election_ballot_item_id AND ebi.parent_id = bi.id
-            INNER JOIN elections_ballots eb ON eb.id = ebi.election_ballot_id AND eb.election_id = $2
             WHERE b.election_id = $1
               AND NOT EXISTS (
                 SELECT 1
                 FROM elections_ballots_items_values_votes ebivv
-                WHERE ebivv.parent_id = bivv.id
-                  AND ebivv.ballot_item_value_id = ebiv.id
+                WHERE ebivv.id = bivv.id
+                  AND ebivv.ballot_item_value_id = biv.id
               )`,
-            [electionId, archivedElection.id]
+            [electionId]
         )
 
         // Transfer votings_cards -> elections_votes_cards
         console.log("// Transfer votings_cards -> elections_votes_cards")
         await transactionalEntityManager.query(
             `INSERT INTO elections_votes_cards
-                (election_id, voter_id, district_id, status_id, created_at, voted_at)
-            SELECT $2, vc.voter_id, vc.district_id, vc.status_id, vc.created_at, vc.voted_at
+                (id, election_id, voter_id, district_id, status_id, created_at, voted_at)
+            SELECT vc.id, $1, vc.voter_id, vc.district_id, vc.status_id, vc.created_at, vc.voted_at
             FROM votings_cards vc
             WHERE vc.election_id = $1
               AND NOT EXISTS (
                 SELECT 1
                 FROM elections_votes_cards evc
-                WHERE evc.election_id = $2
-                  AND evc.voter_id = vc.voter_id
+                WHERE evc.id = vc.id
+                  AND evc.election_id = $1
               )`,
-            [electionId, archivedElection.id]
+            [electionId]
         )
 
         // Transfer votings_cards_ballots -> elections_votes_cards_ballots
         console.log("// Transfer votings_cards_ballots -> elections_votes_cards_ballots")
         await transactionalEntityManager.query(
             `INSERT INTO elections_votes_cards_ballots
-                ("index", election_vote_card_id, election_ballot_id)
-            SELECT vcb."index", evc.id, eb.id
+                (id, "index", election_vote_card_id, election_ballot_id)
+            SELECT vcb.id, vcb."index", vc.id, vcb.ballot_id
             FROM votings_cards_ballots vcb
             INNER JOIN votings_cards vc ON vc.id = vcb.voting_card_id
-            INNER JOIN elections_votes_cards evc ON evc.election_id = $2 AND evc.voter_id = vc.voter_id
-            INNER JOIN elections_ballots eb ON eb.parent_id = vcb.ballot_id AND eb.election_id = $2
             WHERE vc.election_id = $1
               AND NOT EXISTS (
                 SELECT 1
                 FROM elections_votes_cards_ballots evcb
-                WHERE evcb.election_vote_card_id = evc.id
-                  AND evcb.election_ballot_id = eb.id
-                  AND evcb."index" = vcb."index"
+                WHERE evcb.id = vcb.id
+                  AND evcb.election_vote_card_id = vc.id
+                  AND evcb.election_ballot_id = vcb.ballot_id
               )`,
-            [electionId, archivedElection.id]
+            [electionId]
         )
 
         // Transfer votes -> elections_votes
         console.log("// Transfer votes -> elections_votes")
         await transactionalEntityManager.query(
             `INSERT INTO elections_votes
-                (voting_card_id)
-            SELECT evc.id
+                (id, voting_card_id)
+            SELECT v.id, vc.id
             FROM votes v
             INNER JOIN votings_cards vc ON vc.id = v.voting_card_id
-            INNER JOIN elections_votes_cards evc ON evc.election_id = $2 AND evc.voter_id = vc.voter_id
             WHERE vc.election_id = $1
               AND NOT EXISTS (
                 SELECT 1
                 FROM elections_votes ev
-                WHERE ev.voting_card_id = evc.id
+                WHERE ev.id = v.id
               )`,
-            [electionId, archivedElection.id]
+            [electionId]
         )
 
         // Transfer votes_ballots_items -> elections_votes_ballots_items
         console.log("// Transfer votes_ballots_items -> elections_votes_ballots_items")
         await transactionalEntityManager.query(
             `INSERT INTO elections_votes_ballots_items
-                (code, ballot_id, ballot_item_id)
-            SELECT vbi.code, eb.id, ebi.id
+                (id, code, ballot_id, ballot_item_id)
+            SELECT vbi.id, vbi.code, vbi.ballot_id, vbi.ballot_item_id
             FROM votes_ballots_items vbi
             INNER JOIN ballots b ON b.id = vbi.ballot_id
-            INNER JOIN elections_ballots eb ON eb.parent_id = vbi.ballot_id AND eb.election_id = $2
-            INNER JOIN elections_ballots_items ebi ON ebi.parent_id = vbi.ballot_item_id AND ebi.election_ballot_id = eb.id
             WHERE b.election_id = $1
               AND NOT EXISTS (
                 SELECT 1
                 FROM elections_votes_ballots_items evbi
-                WHERE evbi.code = vbi.code
-                  AND evbi.ballot_id = eb.id
-                  AND evbi.ballot_item_id = ebi.id
+                WHERE evbi.id = vbi.id
               )`,
-            [electionId, archivedElection.id]
+            [electionId]
         )
 
         // Transfer votes_ballots_items_values -> elections_votes_ballots_items_values
         console.log("// Transfer votes_ballots_items_values -> elections_votes_ballots_items_values")
         await transactionalEntityManager.query(
             `INSERT INTO elections_votes_ballots_items_values
-                (vote_ballot_item_id, voted_value, ballot_item_value_id, ballot_item_id)
-            SELECT evbi.id, vbiv.voted_value, ebiv.id, ebi.id
+                (id, vote_ballot_item_id, voted_value, ballot_item_value_id, ballot_item_id)
+            SELECT vbiv.id, vbiv.vote_ballot_item_id, vbiv.voted_value, vbiv.ballot_item_value_id, vbiv.ballot_item_id
             FROM votes_ballots_items_values vbiv
             INNER JOIN votes_ballots_items vbi ON vbi.id = vbiv.vote_ballot_item_id
-            INNER JOIN ballots_items bi ON bi.id = vbiv.ballot_item_id
-            INNER JOIN ballots b ON b.id = bi.ballot_id
-            INNER JOIN elections_ballots eb ON eb.parent_id = vbi.ballot_id AND eb.election_id = $2
-            INNER JOIN elections_ballots_items ebi ON ebi.parent_id = vbi.ballot_item_id AND ebi.election_ballot_id = eb.id
-            INNER JOIN elections_ballots_items_values ebiv ON ebiv.parent_id = vbiv.ballot_item_value_id AND ebiv.election_ballot_item_id = ebi.id
-            INNER JOIN elections_votes_ballots_items evbi ON evbi.code = vbi.code AND evbi.ballot_id = eb.id AND evbi.ballot_item_id = ebi.id
+            INNER JOIN ballots b ON b.id = vbi.ballot_id
             WHERE b.election_id = $1
               AND NOT EXISTS (
                 SELECT 1
                 FROM elections_votes_ballots_items_values evbiv
-                WHERE evbiv.vote_ballot_item_id = evbi.id
-                  AND evbiv.ballot_item_value_id = ebiv.id
-                  AND evbiv.ballot_item_id = ebi.id
-                  AND evbiv.voted_value = vbiv.voted_value
+                WHERE evbiv.id = vbiv.id
               )`,
-            [electionId, archivedElection.id]
+            [electionId]
         )
 
         if (!election.isPermanent) {
