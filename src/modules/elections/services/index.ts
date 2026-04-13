@@ -674,7 +674,7 @@ export const serviceArchiveElection = async (electionId: number) => {
                 SELECT 1
                 FROM elections_votings_cards_ballots evcb
                 WHERE evcb.id = vcb.id
-                  AND evcb.election_voting_card_id = vc.idq
+                  AND evcb.election_voting_card_id = vc.id
                   AND evcb.election_ballot_id = vcb.ballot_id
               )`,
             [electionId]
