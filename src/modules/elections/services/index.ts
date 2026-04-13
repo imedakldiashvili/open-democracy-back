@@ -628,7 +628,7 @@ export const serviceArchiveElection = async (electionId: number) => {
         console.log("// Transfer ballots_items_values_votes -> elections_ballots_items_values_votes")
         await transactionalEntityManager.query(
             `INSERT INTO elections_ballots_items_values_votes
-                (id, voted_value, number_of_votes, ballot_item_value_id)
+                (id, voted_value, number_of_votes, election_ballot_item_value_id)
             SELECT bivv.id, bivv.voted_value, bivv.number_of_votes, biv.id
             FROM ballots_items_values_votes bivv
             INNER JOIN ballots_items_values biv ON biv.id = bivv.ballot_item_value_id
