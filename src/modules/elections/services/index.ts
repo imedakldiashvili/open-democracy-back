@@ -639,7 +639,7 @@ export const serviceArchiveElection = async (electionId: number) => {
                 SELECT 1
                 FROM elections_ballots_items_values_votes ebivv
                 WHERE ebivv.id = bivv.id
-                  AND ebivv.ballot_item_value_id = biv.id
+                  AND ebivv.election_ballot_item_value_id = biv.id
               )`,
             [electionId]
         )
