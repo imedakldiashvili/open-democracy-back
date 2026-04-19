@@ -93,7 +93,7 @@ class PublicControler {
     };
 
     static findElections = async (req: Request, res: Response, next: NextFunction) => {
-        const pagination = req.query
+        const pagination = req.body?.paging ?? req.query
         const skip = getSkip(pagination)
         const take = getTake(pagination)
         try {
@@ -145,7 +145,7 @@ class PublicControler {
 
     static findElectionsVingCards = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const pagination = req.query
+            const pagination = req.body?.paging ?? req.query
             const skip = getSkip(pagination)
             const take = getTake(pagination)
 
@@ -169,7 +169,7 @@ class PublicControler {
 
     static findDonations = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const pagination = req.query
+            const pagination = req.body?.paging ?? req.query
             const skip = getSkip(pagination)
             const take = getTake(pagination)
 
@@ -189,7 +189,7 @@ class PublicControler {
 
     static finSupporters = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const pagination = req.query
+            const pagination = req.body?.paging ?? req.query
             const skip = getSkip(pagination)
             const take = getTake(pagination)
 
@@ -210,7 +210,7 @@ class PublicControler {
 
     static findDelegates = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const pagination = req.query
+            const pagination = req.body?.paging ?? req.query
             const skip = getSkip(pagination)
             const take = getTake(pagination)
 
@@ -359,7 +359,7 @@ class PublicControler {
 
     static findPesonalIds = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const pagination = req.query
+            const pagination = req.body?.paging ?? req.query
             const skip = getSkip(pagination)
             const take = getTake(pagination)
 
