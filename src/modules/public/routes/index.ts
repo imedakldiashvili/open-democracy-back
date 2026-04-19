@@ -29,8 +29,13 @@ publicRouter.post("/public/electionsvotingcards", PublicControler.findElectionsV
 
 publicRouter.post("/public/donations", PublicControler.findDonations)
 publicRouter.post("/public/supporters", PublicControler.finSupporters)
+
 publicRouter.post("/public/delegates", PublicControler.findDelegates)
+publicRouter.post("/public/delegatesdetail", PublicControler.findDelegatesDetail)
+
 publicRouter.post("/public/delegatesgroups", PublicControler.findDelegatesGroups)
+publicRouter.post("/public/delegatesgroupsdetail", PublicControler.findDelegatesGroupsDetail)
+
 publicRouter.post("/public/persons", PublicControler.findPesonalIds)
 
 publicRouter.post("/public/createElection", PublicControler.createElection)

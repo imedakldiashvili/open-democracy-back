@@ -247,6 +247,35 @@ class PublicControler {
 
     };
 
+    static findDelegatesDetail = async (req: Request, res: Response, next: NextFunction) => {
+        const delegateId = parseInt(req.body.id)
+        try {
+            const delegate = await delegateRepository.findOne({
+                where: { id: delegateId, isActive: true },
+                relations: {
+                    user: { userDetail: { district: { region: true } } },
+                    delegateGroup: { delegateGroupType: true }
+                },
+                select: {
+                    id: true, imageUrl: true, delegateName: true,
+                    user: {
+                        id: true, userDetail: {
+                            id: true, fullName: true, firstName: true, lastName: true,
+                            district: {
+                                id: true, name: true,
+                                region: { id: true, name: true }
+                            }
+                        }
+                    },
+                    delegateGroup: { code: true, color: true, name: true, imageUrl: true, number: true, delegateGroupType: { id: true, code: true, name: true } }
+                }
+            });
+            return res.json(delegate);
+        } catch (error) {
+            next(error)
+        }
+    };
+
     static findDelegatesGroups = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const data = await delegateGroupRepository.find({
@@ -258,6 +287,19 @@ class PublicControler {
             next(error)
         }
 
+    };
+
+    static findDelegatesGroupsDetail = async (req: Request, res: Response, next: NextFunction) => {
+        const delegateGroupId = parseInt(req.body.id)
+        try {
+            const delegateGroup = await delegateGroupRepository.findOne({
+                where: { id: delegateGroupId, isActive: true },
+                relations: { delegates: { user: { userDetail: true } }, delegateGroupType: true },
+            });
+            return res.json(delegateGroup);
+        } catch (error) {
+            next(error)
+        }
     };
 
 
