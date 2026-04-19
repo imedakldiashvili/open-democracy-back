@@ -448,6 +448,7 @@ export const serviceCreateElection = async (templateId: number) => {
     if (!template) { return { status: 0, message: "active_template_not_found" }; }
 
     const actualElections = await getActualElections(templateId)
+    console.log("actualElections", actualElections)
     if (actualElections.length > 1) { return { status: 0, message: "multiple_actual_elections_exists" }; }
 
     await appDataSource.manager.transaction(async (transactionalEntityManager) => {
