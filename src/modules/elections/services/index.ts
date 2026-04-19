@@ -36,7 +36,7 @@ const getActiveTemplate = async (templateId: number) => {
 
 const getActualElections = async (templateId: number) => {
     return electionRepository.find({
-        where: { templateId: templateId, isActual: true },
+        where: { templateId: templateId, isActual: true, actualStatusSchedule: { status: { isActual: true } } },
         relations: { statusSchedule: { status: true }, actualStatusSchedule: { status: true } }
     })
 }
