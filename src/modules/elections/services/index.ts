@@ -41,6 +41,13 @@ const getActualElections = async (templateId: number) => {
     })
 }
 
+const getElections = async (templateId: number) => {
+    return electionRepository.find({
+        where: { templateId: templateId, isActual: true },
+        relations: { statusSchedule: { status: true }, actualStatusSchedule: { status: true } }
+    })
+}
+
 const updateExistingElection = async (
     transactionalEntityManager: any,
     template: any,
@@ -450,6 +457,12 @@ export const serviceCreateElection = async (templateId: number) => {
     const actualElections = await getActualElections(templateId)
     if (actualElections.length > 1) { return { status: 0, message: "multiple_actual_elections_exists" }; }
 
+    const exElections = await getElections(templateId)
+    
+    for (const election of exElections) {
+        await serviceArchiveElection(election.id)
+    }
+
     await appDataSource.manager.transaction(async (transactionalEntityManager) => {
         const electon = await createNewElection(transactionalEntityManager, templateId, template, dateValue)
         await syncNewElectionBallotsAndChildren(transactionalEntityManager, template, electon)
@@ -483,11 +496,6 @@ export const serviceProcessElection = async () => {
 
     if (newElectionStatusSchedule.status.id == ElectionStatusEnum.startedIn) {
         await servicePublishElection(election.id)
-    }
-    if (newElectionStatusSchedule.status.id == ElectionStatusEnum.archive) {
-        console.log("archive election", election.id)
-        const result = await serviceArchiveElection(election.id)
-        console.log("archive election result", result)
     }
 
     newElectionStatusSchedule.state = newElectionStatusSchedule.status.id == ElectionStatusEnum.archive ? 2 : 1;
