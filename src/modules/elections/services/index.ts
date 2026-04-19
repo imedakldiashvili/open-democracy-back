@@ -448,14 +448,14 @@ export const serviceCreateElection = async (templateId: number) => {
     if (!template) { return { status: 0, message: "active_template_not_found" }; }
 
     const actualElections = await getActualElections(templateId)
-    console.log("actualElections", actualElections)
     if (actualElections.length > 1) { return { status: 0, message: "multiple_actual_elections_exists" }; }
 
     await appDataSource.manager.transaction(async (transactionalEntityManager) => {
         const electon = await createNewElection(transactionalEntityManager, templateId, template, dateValue)
+        await syncNewElectionBallotsAndChildren(transactionalEntityManager, template, electon)
     })
 
-    return { status: 1, message: actualElections.length == 1 ? "election_updated_successfuly" : "election_created_successfuly" };
+    return { status: 1, message: "election_created_successfuly" };
 }
 
 export const serviceProcessElection = async () => {
